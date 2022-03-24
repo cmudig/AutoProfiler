@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "*": ["./node_modules/@types/*", "*"]
+    },
+    "declaration": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "noUnusedLocals": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es6",
+    "outDir": "lib",
+    "types": [],
+    "jsx": "react",
+    "resolveJsonModule": true
+  },
+  "include": ["src/*"]
+}

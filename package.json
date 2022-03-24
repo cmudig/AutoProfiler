@@ -1,0 +1,59 @@
+{
+  "name": "autoprofile",
+  "version": "0.1.0",
+  "description": "automatically profile data in memory",
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "homepage": "https://github.com/willeppy/AutoProfile",
+  "bugs": {
+    "url": "https://github.com/willeppy/AutoProfile/issues"
+  },
+  "license": "BSD-3-Clause",
+  "author": "willeppy",
+  "files": [
+    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "style": "style/index.css",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/willeppy/AutoProfile.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf lib tsconfig.tsbuildinfo",
+    "install-ext": "jlpm install && jupyter labextension install . --no-build",
+    "eslint": "eslint . --ext .ts,.tsx --fix",
+    "eslint:check": "eslint . --ext .ts,.tsx",
+    "prepare": "jlpm run clean && jlpm run build",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@jupyterlab/application": "^2.0.2",
+    "@jupyterlab/notebook": "^2.2.6",
+    "react": "~16.9.0",
+    "react-dom": "~16.9.0"
+  },
+  "devDependencies": {
+    "@types/react": "~16.9.48",
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "1.16.4",
+    "rimraf": "^2.6.1",
+    "typescript": "~3.7.0"
+  },
+  "sideEffects": [
+    "style/*.css"
+  ],
+  "jupyterlab": {
+    "extension": true
+  }
+}
