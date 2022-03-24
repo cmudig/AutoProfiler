@@ -93,9 +93,12 @@ export default class KernelAPI {
         }
       };
 
-      let onDone = () => resolve();
+      /**
+       * @type {Promise<void>}
+       */
+      // let onDone = (new Promise<void>(resolve => resolve())); // () => resolve(); // missing args or something?
 
-      this.runCode(code, onReply, onDone);
+      this.runCode(code, onReply);
     });
   }
 
@@ -115,9 +118,9 @@ export default class KernelAPI {
         }
       };
 
-      let onDone = () => resolve();
+      // let onDone = () => resolve();
 
-      this.runCode(code_lines.join('\n'), onReply, onDone);
+      this.runCode(code_lines.join('\n'), onReply);
     });
   }
 }

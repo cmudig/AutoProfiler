@@ -36,6 +36,7 @@ export default class MyAppUI extends React.Component<MyAppUI_Props> {
 
   showSelectedCell() {
     if (this.props.notebook) {
+      console.log("This.props.notebook is ", this.props.notebook)
       let cell = this.props.notebook.activeCell;
       return (
         <div>

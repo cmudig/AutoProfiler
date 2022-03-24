@@ -9,7 +9,7 @@
 }
 
 #header-icon {
-  background: url('./myIcon.svg');
+  background: url('./logo.svg');
   min-width: 100%;
   min-height: 6em;
   background-size: contain;
@@ -20,7 +20,7 @@
 }
 
 .myIcon {
-  background: url('./myIcon.svg');
+  background: url('./logo.svg');
 }
 
 .demo-button {

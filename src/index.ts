@@ -64,6 +64,7 @@ function buildUI(app: JupyterFrontEnd, layout: ILayoutRestorer) {
 }
 
 function renderUI(widget: Widget, props = {}) {
+  console.log("Rendering panel view...")
   // now render the panel view
   let ui = React.createElement(MyAppUI, props);
   ReactDOM.render(ui, widget.node);

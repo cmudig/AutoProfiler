@@ -16,7 +16,8 @@
     "outDir": "lib",
     "types": [],
     "jsx": "react",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "strict": false
   },
   "include": ["src/*"]
 }

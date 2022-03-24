@@ -5,7 +5,7 @@ Automatically profile dataframes after changes
 
 ```bash
 # Clone the repo to your local environment
-# Move to codegen directory
+# Move to AutoProfile directory!
 
 # Install dependencies
 jlpm
@@ -18,3 +18,8 @@ jlpm build
 # Rebuild JupyterLab after making any changes
 jupyter lab build
 ```
+
+
+### Dev notes
+
+- Manually edited @jupyterlab.codeeditor.lib.editor.d.ts line 47 -> `export interface ICoordinate extends DOMRectReadOnly {}`
