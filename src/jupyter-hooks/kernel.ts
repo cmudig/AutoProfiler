@@ -40,6 +40,41 @@ export default class KernelAPI {
     }
   }
 
+  public async getDataFramesWithColumns() {
+    await this.ready;
+    let var_names = await this.getVariableNames();
+
+    if (var_names) {
+      let isDF = await this.getDFVars(var_names);
+      let vars_DF = var_names.filter((d, idx) => isDF[idx] === "True")
+
+      console.log("The dataframes in memory are: ", vars_DF)
+
+      if (vars_DF) {
+
+        // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
+
+
+        let dfColMap = {}; // str : [str, str] tuple
+        for (let index = 0; index < vars_DF.length; index++) {
+          let columns = await this.getColumns(vars_DF[index]);
+
+          // columns is array of strings
+
+          let columnTuples = columns.map(txt => this.parseDtypes(txt)).filter(txt => (txt != undefined))
+
+          dfColMap[vars_DF[index]] = columnTuples
+
+        }
+
+        console.log("dfCOlMap is: ", dfColMap)
+
+
+        return dfColMap
+      }
+    }
+  }
+
   public runCode(
     code: string,
     onReply?: (type: string, content) => void,
@@ -64,10 +99,10 @@ export default class KernelAPI {
     // when execution is done
     future.done.then(
       reply => {
-        console.log(
-          'Code execution finished with status: ',
-          reply.content.status
-        );
+        // console.log(
+        //   'Code execution finished with status: ',
+        //   reply.content.status
+        // );
         if (onDone) onDone(reply.content.status);
       },
       error => {
@@ -123,4 +158,59 @@ export default class KernelAPI {
       this.runCode(code_lines.join('\n'), onReply);
     });
   }
+
+  private getDFVars(varNames: string[]): Promise<string[]> {
+    /*
+    Returns array of "True" or "False" if that variable is a pandas dataframe
+    */
+
+    let code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
+    varNames.forEach(name => code_lines.push(`print(type(${name}) == pd.DataFrame)`))
+
+    return new Promise<string[]>(resolve => {
+      let onReply = (type: string, content) => {
+        if (type === 'stream') {
+          // get types in a usable format
+          let response: string[] = content.text.split('\n');
+          response.pop();
+
+          // return types
+          resolve(response);
+        }
+      };
+
+      this.runCode(code_lines.join('\n'), onReply);
+    });
+  }
+
+  private getColumns(varName: string): Promise<string[]> {
+    /*
+    varNames is array of variables that are pd.DataFrame
+    Returns array of "True" or "False" if that variable is a pandas dataframe
+    */
+
+    let code = `print(${varName}.dtypes)`;
+
+    return new Promise<string[]>(resolve => {
+      let onReply = (type: string, content) => {
+        if (type === 'stream') {
+          // get types in a usable format
+          let response: string[] = content.text.split('\n');
+          response.pop();
+
+          // return types
+          resolve(response);
+        }
+      };
+
+      this.runCode(code, onReply);
+    });
+  }
+
+  private parseDtypes(s: string) {
+    if (s !== "dtype: object") {
+      return s.split(/\s+/)
+    }
+  }
+
 }

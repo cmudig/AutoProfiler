@@ -12,7 +12,11 @@ export default class KernelAPI {
         names: string[];
         types: string[];
     }>;
+    getDataFramesWithColumns(): Promise<{}>;
     runCode(code: string, onReply?: (type: string, content: any) => void, onDone?: (string?: any) => void): void;
     private getVariableNames;
     private getType;
+    private getDFVars;
+    private getColumns;
+    private parseDtypes;
 }

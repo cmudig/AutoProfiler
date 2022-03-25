@@ -5,7 +5,7 @@
   /* This is needed so that all font sizing of children done in ems is
    * relative to this base size */
   font-size: var(--jp-ui-font-size1);
-  text-align: center;
+  /* text-align: center; */
 }
 
 #header-icon {
@@ -17,6 +17,10 @@
   background-repeat: no-repeat;
   background-position: center;
   margin-top: 1em;
+}
+
+#notebookInfo {
+  text-align: center;
 }
 
 .myIcon {

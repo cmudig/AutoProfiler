@@ -2,9 +2,8 @@ import * as React from 'react';
 import { NotebookAPI } from '../jupyter-hooks/notebook';
 declare type MyAppUI_Props = {
     notebook?: NotebookAPI;
-    variables?: {
-        names: string[];
-        types: string[];
+    dfMap?: {
+        [key: string]: string[];
     };
 };
 export default class MyAppUI extends React.Component<MyAppUI_Props> {

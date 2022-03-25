@@ -18,7 +18,7 @@ import { NotebookAPI } from './jupyter-hooks/notebook';
  * Initialization data for the codegen extension.
  */
 const extension: JupyterFrontEndPlugin<void> = {
-  id: 'codegen',
+  id: 'AutoProfile',
   autoStart: true,
   activate: (
     app: JupyterFrontEnd,
@@ -38,8 +38,9 @@ const extension: JupyterFrontEndPlugin<void> = {
         console.log('ITS ALIVE', notebook);
         renderUI(myUI, { notebook, variables: null });
         notebook.changed.connect(async () => {
-          let variables = await notebook.kernel.getEnv();
-          renderUI(myUI, { notebook, variables });
+          // let variables = await notebook.kernel.getEnv();
+          let dfMap = await notebook.kernel.getDataFramesWithColumns();
+          renderUI(myUI, { notebook, dfMap });
         });
       });
     });
@@ -48,11 +49,17 @@ const extension: JupyterFrontEndPlugin<void> = {
 };
 
 function buildUI(app: JupyterFrontEnd, layout: ILayoutRestorer) {
-  const myView = new Widget();
+  /* 
+
+  TODO rewrite this to svelte and get rid of lumino, see https://github.com/mkery/Verdant/blob/master/verdant/index.ts
+  
+  */
+
+  const myView = new Widget(); // can replace this stuff
   const sidePanel = new StackedPanel();
   sidePanel.id = 'myApp';
   sidePanel.title.iconClass = 'myIcon jp-SideBar-tabIcon';
-  sidePanel.title.caption = 'CodeGen Demo App';
+  sidePanel.title.caption = 'AutoProfile';
   sidePanel.addWidget(myView);
 
   // add side panel view to JupyterLab

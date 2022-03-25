@@ -3,7 +3,8 @@ import { NotebookAPI } from '../jupyter-hooks/notebook';
 
 type MyAppUI_Props = {
   notebook?: NotebookAPI;
-  variables?: { names: string[]; types: string[] };
+  // variables?: { names: string[]; types: string[] };
+  dfMap?: { [key: string]: string[] };
 };
 
 export default class MyAppUI extends React.Component<MyAppUI_Props> {
@@ -12,8 +13,8 @@ export default class MyAppUI extends React.Component<MyAppUI_Props> {
       <div>
         <div id="header-icon" />
         {this.showNotebook()}
-        {this.showSelectedCell()}
-        {this.showButtons()}
+        {/* {this.showSelectedCell()} */}
+        {/* {this.showButtons()} */}
         {this.showVariables()}
       </div>
     );
@@ -23,7 +24,7 @@ export default class MyAppUI extends React.Component<MyAppUI_Props> {
     if (this.props.notebook) {
       let lang = this.props.notebook.language || '?';
       return (
-        <div>
+        <div id="notebookInfo">
           <h4>{this.props.notebook.name}</h4>
           <p>
             is a <b>{lang}</b> notebook
@@ -87,17 +88,23 @@ export default class MyAppUI extends React.Component<MyAppUI_Props> {
   }
 
   showVariables() {
-    if (this.props.variables) {
+    if (this.props.dfMap) {
       return (
         <div>
-          <h5>(variable / type) in user's environment:</h5>
-          {this.props.variables['names'].map((name, index) => {
+          <h5>Dataframes in user's environment:</h5>
+
+          {Object.keys(this.props.dfMap).map((dfName) => {
+            let columnInfo = this.props.dfMap[dfName];
+
+            let columnElements = columnInfo.map(tuple => { return <li>{tuple[0]} <i>({tuple[1]})</i></li> })
             return (
-              <p key={index} className="demo-envVar">{`(${name} / ${
-                this.props.variables['types'][index]
-              })`}</p>
-            );
-          })}
+              <div>
+                <b>{dfName}</b>
+                <ul> {columnElements} </ul>
+              </div>
+            )
+          })
+          }
         </div>
       );
     }
