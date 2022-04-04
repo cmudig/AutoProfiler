@@ -1,4 +1,4 @@
-import { ISessionContext } from '@jupyterlab/apputils';
+import type { ISessionContext } from '@jupyterlab/apputils';
 
 /**
  * Simplified adaption of https://github.com/lckr/jupyterlab-variableInspector

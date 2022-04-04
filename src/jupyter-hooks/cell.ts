@@ -1,4 +1,4 @@
-import { ICellModel } from '@jupyterlab/cells';
+import type { ICellModel } from '@jupyterlab/cells';
 import { Signal } from '@lumino/signaling';
 
 export default class CellAPI {

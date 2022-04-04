@@ -4,15 +4,13 @@ import {
   ILayoutRestorer
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-
 import { StackedPanel, Widget } from '@lumino/widgets';
 
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-
 import '../style/index.css';
-import MyAppUI from './panel-UI/index';
 import { NotebookAPI } from './jupyter-hooks/notebook';
+
+import App from './components/App.svelte';
+
 
 /**
  * Initialization data for the codegen extension.
@@ -73,8 +71,15 @@ function buildUI(app: JupyterFrontEnd, layout: ILayoutRestorer) {
 function renderUI(widget: Widget, props = {}) {
   console.log("Rendering panel view...")
   // now render the panel view
-  let ui = React.createElement(MyAppUI, props);
-  ReactDOM.render(ui, widget.node);
+
+  const ui = new App({
+    target: widget.node,
+    props
+  });
+
+  // widget.node = ui; // i dont think this is gonna work...
+
+  return ui
 }
 
 export default extension;

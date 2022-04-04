@@ -4,7 +4,6 @@
     "paths": {
       "*": ["./node_modules/@types/*", "*"]
     },
-    "declaration": true,
     "esModuleInterop": true,
     "sourceMap": true,
     "noImplicitAny": false,
@@ -12,12 +11,12 @@
     "noUnusedLocals": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "es6",
-    "outDir": "lib",
+    "target": "esnext",
     "types": [],
-    "jsx": "react",
     "resolveJsonModule": true,
     "strict": false
   },
-  "include": ["src/*"]
+  "extends": "@tsconfig/svelte/tsconfig.json",
+  "include": ["src/**/*.ts", "src/**/*.svelte"],
+  "exclude": ["node_modules/*", "__sapper__/*", "public/*"]
 }
