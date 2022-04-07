@@ -1,7 +1,7 @@
 import { NotebookPanel, Notebook,NotebookActions } from '@jupyterlab/notebook';
 import { PromiseDelegate } from '@lumino/coreutils';
 import { PathExt } from '@jupyterlab/coreutils';
-import { Signal, ISignal } from '@lumino/signaling';
+import { Signal, type ISignal } from '@lumino/signaling';
 
 
 import CellAPI from './cell';
@@ -56,6 +56,7 @@ export class NotebookAPI {
     if(meta.has("language_info")){
       let val = this.notebook.model.metadata.get("language_info").valueOf()
       if(val instanceof Object)
+        // @ts-ignore
         return val['name']
     }
   }

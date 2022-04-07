@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { NotebookAPI } from '../jupyter-hooks/notebook';
+	import type { NotebookAPI } from '../jupyter-hooks/notebook';
 
 	export let notebook: NotebookAPI;
 	export let dfMap: { [key: string]: string[] };
@@ -17,8 +17,8 @@
 	</div>
 
 	<div>
-		<h5>{`you hath selected a ${cell.type} cell:`}</h5>
-		<p class="code">{`${cell.text}`}</p>
+		<h5>{`you hath selected a ${cell?.type} cell:`}</h5>
+		<p class="code">{`${cell?.text}`}</p>
 	</div>
 
 	<div>

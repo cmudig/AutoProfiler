@@ -1,0 +1,56 @@
+/*
+    See the JupyterLab Developer Guide for useful CSS Patterns:
+
+    https://jupyterlab.readthedocs.io/en/stable/developer/css.html
+*/
+.AutoProfileApp {
+  /* css for the main side panel view container */
+  background: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  /* This is needed so that all font sizing of children done in ems is
+     * relative to this base size */
+  font-size: var(--jp-ui-font-size1);
+  /* text-align: center; */
+}
+
+#header-icon {
+  background: url('./logo.svg');
+  min-width: 100%;
+  min-height: 6em;
+  background-size: contain;
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-top: 1em;
+}
+
+#notebookInfo {
+  text-align: center;
+}
+
+.myIcon {
+  background: url('./logo.svg');
+}
+
+.demo-button {
+  background-color: slategray;
+  border-radius: 10px;
+  padding: 8px 4px;
+  margin: 1em;
+  text-align: center;
+  color: white;
+}
+
+.code {
+  min-height: 1em;
+  margin: 8px;
+  border: 1px solid orangered;
+}
+
+.demo-envVar {
+  color: orangered;
+}
+
+.jp-example-view {
+  background-color: green;
+}

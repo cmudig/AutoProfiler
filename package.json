@@ -1,72 +1,127 @@
 {
-  "name": "autoprofile",
+  "name": "AutoProfile",
   "version": "0.1.0",
-  "description": "automatically profile data in memory",
+  "description": "profile your data",
   "keywords": [
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/willeppy/AutoProfile",
+  "homepage": "https://github.com/github_username/AutoProfile",
   "bugs": {
-    "url": "https://github.com/willeppy/AutoProfile/issues"
+    "url": "https://github.com/github_username/AutoProfile/issues"
   },
   "license": "BSD-3-Clause",
-  "author": "willeppy",
+  "author": {
+    "name": "Will Epperson",
+    "email": "willepp@live.com"
+  },
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
-    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+    "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/willeppy/AutoProfile.git"
+    "url": "https://github.com/github_username/AutoProfile.git"
   },
   "scripts": {
-    "build": "tsc --outDir lib --declaration true && rollup -c",
-    "dev": "rollup -c -w",
-    "clean": "rimraf lib tsconfig.tsbuildinfo",
-    "install-ext": "jlpm install && jupyter labextension install . --no-build",
-    "eslint": "eslint . --ext .ts,.tsx --fix",
-    "eslint:check": "eslint . --ext .ts,.tsx",
-    "prepare": "jlpm run clean && jlpm run build"
+    "build": "jlpm build:lib && jlpm build:labextension:dev",
+    "build:prod": "jlpm clean && webpack --mode=production && jlpm build:labextension",
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:lib": "tsc && webpack --mode=development",
+    "clean": "jlpm clean:lib",
+    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+    "clean:lintcache": "rimraf .eslintcache .stylelintcache",
+    "clean:labextension": "rimraf AutoProfile/labextension",
+    "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
+    "eslint": "jlpm eslint:check --fix",
+    "eslint:check": "eslint . --cache --ext .ts,.tsx",
+    "install:extension": "npm install && jlpm build",
+    "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
+    "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
+    "prettier": "jlpm prettier:base --write --list-different",
+    "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
+    "prettier:check": "jlpm prettier:base --check",
+    "stylelint": "jlpm stylelint:check --fix",
+    "stylelint:check": "stylelint --cache \"style/**/*.css\"",
+    "watch": "run-p watch:src watch:labextension",
+    "watch:src": "webpack --watch --mode=development",
+    "watch:labextension": "jupyter labextension watch ."
   },
   "dependencies": {
-    "@jupyterlab/application": "^3.3.2",
-    "@jupyterlab/notebook": "^3.3.2",
-    "@rjsf/core": "^4.1.0",
-    "sirv-cli": "^2.0.0"
+    "@jupyterlab/application": "^3.3.3",
+    "@jupyterlab/notebook": "^3.3.3"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.16.0",
-    "@typescript-eslint/parser": "^5.16.0",
-    "eslint": "^8.11.0",
+    "@babel/core": "^7.17.9",
+    "@babel/preset-env": "^7.16.11",
+    "@jupyterlab/builder": "^3.3.3",
+    "@tsconfig/svelte": "^3.0.0",
+    "@types/webpack-env": "^1.16.3",
+    "@typescript-eslint/eslint-plugin": "^5.18.0",
+    "@typescript-eslint/parser": "^5.18.0",
+    "css-loader": "^6.7.1",
+    "eslint": "^8.12.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.6.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
-    
-    "typescript": "^4.6.2",
-    "@rollup/plugin-commonjs": "^17.0.0",
-    "@rollup/plugin-node-resolve": "^11.0.0",
-    "rollup": "^2.3.4",
-    "rollup-plugin-css-only": "^3.1.0",
-    "rollup-plugin-livereload": "^2.0.0",
-    "rollup-plugin-svelte": "^7.0.0",
-    "rollup-plugin-terser": "^7.0.0",
-    "svelte": "^3.0.0",
-    "svelte-check": "^2.0.0",
-    "svelte-preprocess": "^4.0.0",
-    "@rollup/plugin-typescript": "^8.0.0",
-    "tslib": "^2.0.0",
-    "@tsconfig/svelte": "^2.0.0"
+    "source-map-loader": "^3.0.1",
+    "style-loader": "^3.3.1",
+    "stylelint": "^14.6.1",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-recommended": "^7.0.0",
+    "stylelint-config-standard": "~25.0.0",
+    "stylelint-prettier": "^2.0.0",
+    "svelte": "^3.46.6",
+    "svelte-loader": "^3.1.2",
+    "svelte-preprocess": "^4.10.5",
+    "svg-url-loader": "^7.1.1",
+    "ts-loader": "^9.2.8",
+    "typescript": "^4.6.3",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
   },
   "sideEffects": [
-    "style/*.css"
+    "style/*.css",
+    "style/index.js"
   ],
+  "styleModule": "style/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "jupyterlab": {
-    "extension": true
+    "extension": true,
+    "outputDir": "AutoProfile/labextension",
+    "sharedPackages": {
+      "@jupyter-widgets/base": {
+        "bundled": false,
+        "singleton": true
+      },
+      "@jupyterlab/notebook": {
+        "bundled": false,
+        "singleton": true
+      },
+      "@lumino/widgets": {
+        "bundled": false,
+        "singleton": true
+      }
+    }
+  },
+  "jupyter-releaser": {
+    "hooks": {
+      "before-build-npm": [
+        "python -m pip install jupyterlab~=3.1",
+        "jlpm"
+      ],
+      "before-build-python": [
+        "jlpm clean:all"
+      ]
+    }
   }
 }

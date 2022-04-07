@@ -1,40 +1,38 @@
-import {
+import type {
   JupyterFrontEnd,
-  JupyterFrontEndPlugin,
-  ILayoutRestorer
+  JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { StackedPanel, Widget } from '@lumino/widgets';
 
-import '../style/index.css';
-import { NotebookAPI } from './jupyter-hooks/notebook';
-
+import { Widget } from '@lumino/widgets';
 import App from './components/App.svelte';
+
+import { NotebookAPI } from './jupyter-hooks/notebook';
 
 
 /**
- * Initialization data for the codegen extension.
+ * Initialization data for the AutoProfile extension.
  */
-const extension: JupyterFrontEndPlugin<void> = {
-  id: 'AutoProfile',
+
+const plugin: JupyterFrontEndPlugin<void> = {
+  id: 'AutoProfile:plugin',
   autoStart: true,
   activate: (
     app: JupyterFrontEnd,
-    layout: ILayoutRestorer,
-    notebookTracker: INotebookTracker
+    notebookTracker: INotebookTracker,
   ) => {
-    /*
-     * This makes us a side panel UI to display our
-     * extension's view. Note this is purely optional: your extension
-     * doesn't actually need any panel view to run.
-     */
-    const myUI = buildUI(app, layout);
+
+    console.log("Activating AutoProfile extension...")
+
+    let myUI = buildUI(app);
 
     notebookTracker.currentChanged.connect((_, widget) => {
+      // @ts-ignore
       const notebook = new NotebookAPI(widget);
       notebook.ready.then(() => {
         console.log('ITS ALIVE', notebook);
-        renderUI(myUI, { notebook, variables: null });
+        
+        renderUI(myUI, { notebook, dfMap: null });
         notebook.changed.connect(async () => {
           // let variables = await notebook.kernel.getEnv();
           let dfMap = await notebook.kernel.getDataFramesWithColumns();
@@ -42,44 +40,32 @@ const extension: JupyterFrontEndPlugin<void> = {
         });
       });
     });
+
   },
-  requires: [ILayoutRestorer, INotebookTracker]
+  requires: [INotebookTracker],
 };
 
-function buildUI(app: JupyterFrontEnd, layout: ILayoutRestorer) {
-  /* 
+function buildUI(app: JupyterFrontEnd) {
 
-  TODO rewrite this to svelte and get rid of lumino, see https://github.com/mkery/Verdant/blob/master/verdant/index.ts
-  
-  */
+  const widget = new Widget();
+  widget.addClass('jp-example-view');
+  widget.id = 'auto-profile-app';
+  widget.title.caption = 'AutoProfile';
+  widget.title.label = "AutoProfile"
+  widget.title.iconClass = 'jp-SideBar-tabIcon myIcon';
+  app.shell.add(widget, 'left', { rank: 600 });
 
-  const myView = new Widget(); // can replace this stuff
-  const sidePanel = new StackedPanel();
-  sidePanel.id = 'myApp';
-  sidePanel.title.iconClass = 'myIcon jp-SideBar-tabIcon';
-  sidePanel.title.caption = 'AutoProfile';
-  sidePanel.addWidget(myView);
+  return widget
 
-  // add side panel view to JupyterLab
-  layout.add(sidePanel, 'v-VerdantPanel');
-  app.shell.add(sidePanel, 'left');
-
-  renderUI(myView);
-  return myView;
 }
 
 function renderUI(widget: Widget, props = {}) {
   console.log("Rendering panel view...")
-  // now render the panel view
 
-  const ui = new App({
+  new App({
     target: widget.node,
     props
   });
 
-  // widget.node = ui; // i dont think this is gonna work...
-
-  return ui
 }
-
-export default extension;
+export default plugin;

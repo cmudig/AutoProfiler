@@ -1,22 +1,25 @@
 {
-  "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "*": ["./node_modules/@types/*", "*"]
-    },
-    "esModuleInterop": true,
-    "sourceMap": true,
-    "noImplicitAny": false,
-    "noEmitOnError": true,
-    "noUnusedLocals": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "target": "esnext",
-    "types": [],
-    "resolveJsonModule": true,
-    "strict": false
-  },
   "extends": "@tsconfig/svelte/tsconfig.json",
-  "include": ["src/**/*.ts", "src/**/*.svelte"],
-  "exclude": ["node_modules/*", "__sapper__/*", "public/*"]
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "incremental": true,
+    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "preserveWatchOutput": true,
+    "resolveJsonModule": true,
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": false,
+    "strictNullChecks": false,
+    "target": "es2017",
+    "types": ["svelte", "node"]
+  },
+  "include": ["src/**/*"]
 }

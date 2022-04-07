@@ -10,8 +10,9 @@ export default class KernelAPI {
     this.session = session;
   }
 
-  get language(): Promise<string> {
-    return this.session.session.kernel.info.then(infoReply => {
+  get language(): Promise<string> | undefined {
+
+    return this.session?.session?.kernel?.info?.then(infoReply => {
       return infoReply.language_info.name;
     });
   }
@@ -55,7 +56,7 @@ export default class KernelAPI {
         // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
 
 
-        let dfColMap = {}; // str : [str, str] tuple
+        let dfColMap: {string? : [string, string]} = {}; // str : [str, str] tuple
         for (let index = 0; index < vars_DF.length; index++) {
           let columns = await this.getColumns(vars_DF[index]);
 
@@ -63,6 +64,7 @@ export default class KernelAPI {
 
           let columnTuples = columns.map(txt => this.parseDtypes(txt)).filter(txt => (txt != undefined))
 
+          // @ts-ignore
           dfColMap[vars_DF[index]] = columnTuples
 
         }
@@ -77,8 +79,8 @@ export default class KernelAPI {
 
   public runCode(
     code: string,
-    onReply?: (type: string, content) => void,
-    onDone?: (string?) => void
+    onReply?: (type: string, content: any) => void,
+    onDone?: (arg_0?: string) => void
   ) {
     let future = this.session.session.kernel.requestExecute({
       code,
@@ -116,7 +118,7 @@ export default class KernelAPI {
     let code = '%who_ls'; // a python magic command
 
     return new Promise<string[]>(resolve => {
-      let onReply = (type: string, content) => {
+      let onReply = (type: string, content: any) => {
         if (type == 'execute_result') {
           // parse data into usable format
           let data = (content.data['text/plain'] + '').replace(/'/g, '"');
@@ -138,11 +140,11 @@ export default class KernelAPI {
   }
 
   private async getType(varNames: string[]): Promise<string[]> {
-    let code_lines = [];
+    let code_lines: string[] = [];
     varNames.forEach(name => code_lines.push(`print(type(${name}).__name__)`));
 
     return new Promise<string[]>(resolve => {
-      let onReply = (type: string, content) => {
+      let onReply = (type: string, content: any) => {
         if (type === 'stream') {
           // get types in a usable format
           let response: string[] = content.text.split('\n');
@@ -168,7 +170,7 @@ export default class KernelAPI {
     varNames.forEach(name => code_lines.push(`print(type(${name}) == pd.DataFrame)`))
 
     return new Promise<string[]>(resolve => {
-      let onReply = (type: string, content) => {
+      let onReply = (type: string, content: any) => {
         if (type === 'stream') {
           // get types in a usable format
           let response: string[] = content.text.split('\n');
@@ -192,7 +194,7 @@ export default class KernelAPI {
     let code = `print(${varName}.dtypes)`;
 
     return new Promise<string[]>(resolve => {
-      let onReply = (type: string, content) => {
+      let onReply = (type: string, content: any) => {
         if (type === 'stream') {
           // get types in a usable format
           let response: string[] = content.text.split('\n');
