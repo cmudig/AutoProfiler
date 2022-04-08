@@ -3,14 +3,13 @@ import type {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-
 import { Widget } from '@lumino/widgets';
 import App from './components/App.svelte';
-
 import { NotebookAPI } from './jupyter-hooks/notebook';
-import type {IData} from './jupyter-hooks/kernel';
-
-import {notebookStore, dfMapStore} from './stores';
+import type { IData } from './jupyter-hooks/kernel';
+import ArqueroExecutor from './jupyter-hooks/DataWrapper'
+import * as aq from 'arquero';
+import { notebookStore, dfMapStore } from './stores';
 
 
 // let svelteApp: App;
@@ -36,7 +35,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       const notebook = new NotebookAPI(widget);
       notebook.ready.then(() => {
         console.log('ITS ALIVE', notebook);
-        
+
         updateUIData(notebook);
         notebook.changed.connect(async () => {
           // let variables = await notebook.kernel.getEnv();
@@ -61,26 +60,37 @@ function buildUI(app: JupyterFrontEnd) {
   widget.title.iconClass = 'jp-SideBar-tabIcon myIcon';
   app.shell.add(widget, 'left', { rank: 600 });
 
+  let dataHandler = loadData(fileName)
+
   // make svelte component
   new App({
-    target: widget.node
+    target: widget.node,
+    props: {
+      dataHandler // TODO get rid of this, turn into store or something
+    }
   });
 
   return widget
 }
 
-function updateUIData(notebook?: NotebookAPI, dfMap?: IData ) {
-  console.log("updating UI data...\n with notebook: ", notebook, "\n and dfMap: ",  dfMap)
+function updateUIData(notebook?: NotebookAPI, dfMap?: IData) {
+  console.log("updating UI data...\n with notebook: ", notebook, "\n and dfMap: ", dfMap)
 
   notebookStore.set(notebook); // TODO this isnt updating the store since its the same object I think
   dfMapStore.set(dfMap);
 
-  // if (!svelteApp) {
-  //   svelteApp = new App({
-  //     target: widget.node,
-  //     props
-  //   });
-  // }
+}
 
+let fileName = "../data/airbnb_sample.csv"
+
+async function loadData(fileName: string): Promise<ArqueroExecutor> {
+  const data = await aq.loadCSV(fileName, { delimiter: ',' });
+
+  let dataHandler = new ArqueroExecutor(data)
+
+  let rp = new Promise<ArqueroExecutor>(resolve => {
+    resolve(dataHandler)
+  })
+  return rp
 }
 export default plugin;
