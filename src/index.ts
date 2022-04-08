@@ -8,7 +8,12 @@ import { Widget } from '@lumino/widgets';
 import App from './components/App.svelte';
 
 import { NotebookAPI } from './jupyter-hooks/notebook';
+import type {IData} from './jupyter-hooks/kernel';
 
+import {notebookStore, dfMapStore} from './stores';
+
+
+// let svelteApp: App;
 
 /**
  * Initialization data for the AutoProfile extension.
@@ -24,7 +29,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     console.log("Activating AutoProfile extension...")
 
-    let myUI = buildUI(app);
+    buildUI(app);
 
     notebookTracker.currentChanged.connect((_, widget) => {
       // @ts-ignore
@@ -32,11 +37,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
       notebook.ready.then(() => {
         console.log('ITS ALIVE', notebook);
         
-        renderUI(myUI, { notebook, dfMap: null });
+        updateUIData(notebook);
         notebook.changed.connect(async () => {
           // let variables = await notebook.kernel.getEnv();
           let dfMap = await notebook.kernel.getDataFramesWithColumns();
-          renderUI(myUI, { notebook, dfMap });
+          updateUIData(notebook, dfMap);
         });
       });
     });
@@ -47,25 +52,35 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
 function buildUI(app: JupyterFrontEnd) {
 
+  // widget setup
   const widget = new Widget();
-  widget.addClass('jp-example-view');
+  widget.addClass('AutoProfileApp');
   widget.id = 'auto-profile-app';
   widget.title.caption = 'AutoProfile';
   widget.title.label = "AutoProfile"
   widget.title.iconClass = 'jp-SideBar-tabIcon myIcon';
   app.shell.add(widget, 'left', { rank: 600 });
 
-  return widget
+  // make svelte component
+  new App({
+    target: widget.node
+  });
 
+  return widget
 }
 
-function renderUI(widget: Widget, props = {}) {
-  console.log("Rendering panel view...")
+function updateUIData(notebook?: NotebookAPI, dfMap?: IData ) {
+  console.log("updating UI data...\n with notebook: ", notebook, "\n and dfMap: ",  dfMap)
 
-  new App({
-    target: widget.node,
-    props
-  });
+  notebookStore.set(notebook); // TODO this isnt updating the store since its the same object I think
+  dfMapStore.set(dfMap);
+
+  // if (!svelteApp) {
+  //   svelteApp = new App({
+  //     target: widget.node,
+  //     props
+  //   });
+  // }
 
 }
 export default plugin;

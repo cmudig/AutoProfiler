@@ -1,18 +1,16 @@
 <script lang="ts">
-	import type { NotebookAPI } from '../jupyter-hooks/notebook';
+	import {notebookStore, dfMapStore} from '../stores';
 
-	export let notebook: NotebookAPI;
-	export let dfMap: { [key: string]: string[] };
 
 	// TODO make these reactive
-	let lang = notebook.language || "?";
-	let cell = notebook.activeCell;
+	let lang = $notebookStore?.language || "?";
+	let cell = $notebookStore?.activeCell;
 </script>
 
 <main>
 	<div id="header-icon" />
 	<div id="notebookInfo">
-		<h4>{notebook.name}</h4>
+		<h4>{$notebookStore?.name}</h4>
 		<p>is a <b>{lang}</b> notebook</p>
 	</div>
 
@@ -23,14 +21,17 @@
 
 	<div>
 		<h5>Dataframes in user's environment:</h5>
-		{#each Object.entries(dfMap) as [dfName, dfColTup]}
-			<h2>{dfName}</h2>
-			<ul>
-				{#each dfColTup as tup}
-					<li>{tup[0]}: {tup[1]}</li>
-				{/each}
-			</ul>
-		{/each}
+		{#if $dfMapStore}
+			{#each Object.entries($dfMapStore) as [dfName, dfColTup]}
+				<h2>{dfName}</h2>
+				<ul>
+					{#each dfColTup as tup}
+						<li>{tup[0]}: {tup[1]}</li>
+					{/each}
+				</ul>
+			{/each}
+			
+		{/if}
 	</div>
 </main>
 

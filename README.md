@@ -1,9 +1,6 @@
 # AutoProfile
 
-[![Github Actions Status](https://github.com/github_username/AutoProfile/workflows/Build/badge.svg)](https://github.com/github_username/AutoProfile/actions/workflows/build.yml)
-
-profile your data
-
+Profile your data
 
 
 ## Requirements
@@ -18,18 +15,7 @@ To install the extension, execute:
 pip install AutoProfile
 ```
 
-## Uninstall
-
-To remove the extension, execute:
-
-```bash
-pip uninstall AutoProfile
-```
-
-
-## Contributing
-
-### Development install
+## Development install
 
 Note: You will need NodeJS to build the extension package.
 
@@ -45,8 +31,10 @@ pip install -e .
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 # Rebuild extension Typescript source after making changes
-jlpm build
+npm build
 ```
+
+Jupyter labextension can be weird sometimes; nuking the conda env and restarting tends to fix it.
 
 You can watch the source directory and run JupyterLab at the same time in different terminals to watch for changes in the extension's source and automatically rebuild the extension.
 
@@ -75,6 +63,3 @@ In development mode, you will also need to remove the symlink created by `jupyte
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
 folder is located. Then you can remove the symlink named `AutoProfile` within that folder.
 
-### Packaging the extension
-
-See [RELEASE](RELEASE.md)

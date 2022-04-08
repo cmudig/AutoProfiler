@@ -1,5 +1,7 @@
 import type { ISessionContext } from '@jupyterlab/apputils';
 
+export type IData = {string? : [string, string]}
+
 /**
  * Simplified adaption of https://github.com/lckr/jupyterlab-variableInspector
  */
@@ -56,7 +58,7 @@ export default class KernelAPI {
         // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
 
 
-        let dfColMap: {string? : [string, string]} = {}; // str : [str, str] tuple
+        let dfColMap: IData = {}; // str : [str, str] tuple
         for (let index = 0; index < vars_DF.length; index++) {
           let columns = await this.getColumns(vars_DF[index]);
 
