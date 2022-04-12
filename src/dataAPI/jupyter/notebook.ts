@@ -5,19 +5,19 @@ import { Signal, type ISignal } from '@lumino/signaling';
 
 
 import CellAPI from './cell';
-import KernelAPI from './kernel'
+// import KernelAPI from './kernel'
 
 export class NotebookAPI {
   private readonly _ready: PromiseDelegate<void>;
   private _changed = new Signal<this, string>(this);
 
   panel: NotebookPanel;
-  kernel: KernelAPI;
+  // kernel: KernelAPI;
   cells: CellAPI[];
 
   constructor(notebookPanel: NotebookPanel) {
     this.panel = notebookPanel;
-    this.kernel = new KernelAPI(this.panel.sessionContext)
+    // this.kernel = new KernelAPI(this.panel.sessionContext)
     this.listenToSession();
 
     this._ready = new PromiseDelegate<void>();

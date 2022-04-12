@@ -1,110 +1,140 @@
 <script lang="ts">
-    // import embed from "vega-embed";
+    import type { VisualizationSpec } from 'svelte-vega';
+    import { VegaLite } from 'svelte-vega';
+    import { dataAccessor } from '../stores';
 
-    import type { VisualizationSpec, View } from "svelte-vega";
-    import { VegaLite } from "svelte-vega";
+    // import type {IQuantMeta, INomMeta} from '../dataAPI/exchangeInterfaces';
 
-    export let type;
-    export let columnName;
-    export let dataHandler;
-    let colData = dataHandler.getColumn(columnName);
-    let headRows = colData.data.slice(0, 3);
+    export let type: string;
+    export let columnName: string;
+    export let dfName: string;
+
+    let headRows = $dataAccessor.getColHeadRows(dfName, columnName);
 
     let quantSpec: VisualizationSpec = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-        description: "a chart",
+        $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+        description: 'a chart',
         data: {
-            name: "table",
+            name: 'table'
         },
-        mark: "bar",
+        mark: 'bar',
         encoding: {
             x: {
-                field: "bin_0",
+                field: 'bin_0',
                 bin: { binned: true },
-                title: "label stuff",
+                title: 'label stuff'
             },
-            x2: { field: "bin_1" },
+            x2: { field: 'bin_1' },
             y: {
-                field: "count",
-                type: "quantitative",
-            },
-        },
+                field: 'count',
+                type: 'quantitative'
+            }
+        }
     };
 
     let nomSpec: VisualizationSpec = {
-        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-        description: "a chart",
+        $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+        description: 'a chart',
         data: {
-            name: "table",
+            name: 'table'
         },
-        mark: "bar",
+        mark: 'bar',
         encoding: {
             x: {
-                field: "count",
-                type: "quantitative",
+                field: 'count',
+                type: 'quantitative'
             },
             y: {
-                field: "col_a", // TODO
-                type: "nominal",
-                sort: "-x",
-            },
-        },
+                field: 'col_a', // TODO
+                type: 'nominal',
+                sort: '-x'
+            }
+        }
     };
 
     // Vegalite stuff
-    let inputData = {
-        table: [],
+    let inputData: { table: any[] } = {
+        table: []
     };
-    let spec;
-    let colMd;
+    let spec: Promise<VisualizationSpec>;
+    // let colMd: IQuantMeta | INomMeta;
+    let colMd: Promise<any>;
 
-    if (type === "number") {
-        let quantInfo = dataHandler.getQuantBinnedData(columnName);
-        inputData.table = quantInfo["binned_data"].objects();
+    async function getQuantInfo() {
+        let quantInfo = await $dataAccessor.getQuantBinnedData(columnName);
+        inputData.table = quantInfo['binned_data'];
         // quantSpec.encoding.x["bin"]["step"] = quantInfo["bin_size"];
-        quantSpec.encoding.x["title"] = columnName;
-        spec = quantSpec;
-        colMd = dataHandler.getQuantMeta(columnName);
-    } else {
-        inputData.table = dataHandler.getNomColVisData(columnName).objects();
-        nomSpec.encoding["y"]["field"] = columnName;
-        spec = nomSpec;
-        colMd = dataHandler.getNomMeta(columnName);
+
+        // @ts-ignore
+        quantSpec.encoding.x['title'] = columnName;
+        // spec = quantSpec;
+
+        colMd = $dataAccessor.getQuantMeta(dfName, columnName);
+        return new Promise(resolve => resolve(quantSpec));
     }
 
-    // console.log("Making profile for COLUMN: ", columnName, "TYPE: ", type);
-    // console.log("input data: ", inputData);
-    // console.log("input spec: ", spec);
+    async function getNomInfo() {
+        inputData.table = await $dataAccessor.getNomColVisData(columnName);
 
-    // $: viewVL ? console.log("Vega-Lite view: ", viewVL.data("table")) : "";
+        // @ts-ignore
+        nomSpec.encoding['y']['field'] = columnName;
+        // spec = nomSpec;
+        colMd = $dataAccessor.getNomMeta(dfName, columnName);
+        return new Promise(resolve => resolve(nomSpec));
+    }
+
+    // TODO put these type in an enum or something
+    if (type === 'int64' || type === 'float64') {
+        spec = getQuantInfo();
+    } else {
+        spec = getNomInfo();
+    }
 </script>
 
 <div class="ColumnProfile">
     <div class="cp-header"><b>{columnName}</b> <i>{type}</i></div>
     <div class="cp-preview">
         Preview:
-        <ul class="minimalList">
-            {#each headRows as row}
-                <li>{row}</li>
-            {/each}
-        </ul>
+        {#await headRows}
+            Getting preview...
+        {:then headRows}
+            <ul class="minimalList">
+                {#each headRows as row}
+                    <li>{row}</li>
+                {/each}
+            </ul>
+        {:catch error}
+            <p>ERROR getting head rows for {columnName}</p>
+        {/await}
     </div>
     <div class="cp-meta">
         MetaData:
-        <ul class="minimalList">
-            {#if type === "number"}
-                <li>Mean: {colMd.mean}</li>
-                <li>Median: {colMd.median}</li>
-                <li>Number Missing: {colMd.num_invalid}</li>
-            {:else}
-                <li>Unique: {colMd.num_unique}</li>
-                <li>Number Missing: {colMd.num_invalid}</li>
-            {/if}
-        </ul>
+        {#await colMd}
+            Getting column metadata...
+        {:then colMd}
+            <ul class="minimalList">
+                {#if type === 'number'}
+                    <li>Mean: {colMd.mean}</li>
+                    <li>Median: {colMd.median}</li>
+                    <li>Number Missing: {colMd.num_invalid}</li>
+                {:else}
+                    <li>Unique: {colMd.num_unique}</li>
+                    <li>Number Missing: {colMd.num_invalid}</li>
+                {/if}
+            </ul>
+        {:catch error}
+            <p>ERROR getting head rows for {columnName}</p>
+        {/await}
     </div>
 
     <div id="cp-vis">
-        <VegaLite data={inputData} {spec} />
+        {#await spec}
+            Loading vis...
+        {:then spec}
+            <VegaLite spec={spec} data={inputData} />
+        {:catch error}
+            <p>ERROR getting head rows for {columnName}</p>
+        {/await}
     </div>
 </div>
 

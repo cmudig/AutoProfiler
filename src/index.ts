@@ -5,14 +5,10 @@ import type {
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Widget } from '@lumino/widgets';
 import App from './components/App.svelte';
-import { NotebookAPI } from './jupyter-hooks/notebook';
-import type { IData } from './jupyter-hooks/kernel';
-import ArqueroExecutor from './jupyter-hooks/DataWrapper'
-import * as aq from 'arquero';
-import { notebookStore, dfMapStore } from './stores';
+import { NotebookAPI } from './dataAPI/jupyter/notebook'
+import {JupyterPandasExecutor} from "./dataAPI/DataWrapper";
 
-
-// let svelteApp: App;
+import {dataAccessor} from './stores';
 
 /**
  * Initialization data for the AutoProfile extension.
@@ -31,16 +27,16 @@ const plugin: JupyterFrontEndPlugin<void> = {
     buildUI(app);
 
     notebookTracker.currentChanged.connect((_, widget) => {
-      // @ts-ignore
+      
       const notebook = new NotebookAPI(widget);
       notebook.ready.then(() => {
-        console.log('ITS ALIVE', notebook);
+        console.log('Notebook ready! ---', notebook);
 
         updateUIData(notebook);
         notebook.changed.connect(async () => {
-          // let variables = await notebook.kernel.getEnv();
-          let dfMap = await notebook.kernel.getDataFramesWithColumns();
-          updateUIData(notebook, dfMap);
+          
+          // let dataframes_with_columns = await notebook.kernel.getDataFramesWithColumns();
+          updateUIData(notebook);
         });
       });
     });
@@ -60,37 +56,23 @@ function buildUI(app: JupyterFrontEnd) {
   widget.title.iconClass = 'jp-SideBar-tabIcon myIcon';
   app.shell.add(widget, 'left', { rank: 600 });
 
-  let dataHandler = loadData(fileName)
-
   // make svelte component
   new App({
-    target: widget.node,
-    props: {
-      dataHandler // TODO get rid of this, turn into store or something
-    }
+    target: widget.node
   });
 
   return widget
 }
 
-function updateUIData(notebook?: NotebookAPI, dfMap?: IData) {
-  console.log("updating UI data...\n with notebook: ", notebook, "\n and dfMap: ", dfMap)
+function updateUIData(notebook: NotebookAPI) {
+  console.log("resetting data accessor object with notebook: ", notebook)
 
-  notebookStore.set(notebook); // TODO this isnt updating the store since its the same object I think
-  dfMapStore.set(dfMap);
+  // TODO this is inefficient, should not make a new object on every update...
+  let da = new JupyterPandasExecutor(notebook.panel.sessionContext)
+
+  dataAccessor.set(da)
 
 }
 
-let fileName = "../data/airbnb_sample.csv"
 
-async function loadData(fileName: string): Promise<ArqueroExecutor> {
-  const data = await aq.loadCSV(fileName, { delimiter: ',' });
-
-  let dataHandler = new ArqueroExecutor(data)
-
-  let rp = new Promise<ArqueroExecutor>(resolve => {
-    resolve(dataHandler)
-  })
-  return rp
-}
 export default plugin;
