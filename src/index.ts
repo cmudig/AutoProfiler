@@ -4,11 +4,12 @@ import type {
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Widget } from '@lumino/widgets';
-import App from './components/App.svelte';
+import Stage from './components/Stage.svelte';
 import { NotebookAPI } from './dataAPI/jupyter/notebook'
-import {JupyterPandasExecutor} from "./dataAPI/DataWrapper";
+// import { JupyterPandasExecutor } from "./dataAPI/DataWrapper";
 
-import {dataAccessor} from './stores';
+import { dataAccessor } from './stores';
+import { get } from 'svelte/store';
 
 /**
  * Initialization data for the AutoProfile extension.
@@ -27,14 +28,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
     buildUI(app);
 
     notebookTracker.currentChanged.connect((_, widget) => {
-      
+
       const notebook = new NotebookAPI(widget);
       notebook.ready.then(() => {
         console.log('Notebook ready! ---', notebook);
 
         updateUIData(notebook);
         notebook.changed.connect(async () => {
-          
+
           // let dataframes_with_columns = await notebook.kernel.getDataFramesWithColumns();
           updateUIData(notebook);
         });
@@ -57,7 +58,7 @@ function buildUI(app: JupyterFrontEnd) {
   app.shell.add(widget, 'left', { rank: 600 });
 
   // make svelte component
-  new App({
+  new Stage({
     target: widget.node
   });
 
@@ -65,12 +66,37 @@ function buildUI(app: JupyterFrontEnd) {
 }
 
 function updateUIData(notebook: NotebookAPI) {
-  console.log("resetting data accessor object with notebook: ", notebook)
+  // console.log("resetting data accessor object with notebook: ", notebook)
 
-  // TODO this is inefficient, should not make a new object on every update...
-  let da = new JupyterPandasExecutor(notebook.panel.sessionContext)
+  const da = get(dataAccessor)
 
-  dataAccessor.set(da)
+  if (!da.initialized) {
+    console.log("da not yet init...")
+
+    if (notebook.panel.sessionContext) {
+      da.init(notebook.panel.sessionContext)
+    } else {
+      console.log("...but no session context so not doing anything.")
+    }
+
+  } else {
+    console.log("da already init.")
+  }
+
+  // if (notebook.panel.sessionContext) {
+
+  //   if (!da.initialized) {
+  //     console.log("initializing da...")
+  //     da.init(notebook.panel.sessionContext)
+  //   } else {
+  //     // use store update function or something?
+  //   }
+
+  // }
+ 
+
+  // dataAccessor.set(da)
+  // initialLoad.set(true)
 
 }
 

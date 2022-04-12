@@ -7,16 +7,19 @@
   export let dfName: string;
   export let colInfo: IColTypeTuple[];
 
+  console.log("Making DFProfile for ", dfName, " with ", colInfo);
+
   // locals
   let shape = $dataAccessor.getShape(dfName);
 </script>
 
 <div id="dataframe-profile">
   <div id="metadata">
+    <h2>{dfName}</h2>
     {#await shape}
-      <p><b>{dfName}</b> has ? rows and ? columns</p>
+      <p> has ? rows and ? columns</p>
     {:then shape}
-      <p><b>{dfName}</b> has {shape[0]} rows and {shape[1]} columns</p>
+      <p> has {shape[0]} rows and {shape[1]} columns</p>
     {:catch error}
       <p>ERROR getting shape for <b>{dfName}</b>.</p>
 
@@ -38,4 +41,7 @@
 </div>
 
 <style>
+  .metaData {
+    margin-top: 10px;
+  }
 </style>

@@ -5,9 +5,13 @@
 
     // import type {IQuantMeta, INomMeta} from '../dataAPI/exchangeInterfaces';
 
+
     export let type: string;
     export let columnName: string;
     export let dfName: string;
+
+    console.log(`Making column preview for ${dfName}.${columnName}`)
+
 
     let headRows = $dataAccessor.getColHeadRows(dfName, columnName);
 
@@ -113,13 +117,13 @@
             Getting column metadata...
         {:then colMd}
             <ul class="minimalList">
-                {#if type === 'number'}
-                    <li>Mean: {colMd.mean}</li>
-                    <li>Median: {colMd.median}</li>
-                    <li>Number Missing: {colMd.num_invalid}</li>
+                {#if type === 'int64' || type === 'float64'}
+                    <li>Mean: {colMd?.mean}</li>
+                    <li>Median: {colMd?.median}</li>
+                    <li>Number Missing: {colMd?.num_invalid}</li>
                 {:else}
-                    <li>Unique: {colMd.num_unique}</li>
-                    <li>Number Missing: {colMd.num_invalid}</li>
+                    <li>Unique: {colMd?.num_unique}</li>
+                    <li>Number Missing: {colMd?.num_invalid}</li>
                 {/if}
             </ul>
         {:catch error}

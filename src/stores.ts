@@ -3,9 +3,10 @@ import type { Writable } from 'svelte/store';
 // import type { NotebookAPI } from './jupyterAPI/notebook'
 // import type { IData } from './jupyterAPI/kernel'
 
-import type {Executor} from "./dataAPI/DataWrapper"
+import {JupyterPandasExecutor} from "./dataAPI/DataWrapper"
 
-export const dataAccessor: Writable<Executor> = writable(undefined);
+export const dataAccessor: Writable<JupyterPandasExecutor> = writable(new JupyterPandasExecutor());
+export const initialLoad = writable(false);
 
 
 // export const notebookStore: Writable<NotebookAPI> = writable(undefined);

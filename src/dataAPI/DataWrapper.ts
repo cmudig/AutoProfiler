@@ -1,6 +1,7 @@
 import type { IColTypeTuple, IDFColMap, IQuantMeta, INomMeta, IQuantChartData, INomChartData } from "./exchangeInterfaces"
 
 import type { ISessionContext } from '@jupyterlab/apputils';
+import { PromiseDelegate } from '@lumino/coreutils';
 
 
 // executor interface for ArqueroExecutor below
@@ -12,6 +13,7 @@ export interface Executor {
     // get rid of these through a different abstraction somehow...
     language: Promise<string> | undefined,
     name: string,
+    ready: Promise<void>,
     
     getShape(dfName: string): Promise<number[]>,
     getAllDataFrames(): Promise<IDFColMap>,
@@ -23,12 +25,40 @@ export interface Executor {
 }
 
 // API for single data table
-export class JupyterPandasExecutor implements Executor {
+export class JupyterPandasExecutor { // implements Executor {
     session: ISessionContext;
+    private readonly _ready: PromiseDelegate<void>;
+    public initialized: boolean = false;
 
-    constructor(session: ISessionContext) {
-        this.session = session;
+
+    // constructor(session: ISessionContext) {
+    //     this.session = session;
+    // }
+
+    constructor() {
+        this._ready = new PromiseDelegate<void>();
+
     }
+
+    init(session: ISessionContext) {
+        this.initialized = true
+        this.session = session;
+
+        this.session.ready.then(() => {
+            this._ready.resolve();
+            console.log("Data accessor ready!")
+        })
+
+    }
+
+    get ready(): Promise<void> {
+        return this._ready.promise;
+      }
+    
+    // ready is a Promise that resolves once the kernel is ready to use
+    // get ready(): Promise<void> {
+    //     return this.session.ready;
+    // }
 
     // #############################################################################
     // Code execution helpers
@@ -96,11 +126,6 @@ export class JupyterPandasExecutor implements Executor {
 
     get name(): string {
         return this.session.kernelDisplayName;
-    }
-
-    // ready is a Promise that resolves once the kernel is ready to use
-    get ready(): Promise<void> {
-        return this.session.ready;
     }
 
     public async getEnv() {
@@ -214,7 +239,7 @@ export class JupyterPandasExecutor implements Executor {
             .map(x => parseFloat(x))
     }
 
-    public async getColHeadRows(dfName: string, colName: string, n: number): Promise<string[]> {
+    public async getColHeadRows(dfName: string, colName: string, n: number=5): Promise<string[]> {
         // FIXME implement this & figure out how to do this without printing...
         
         // const code = `print(${dfName}["${colName}"].head(${n}))`;
