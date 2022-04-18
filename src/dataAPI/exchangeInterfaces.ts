@@ -15,6 +15,6 @@ export type IQuantMeta = {
 }
 
 export type INomMeta = {
-    "unique": string,
+    "num_unique": string,
     "num_invalid": string,
 }

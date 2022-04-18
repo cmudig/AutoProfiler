@@ -14,7 +14,7 @@ export interface Executor {
     language: Promise<string> | undefined,
     name: string,
     ready: Promise<void>,
-    
+
     getShape(dfName: string): Promise<number[]>,
     getAllDataFrames(): Promise<IDFColMap>,
     getColHeadRows(dfName: string, colName: string, n?: number): Promise<string[]>,
@@ -53,8 +53,8 @@ export class JupyterPandasExecutor { // implements Executor {
 
     get ready(): Promise<void> {
         return this._ready.promise;
-      }
-    
+    }
+
     // ready is a Promise that resolves once the kernel is ready to use
     // get ready(): Promise<void> {
     //     return this.session.ready;
@@ -77,10 +77,12 @@ export class JupyterPandasExecutor { // implements Executor {
         // this is the output of the execution, may return things multiple times as code runs
         future.onIOPub = msg => {
             var msg_type = msg.header.msg_type;
+            // console.log("Got message on IOPub of type: ", msg_type)
             if (
                 msg_type === 'execute_result' ||
                 msg_type === 'stream' ||
-                msg_type === 'display_data'
+                msg_type === 'display_data' ||
+                msg_type === 'update_display_data'
             )
                 if (onReply) onReply(msg_type + '', msg.content);
         };
@@ -97,22 +99,41 @@ export class JupyterPandasExecutor { // implements Executor {
         );
     }
 
-    private async executeCode(code: string = '', parseOption: string): Promise<string[]> {
+    private async executeCode(code: string = ''): Promise<string[]> {
         await this.ready;
 
-        if (parseOption === "stream") {
-            return new Promise<string[]>(resolve => {
-                let onReply = (type: string, content: any) => {
-                    if (type === 'stream') {
-                        let response: string[] = content.text.split('\n');
-                        response.pop();
-                        resolve(response);
-                    }
-                };
+        return new Promise<string[]>(resolve => {
+            let onReply = (type: string, content: any) => {
+                console.log("code executed: ", code, "\nReturned as ",type, "with content: ", content)
 
-                this.runCode(code, onReply);
-            });
-        }
+                if (type === 'stream') {
+                    let response: string[] = content.text.split('\n');
+                    response.pop();
+                    resolve(response);
+
+                } else if (type === 'execute_result') {
+                    // TODO return this as json object, not strings...
+
+                    let response: string[] = content.data['text/plain'].split('\n');
+
+                    resolve(response);
+                } else if (type === 'display_data' || type === 'update_display_data') {
+
+                    // console.log("Code execution CONTENT returned: ", content)
+                    // let data = (content.data['text/plain'] + '').replace(/'/g, '"');
+                    // console.log("Code execution parsed DATA returned: ", data)
+
+                    // TODO return this as json object, not strings...
+
+                    // let response: string[] = content.data['text/plain'].split('\n');
+
+
+                    resolve(["hihi"]);
+                }
+            };
+
+            this.runCode(code, onReply);
+        });
     }
 
     // #############################################################################
@@ -206,7 +227,7 @@ export class JupyterPandasExecutor { // implements Executor {
     private async getType(varNames: string[]): Promise<string[]> {
         let code_lines: string[] = [];
         varNames.forEach(name => code_lines.push(`print(type(${name}).__name__)`));
-        return this.executeCode(code_lines.join('\n'), "stream");
+        return this.executeCode(code_lines.join('\n'));
     }
 
 
@@ -216,7 +237,7 @@ export class JupyterPandasExecutor { // implements Executor {
         */
         let code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
         varNames.forEach(name => code_lines.push(`print(type(${name}) == pd.DataFrame)`))
-        return this.executeCode(code_lines.join('\n'), "stream");
+        return this.executeCode(code_lines.join('\n'));
     }
 
     private async getColumns(varName: string): Promise<string[]> {
@@ -225,12 +246,12 @@ export class JupyterPandasExecutor { // implements Executor {
         Returns array of "True" or "False" if that variable is a pandas dataframe
         */
         let code = `print(${varName}.dtypes)`;
-        return this.executeCode(code, "stream");
+        return this.executeCode(code);
     }
 
     public async getShape(dfName: string): Promise<number[]> {
         let code = `print(${dfName}.shape)`; // returns '(3, 2)' so need to parse
-        let shapeStringArr = await this.executeCode(code, "stream");
+        let shapeStringArr = await this.executeCode(code);
         let shapeString = shapeStringArr[0];
 
         return shapeString
@@ -239,53 +260,92 @@ export class JupyterPandasExecutor { // implements Executor {
             .map(x => parseFloat(x))
     }
 
-    public async getColHeadRows(dfName: string, colName: string, n: number=5): Promise<string[]> {
-        // FIXME implement this & figure out how to do this without printing...
-        
-        // const code = `print(${dfName}["${colName}"].head(${n}))`;
-        // return this.executeCode(code, "stream");
+    public async getColHeadRows(dfName: string, colName: string, n: number = 5): Promise<string[]> {
+        /*
+        Pandas print shows the index along with dataframe description so have to be trimmed off
+        */
 
-        return ["value1", "value2"];
+        const code = `print(${dfName}["${colName}"].head(${n}))`;
+        let res = await this.executeCode(code);
+
+        return res.slice(0, -1).map(x => x.split(/\s+/)[1])
     }
 
     public async getQuantMeta(dfName: string, colName: string): Promise<IQuantMeta> {
-        // FIXME implement this
-        return { "mean": "50", "median": "55", "num_invalid": "5" }
+        let mean_code = `print(${dfName}["${colName}"].mean())`
+        let median_code = `print(${dfName}["${colName}"].median())`
+        let numNull_code = `print(${dfName}["${colName}"].isna().sum())`
+        let code_lines = [mean_code, median_code, numNull_code]
+        let res = await this.executeCode(code_lines.join('\n'));
+        // return new Promise(resolve => resolve({ "mean": res[0], "median": res[1], "num_invalid": res[2] }))
+        return { "mean": res[0], "median": res[1], "num_invalid": res[2] }
     }
 
     public async getNomMeta(dfName: string, colName: string): Promise<INomMeta> {
-        // FIXME implement this
-
-        return { "unique": "5", "num_invalid": "5" }
+        let numUnique_code = `print(${dfName}["${colName}"].nunique())`
+        let numNull_code = `print(${dfName}["${colName}"].isna().sum())`
+        let code_lines = [numUnique_code, numNull_code]
+        let res = await this.executeCode(code_lines.join('\n'));
+        // return new Promise(resolve => resolve({ "unique": res[0], "num_invalid": res[1] }))
+        return { "num_unique": res[0], "num_invalid": res[1] }
     }
 
-    
-    async getNomColVisData(colName: string, n: number = 5): Promise<INomChartData> {
-        // FIXME implement this
 
-        let data = [
-            {[colName]: 0, "count": 5},
-            {[colName]: 1, "count": 15},
-            {[colName]: 2, "count": 10},
-            {[colName]: 3, "count": 20},
-        ]
+    async getNomColVisData(dfName: string, colName: string, n: number = 5): Promise<INomChartData> {
+
+        let code = `${dfName}["${colName}"].value_counts()[:${n}]`
+        let res = await this.executeCode(code);
+
+        // res is array of strings where the values are the lines of print(code)
+        let data = res.slice(0, -1).map(txt => {
+            let [value, count] = txt.split(/\s+/)
+            return { [colName]: [value], "count": [count] }
+        })
+
+        // let data = [
+        //     { [colName]: 0, "count": 5 },
+        //     { [colName]: 1, "count": 15 },
+        //     { [colName]: 2, "count": 10 },
+        //     { [colName]: 3, "count": 20 },
+        // ]
 
         return data
     }
 
-    async getQuantBinnedData(colName: string, maxbins: number = 10): Promise<IQuantChartData> {
+    async getQuantBinnedData(dfName: string, colName: string, maxbins: number = 5): Promise<IQuantChartData> {
         // FIXME implement this
 
-        let data = [
-            {"bin_0": 0, "bin_1": 1, "count": 5},
-            {"bin_0": 1, "bin_1": 2, "count": 15},
-            {"bin_0": 2, "bin_1": 3, "count": 10},
-            {"bin_0": 3, "bin_1": 4, "count": 20},
-        ]
-    
-        let bin_size = 1 
+        // let code = ""
 
-        return {"binned_data": data, "bin_size": bin_size}
+        // let res = await this.executeCode(code, "execute_result");
+
+        // console.log("code result in get quant data...", res)
+
+        // let code = `import pandas as pd
+        // binned = ${dfName}["${colName}"].value_counts(bins=${maxbins}, sort=False)
+        // df_binned = pd.DataFrame({"bin_0": binned.index.left, 
+        //                           "bin_1": binned.index.right, 
+        //                           "count": binned.values})
+        // df_binned`
+
+        // let res = await this.executeCode(code);
+
+        
+        let code = `${dfName}` // returned as an execute result
+        let res = await this.executeCode(code);
+        console.log("getQuantBinnedData res: ", res)
+
+
+        let data = [
+            { "bin_0": 0, "bin_1": 1, "count": 5 },
+            { "bin_0": 1, "bin_1": 2, "count": 15 },
+            { "bin_0": 2, "bin_1": 3, "count": 10 },
+            { "bin_0": 3, "bin_1": 4, "count": 20 },
+        ]
+
+        let bin_size = 1
+
+        return { "binned_data": data, "bin_size": bin_size }
 
     }
 

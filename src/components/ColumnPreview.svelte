@@ -65,7 +65,7 @@
     let colMd: Promise<any>;
 
     async function getQuantInfo() {
-        let quantInfo = await $dataAccessor.getQuantBinnedData(columnName);
+        let quantInfo = await $dataAccessor.getQuantBinnedData(dfName, columnName);
         inputData.table = quantInfo['binned_data'];
         // quantSpec.encoding.x["bin"]["step"] = quantInfo["bin_size"];
 
@@ -73,25 +73,25 @@
         quantSpec.encoding.x['title'] = columnName;
         // spec = quantSpec;
 
-        colMd = $dataAccessor.getQuantMeta(dfName, columnName);
         return new Promise(resolve => resolve(quantSpec));
     }
 
     async function getNomInfo() {
-        inputData.table = await $dataAccessor.getNomColVisData(columnName);
+        inputData.table = await $dataAccessor.getNomColVisData(dfName, columnName);
 
         // @ts-ignore
         nomSpec.encoding['y']['field'] = columnName;
         // spec = nomSpec;
-        colMd = $dataAccessor.getNomMeta(dfName, columnName);
         return new Promise(resolve => resolve(nomSpec));
     }
 
     // TODO put these type in an enum or something
     if (type === 'int64' || type === 'float64') {
         spec = getQuantInfo();
+        colMd = $dataAccessor.getQuantMeta(dfName, columnName);
     } else {
         spec = getNomInfo();
+        colMd = $dataAccessor.getNomMeta(dfName, columnName);
     }
 </script>
 
