@@ -13,7 +13,7 @@
 
     {#if $dataFramesAndCols}
         <!-- <div id="header-icon" /> -->
-        <div>
+        <div class="notebook-info">
             <p>
                 {profileModel.name} is a
                 <b>
@@ -27,13 +27,15 @@
             </p>
         </div>
 
-        {#each Object.keys($dataFramesAndCols) as dfName}
-            <DFProfile
-                {dfName}
-                colInfo={$dataFramesAndCols[dfName]}
-                {profileModel}
-            />
-        {/each}
+        <div class="df-cards">
+            {#each Object.keys($dataFramesAndCols) as dfName}
+                <DFProfile
+                    {dfName}
+                    colInfo={$dataFramesAndCols[dfName]}
+                    {profileModel}
+                />
+            {/each}
+        </div>
     {:else}
         <p>
             All Pandas dataframes in your jupyter notebook will be profiled
@@ -49,4 +51,12 @@
         /* max-width: 240px; */
         margin: 0 auto;
     }
+
+    .notebook-info {
+        margin-bottom: 1em;
+    }
+
+    /* .df-cards  {
+        margin-bottom: 1em;
+    } */
 </style>

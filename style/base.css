@@ -36,26 +36,3 @@
 .myIcon {
   background: url('./logo.svg');
 }
-
-.demo-button {
-  background-color: slategray;
-  border-radius: 10px;
-  padding: 8px 4px;
-  margin: 1em;
-  text-align: center;
-  color: white;
-}
-
-.code {
-  min-height: 1em;
-  margin: 8px;
-  border: 1px solid orangered;
-}
-
-.demo-envVar {
-  color: orangered;
-}
-
-.jp-example-view {
-  background-color: green;
-}

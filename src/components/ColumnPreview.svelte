@@ -2,17 +2,23 @@
     import type { VisualizationSpec } from 'svelte-vega';
     import { VegaLite } from 'svelte-vega';
     import type { ProfileModel } from '../ProfileModel';
-
+    import { CollapsibleCard } from 'svelte-collapsible';
     // import type {IQuantMeta, INomMeta} from '../dataAPI/exchangeInterfaces';
 
     export let type: string;
     export let columnName: string;
     export let dfName: string;
     export let profileModel: ProfileModel;
+    export let idx: number;
 
-    console.log(`Making column preview for ${dfName}.${columnName}`)
+    console.log(
+        `Making column preview for ${dfName}.${columnName} with index ${idx}`
+    );
 
-    let headRows: Promise<string[]> = profileModel.getColHeadRows(dfName, columnName);
+    let headRows: Promise<string[]> = profileModel.getColHeadRows(
+        dfName,
+        columnName
+    );
 
     let quantSpec: VisualizationSpec = {
         $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
@@ -64,7 +70,10 @@
     let colMd: Promise<any>;
 
     async function getQuantInfo() {
-        let quantInfo = await profileModel.getQuantBinnedData(dfName, columnName);
+        let quantInfo = await profileModel.getQuantBinnedData(
+            dfName,
+            columnName
+        );
         inputData.table = quantInfo['binned_data'];
         // quantSpec.encoding.x["bin"]["step"] = quantInfo["bin_size"];
         // @ts-ignore
@@ -73,7 +82,10 @@
     }
 
     async function getNomInfo() {
-        inputData.table = await profileModel.getNomColVisData(dfName, columnName);
+        inputData.table = await profileModel.getNomColVisData(
+            dfName,
+            columnName
+        );
 
         // @ts-ignore
         nomSpec.encoding['y']['field'] = columnName;
@@ -91,72 +103,156 @@
     }
 </script>
 
-<div class="ColumnProfile">
-    <div class="cp-header"><b>{columnName}</b> <i>{type}</i></div>
-    <div class="cp-preview">
-        Preview:
-        {#await headRows}
-            Getting preview...
-        {:then headRows}
-            <ul class="minimalList">
-                {#each headRows as row}
-                    <li>{row}</li>
-                {/each}
-            </ul>
-        {:catch error}
-            <p>ERROR getting head rows for {columnName} -- {error}</p>
-        {/await}
-    </div>
-    <div class="cp-meta">
-        MetaData:
-        {#await colMd}
-            Getting column metadata...
-        {:then colMd}
-            <ul class="minimalList">
-                {#if type === 'int64' || type === 'float64'}
-                    <li>Mean: {colMd?.mean}</li>
-                    <li>Median: {colMd?.median}</li>
-                    <li>Number Missing: {colMd?.num_invalid}</li>
-                {:else}
-                    <li>Unique: {colMd?.num_unique}</li>
-                    <li>Number Missing: {colMd?.num_invalid}</li>
-                {/if}
-            </ul>
-        {:catch error}
-            <p>ERROR getting metadata for {columnName} -- {error}</p>
-        {/await}
-    </div>
+<div class="column-profile">
+    <CollapsibleCard open={false}>
+        <div
+            slot="header"
+            class={'cp-header ' + (idx > 0 ? 'cp-separate_line' : '')}
+        >
+            <div class="header-left header-item">
+                <h3 class="ilb-item">{columnName}</h3>
+                <i class="ilb-item">({type})</i>
+            </div>
 
-    <div id="cp-vis">
-        {#await spec}
-            Loading vis...
-        {:then spec}
-            <VegaLite spec={spec} data={inputData} />
-        {:catch error}
-            <p>ERROR producing visualization for {columnName} -- {error}</p>
-        {/await}
-    </div>
+            <div class="cp-vis header-item header-right">
+                {#await spec}
+                    Loading vis...
+                {:then spec}
+                    <VegaLite
+                        {spec}
+                        data={inputData}
+                        options={{
+                            actions: false,
+                            renderer: 'svg',
+                            height: 50
+                        }}
+                    />
+                {:catch error}
+                    <p>
+                        ERROR producing visualization for {columnName} -- {error}
+                    </p>
+                {/await}
+            </div>
+        </div>
+
+        <div slot="body" class="cp-body">
+            <div class="cp-preview cp-section">
+                <div>Data Preview</div>
+                <div>
+                    {#await headRows}
+                        Getting Data...
+                    {:then headRows}
+                        <ul class="minimalList">
+                            {#each headRows as row}
+                                <li>{row}</li>
+                            {/each}
+                        </ul>
+                    {:catch error}
+                        <p>
+                            ERROR getting head rows for {columnName} -- {error}
+                        </p>
+                    {/await}
+                </div>
+            </div>
+            <div class="cp-meta cp-section">
+                <div>MetaData</div>
+                <div>
+                    {#await colMd}
+                        Getting column metadata...
+                    {:then colMd}
+                        <ul class="minimalList">
+                            {#if type === 'int64' || type === 'float64'}
+                                <li>Mean: {colMd?.mean}</li>
+                                <li>Median: {colMd?.median}</li>
+                                <li>Number Missing: {colMd?.num_invalid}</li>
+                            {:else}
+                                <li>Unique: {colMd?.num_unique}</li>
+                                <li>Number Missing: {colMd?.num_invalid}</li>
+                            {/if}
+                        </ul>
+                    {:catch error}
+                        <p>
+                            ERROR getting metadata for {columnName} -- {error}
+                        </p>
+                    {/await}
+                </div>
+            </div>
+        </div>
+    </CollapsibleCard>
 </div>
 
 <style>
-    .ColumnProfile {
-        padding-top: 5px;
+    .column-profile {
+        /* padding-top: 5px; */
         /* border-bottom: 1px dashed #e2e2e2; */
-    }
-
-    .cp-header {
-        background-color: #e2e2e2;
-        min-height: 35px;
-    }
-
-    .vp-vis {
-        height: 250px;
         width: 100%;
     }
 
-    .minimalList {
+    .cp-header {
+        padding-left: 1em;
+        min-height: 35px;
+    }
+
+    .cp-separate_line {
+        border-top: 1px dashed #9e9e9e;
+    }
+
+    /* :global(.card.open) .cp-header {
+        border-bottom: 1px dashed #9e9e9e;
+    } */
+
+    .cp-body {
+        padding: 2em;
+    }
+
+    .cp-vis {
+        height: 50px;
+        width: 100%;
+    }
+
+    .cp-meta {
+        margin-top: 1em;
+    }
+
+    .header-item {
+        display: inline-block;
+        /* text-align: center;
+        position: relative;
+        top: 50%;
+        -ms-transform: translateY(-50%);
+        -webkit-transform: translateY(-50%);
+        transform: translateY(-50%); */
+    }
+
+    .ilb-item {
+        display: inline-block;
+    }
+
+    .header-left {
+        width: 30%;
+    }
+
+    .header-right {
+        width: 70%;
+    }
+
+    ul.minimalList {
         list-style-type: none;
-        padding-left: 10px;
         padding-top: 0;
+        padding-left: 0;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    ul.minimalList li {
+        float: left;
+        display: block;
+        text-align: center;
+        padding: 16px;
+        text-decoration: none;
+        border: 1px solid #9e9e9e;
+        border-radius: 5px;
+        margin-right: 5px;
+        margin-top: 5px;
     }
 </style>

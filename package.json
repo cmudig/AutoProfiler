@@ -80,6 +80,7 @@
     "stylelint-config-standard": "~25.0.0",
     "stylelint-prettier": "^2.0.0",
     "svelte": "^3.46.6",
+    "svelte-collapsible": "^0.2.1",
     "svelte-loader": "^3.1.2",
     "svelte-preprocess": "^4.10.5",
     "svelte-vega": "^1.1.0",
