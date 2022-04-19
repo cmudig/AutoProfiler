@@ -1,8 +1,6 @@
-// import { UseSignal } from '@jupyterlab/apputils';
-
-import type { ProfileModel } from './ProfileModel';
 
 import { Widget } from '@lumino/widgets';
+import type { ProfileModel } from './ProfileModel';
 import Profiler from './components/Profiler.svelte';
 
 export class ProfileView extends Widget {
@@ -10,8 +8,6 @@ export class ProfileView extends Widget {
         super()
         this.addClass('AutoProfileApp');
         this._model = model;
-
-        // this._model.stateChanged signals data update
 
         new Profiler({
             target: this.node,
@@ -22,5 +18,4 @@ export class ProfileView extends Widget {
     }
 
     private _model: ProfileModel;
-    // private _svelteApp: any;
 }

@@ -79,47 +79,11 @@ export class ProfileModel { // implements Executor
         // });
     }
 
-    // public nbChangeHandle(sender: NotebookAPI, value: string) {
-    //     // called whenever notebook content changes (after cell execution for example)
-
-    //     console.log("Notebook changed signal received in ProfileModel of type: ", value)
-    //     if (value === "cell run") {
-    //         console.log("new cell run, this is", this)
-    //         this.updateRootData()
-    //     }
-    // }
 
     public async updateRootData() {
         let alldf = await this.getAllDataFrames()
         dataFramesAndCols.set(alldf)
     }
-
-
-    // get future(): Kernel.IFuture<
-    //     KernelMessage.IExecuteRequestMsg,
-    //     KernelMessage.IExecuteReplyMsg> | null {
-    //     return this._future;
-    // }
-
-    // set future(
-    //     value: Kernel.IFuture<
-    //         KernelMessage.IExecuteRequestMsg,
-    //         KernelMessage.IExecuteReplyMsg> | null
-    // ) {
-    //     this._future = value;
-    //     if (!value) {
-    //         return;
-    //     }
-    //     value.onIOPub = this._onIOPub;
-    // }
-
-    // get output(): IOutput | null {
-    //     return this._output;
-    // }
-
-    // get stateChanged(): ISignal<this, void> {
-    //     return this._stateChanged;
-    // }
 
     // #############################################################################
     // Code execution helpers
@@ -254,13 +218,6 @@ export class ProfileModel { // implements Executor
             this.sendCodeToKernel(code, onReply);
         });
     }
-
-    // private async getType(varNames: string[]): Promise<string[]> {
-    //     let code_lines: string[] = [];
-    //     varNames.forEach(name => code_lines.push(`print(type(${name}).__name__)`));
-    //     return this.executeCode(code_lines.join('\n'));
-    // }
-
 
     private async getDFVars(varNames: string[]): Promise<string[]> {
         /*

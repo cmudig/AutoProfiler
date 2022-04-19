@@ -48,7 +48,7 @@
                 type: 'quantitative'
             },
             y: {
-                field: 'col_a', // TODO
+                field: 'col_a',
                 type: 'nominal',
                 sort: '-x'
             }
@@ -67,11 +67,8 @@
         let quantInfo = await profileModel.getQuantBinnedData(dfName, columnName);
         inputData.table = quantInfo['binned_data'];
         // quantSpec.encoding.x["bin"]["step"] = quantInfo["bin_size"];
-
         // @ts-ignore
         quantSpec.encoding.x['title'] = columnName;
-        // spec = quantSpec;
-
         return new Promise(resolve => resolve(quantSpec));
     }
 

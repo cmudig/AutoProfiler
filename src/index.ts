@@ -9,7 +9,6 @@ import { ProfilePanel } from './ProfilePanel';
 /**
  * Initialization data for the AutoProfile extension.
  */
-
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'AutoProfile:plugin',
   autoStart: true,
@@ -25,7 +24,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     // emitted when the user's notebook changes I think...
     notebookTracker.currentChanged.connect((_, widget) => {
-
       console.log("Notebook current changed signal called.")
 
       const notebook = new NotebookAPI(widget);
@@ -34,12 +32,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
         // connect panel to notebook
         await panel.connectNotebook(notebook);
-
-        // notebook.changed.connect(async () => {
-        //   // this is run anytime the notebook changed signal fires
-        //   // let dataframes_with_columns = await notebook.kernel.getDataFramesWithColumns();
-        //   updateUIData(notebook);
-        // });
       });
     });
 
