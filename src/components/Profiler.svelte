@@ -5,17 +5,12 @@
 
     export let profileModel: ProfileModel;
 
-    $: console.log(
-        'In the rootComp dataFramesAndCols is: ',
-        $dataFramesAndCols
-    );
+    // $: console.log('In the rootComp dataFramesAndCols is: ', $dataFramesAndCols);
 </script>
 
 <main>
     <h1>Dataframe Profiler</h1>
-    <p>
-        All Pandas dataframes in your jupyter notebook will be profiled below.
-    </p>
+
     {#if $dataFramesAndCols}
         <!-- <div id="header-icon" /> -->
         <div>
@@ -28,7 +23,7 @@
                         {lang}
                     {/await}
                 </b>
-                notebook
+                notebook.
             </p>
         </div>
 
@@ -40,7 +35,10 @@
             />
         {/each}
     {:else}
-        No data (yet).
+        <p>
+            All Pandas dataframes in your jupyter notebook will be profiled
+            below (no data yet).
+        </p>
     {/if}
 </main>
 

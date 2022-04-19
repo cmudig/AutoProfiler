@@ -17,18 +17,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
     notebookTracker: INotebookTracker,
   ) => {
 
-    console.log("Activating AutoProfile extension...")
-
     let panel: ProfilePanel = new ProfilePanel();
     app.shell.add(panel, 'left'); //{ rank: 600 }
 
     // emitted when the user's notebook changes I think...
     notebookTracker.currentChanged.connect((_, widget) => {
-      console.log("Notebook current changed signal called.")
 
       const notebook = new NotebookAPI(widget);
       notebook.ready.then(async () => {
-        console.log('Notebook ready! ---', notebook);
 
         // connect panel to notebook
         await panel.connectNotebook(notebook);

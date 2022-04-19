@@ -104,7 +104,7 @@
                 {/each}
             </ul>
         {:catch error}
-            <p>ERROR getting head rows for {columnName}</p>
+            <p>ERROR getting head rows for {columnName} -- {error}</p>
         {/await}
     </div>
     <div class="cp-meta">
@@ -123,7 +123,7 @@
                 {/if}
             </ul>
         {:catch error}
-            <p>ERROR getting head rows for {columnName}</p>
+            <p>ERROR getting metadata for {columnName} -- {error}</p>
         {/await}
     </div>
 
@@ -133,7 +133,7 @@
         {:then spec}
             <VegaLite spec={spec} data={inputData} />
         {:catch error}
-            <p>ERROR getting head rows for {columnName}</p>
+            <p>ERROR producing visualization for {columnName} -- {error}</p>
         {/await}
     </div>
 </div>

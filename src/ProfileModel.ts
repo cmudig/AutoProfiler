@@ -37,7 +37,6 @@ export class ProfileModel { // implements Executor
     }
 
     public setSession(new_session: ISessionContext) {
-        console.log("Setting session context in ProfilePanel: ", new_session.ready)
         this._sessionContext = new_session;
     }
 
@@ -55,28 +54,18 @@ export class ProfileModel { // implements Executor
     public async connectNotebook(notebook: NotebookAPI) {
         console.log("Connecting notebook to ProfilePanel")
         this._notebook = notebook;
-
         this.setSession(notebook.panel.sessionContext)
 
         await this.session.ready;
-        console.log("Session context is now ready? ", this.session.ready)
-
+        // have to do this as arrow function or else this doesnt work
         this._notebook.changed.connect((sender, value) => {
-            console.log("Notebook changed signal received in ProfileModel of type: ", value)
+            // console.log("Notebook changed signal received in ProfileModel of type: ", value)
             if (value === "cell run") {
-                console.log("new cell run, this is", this)
                 this.updateRootData()
             }
-
         })
         this._ready = true
         this.updateRootData()
-
-        // this.session.ready.then(() => {
-        //     this._notebook.changed.connect(this.nbChangeHandle)
-        //     this._ready = true
-        //     this.updateRootData()
-        // });
     }
 
 
@@ -139,9 +128,9 @@ export class ProfileModel { // implements Executor
                     case 'display_data':
                     case 'update_display_data':
                         // These three all return same content except execute result has the execution count
-                        // let response: string[] = content.data['text/plain'].split('\n');
-                        let response2 = content.data
-                        resolve(response2);
+                        // TODO unclear how to get data back in JSON?
+                        let response: string[] = content.data['text/plain'].split('\n');
+                        resolve(response);
                         break;
                     case 'stream':
                         let response3: string[] = content.text.split('\n');
@@ -193,7 +182,6 @@ export class ProfileModel { // implements Executor
                     dfColMap[vars_DF[index]] = columnTuples
                 }
 
-                console.log("dfCOlMap is: ", dfColMap)
                 return dfColMap
             }
         }
@@ -280,62 +268,43 @@ export class ProfileModel { // implements Executor
 
 
     async getNomColVisData(dfName: string, colName: string, n: number = 5): Promise<INomChartData> {
+        /*
+        *   Returns data for VL spec to plot nominal data. In form of array of shape
+        *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
+        */
 
-        let code = `${dfName}["${colName}"].value_counts()[:${n}]`
+        let code = `print(${dfName}["${colName}"].value_counts()[:${n}].to_json())`
         let res = await this.executeCode(code);
-
-        // res is array of strings where the values are the lines of print(code)
-        let data = res.slice(0, -1).map(txt => {
-            let [value, count] = txt.split(/\s+/)
-            return { [colName]: [value], "count": [count] }
+        let json_res = JSON.parse(res[0].replace(/'/g, "")) // remove single quotes bc not JSON parseable
+        let data: INomChartData = []
+        Object.keys(json_res).forEach(k => {
+            data.push({ [colName]: k, "count": json_res[k] })
         })
-
-        // let data = [
-        //     { [colName]: 0, "count": 5 },
-        //     { [colName]: 1, "count": 15 },
-        //     { [colName]: 2, "count": 10 },
-        //     { [colName]: 3, "count": 20 },
-        // ]
 
         return data
     }
 
     async getQuantBinnedData(dfName: string, colName: string, maxbins: number = 5): Promise<IQuantChartData> {
-        // FIXME implement this
+        /*
+        *   Returns data for VL spec to plot quant data. In form of array of shape
+        *   [ { "bin_0": 0, "bin_1": 1, "count": 5 }, ]
+        */
 
-        // let code = ""
-
-        // let res = await this.executeCode(code, "execute_result");
-
-        // console.log("code result in get quant data...", res)
-
-        // let code = `import pandas as pd
-        // binned = ${dfName}["${colName}"].value_counts(bins=${maxbins}, sort=False)
-        // df_binned = pd.DataFrame({"bin_0": binned.index.left, 
-        //                           "bin_1": binned.index.right, 
-        //                           "count": binned.values})
-        // df_binned`
-
-        // let res = await this.executeCode(code);
-
-
-        let code = `${dfName}` // returned as an execute result
+        let code = `print(${dfName}["${colName}"].value_counts(bins=min(${maxbins}, ${dfName}["${colName}"].nunique()), sort=False).to_json())`
         let res = await this.executeCode(code);
-        console.log("getQuantBinnedData res: ", res)
+        let json_res = JSON.parse(res[0].replace(/'/g, "")) // remove single quotes bc not JSON parseable
+        let data: any[] = []
 
+        Object.keys(json_res).forEach(k => {
+            let cleank = k.replace(/[\])}[{(]/g, '') // comes in interval formatting like [22, 50)
+            let [low, high] = cleank.split(",")
 
-        let data = [
-            { "bin_0": 0, "bin_1": 1, "count": 5 },
-            { "bin_0": 1, "bin_1": 2, "count": 15 },
-            { "bin_0": 2, "bin_1": 3, "count": 10 },
-            { "bin_0": 3, "bin_1": 4, "count": 20 },
-        ]
+            data.push({ "bin_0": parseFloat(low), "bin_1": parseFloat(high), "count": json_res[k] })
+        })
 
-        let bin_size = 1
+        let bin_size = data.length > 0 ? Math.abs(data[0].bin_1 - data[0].bin_0) : undefined
 
         return { "binned_data": data, "bin_size": bin_size }
-
     }
-
 
 }
