@@ -1,19 +1,18 @@
 <script lang="ts">
     import type { VisualizationSpec } from 'svelte-vega';
     import { VegaLite } from 'svelte-vega';
-    import { dataAccessor } from '../stores';
+    import type { ProfileModel } from '../ProfileModel';
 
     // import type {IQuantMeta, INomMeta} from '../dataAPI/exchangeInterfaces';
-
 
     export let type: string;
     export let columnName: string;
     export let dfName: string;
+    export let profileModel: ProfileModel;
 
     console.log(`Making column preview for ${dfName}.${columnName}`)
 
-
-    let headRows = $dataAccessor.getColHeadRows(dfName, columnName);
+    let headRows: Promise<string[]> = profileModel.getColHeadRows(dfName, columnName);
 
     let quantSpec: VisualizationSpec = {
         $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
@@ -65,7 +64,7 @@
     let colMd: Promise<any>;
 
     async function getQuantInfo() {
-        let quantInfo = await $dataAccessor.getQuantBinnedData(dfName, columnName);
+        let quantInfo = await profileModel.getQuantBinnedData(dfName, columnName);
         inputData.table = quantInfo['binned_data'];
         // quantSpec.encoding.x["bin"]["step"] = quantInfo["bin_size"];
 
@@ -77,7 +76,7 @@
     }
 
     async function getNomInfo() {
-        inputData.table = await $dataAccessor.getNomColVisData(dfName, columnName);
+        inputData.table = await profileModel.getNomColVisData(dfName, columnName);
 
         // @ts-ignore
         nomSpec.encoding['y']['field'] = columnName;
@@ -88,10 +87,10 @@
     // TODO put these type in an enum or something
     if (type === 'int64' || type === 'float64') {
         spec = getQuantInfo();
-        colMd = $dataAccessor.getQuantMeta(dfName, columnName);
+        colMd = profileModel.getQuantMeta(dfName, columnName);
     } else {
         spec = getNomInfo();
-        colMd = $dataAccessor.getNomMeta(dfName, columnName);
+        colMd = profileModel.getNomMeta(dfName, columnName);
     }
 </script>
 
