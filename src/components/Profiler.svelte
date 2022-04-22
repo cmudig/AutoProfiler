@@ -5,10 +5,14 @@
 
     export let profileModel: ProfileModel;
 
-    $: console.log(
-        '[SVELTE] root Profiler dataFramesAndCols is: ',
-        $dataFramesAndCols
-    );
+    // Locals
+    let name: string;
+    let lang: Promise<string>;
+
+    $: if ($dataFramesAndCols) {
+        name = profileModel.name;
+        lang = profileModel.language;
+    }
 </script>
 
 <main>
@@ -18,9 +22,9 @@
         <!-- <div id="header-icon" /> -->
         <div class="notebook-info">
             <p>
-                {profileModel.name} is a
+                {name} is a
                 <b>
-                    {#await profileModel.language}
+                    {#await lang}
                         ?
                     {:then lang}
                         {lang}

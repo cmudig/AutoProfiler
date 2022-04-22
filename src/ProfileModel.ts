@@ -17,11 +17,10 @@ import type {
     INomChartData
 } from "./dataAPI/exchangeInterfaces"
 
-type ExecResult = { "content": string[], "et": number }
+type ExecResult = { "content": string[], "exec_count": number }
 
 
 export class ProfileModel { // implements Executor 
-    private exec_count = 0;
 
     private _sessionContext: ISessionContext;
     private _notebook: NotebookAPI;
@@ -83,9 +82,8 @@ export class ProfileModel { // implements Executor
 
     private sendCodeToKernel(
         code: string,
-        exec_time: number,
-        onReply?: (type: string, content: any, et: number) => void,
-        onDone?: (arg_0?: any) => void
+        onReply?: (type: string, content: any) => void,
+        onDone?: (arg_0?: string) => void
     ) {
         // await this.ready
         let future = this.session.session?.kernel?.requestExecute({
@@ -102,16 +100,15 @@ export class ProfileModel { // implements Executor
                 || (msg_type === 'update_display_data')
                 || (msg_type === 'stream')
             ) {
-                if (onReply) onReply(msg_type + '', msg.content, exec_time);
+                if (onReply) onReply(msg_type + '', msg.content);
             }
-
         };
 
         // when execution is done
         future.done.then(
             reply => {
-                // if (onDone) onDone(reply.content.status);
-                if (onDone) onDone(reply);
+                if (onDone) onDone(reply.content.status);
+                // reply.content.execution_count // time this code was run
             },
             error => {
                 console.error('Code run failed: ', error);
@@ -120,38 +117,35 @@ export class ProfileModel { // implements Executor
         );
     }
 
-    private async executeCode(code: string = '', exec_time: number): Promise<ExecResult> {
+    private async executeCode(code: string = ''): Promise<ExecResult> {
         // await this.ready;
 
         return new Promise<ExecResult>(resolve => {
-            let onReply = (type: string, content: any, et: number) => {
-                // console.log("code executed: ", code, "\nReturned as ", type, "with content: ", content)
+            let response: ExecResult = { "content": [], "exec_count": null }
+            let contentMatrix: string[][] = []
 
-                console.log(`[${type} @${et}]: Code executed: ${code} returned: `, content)
-
+            let onReply = (type: string, content: any) => {
                 if ((type === 'execute_result') || (type === 'display_data') || (type === 'update_display_data')) {
                     let cont: string[] = content.data['text/plain'].split('\n');
-                    let response = { "content": cont, "et": et }
-                    // console.log("Handling execute content, resolving...", response)
-                    resolve(response);
+                    response.exec_count = content.execution_count // does not exist on message for streams
+                    contentMatrix.push(cont)
                 } else if (type === "stream") {
-                    let cont = content.text.split('\n');
-                    cont.pop();
-
-                    let response = { "content": cont, "et": et }
-                    // console.log("Handling stream content, resolving...", response)
-                    resolve(response);
+                    let cont: string[] = content.text.split('\n');
+                    contentMatrix.push(cont)
                 } else {
                     console.log("Unhandled message type: ", type, "with content ", content)
                 }
             };
 
-            // let onDone = (content: any) => {
-            //     console.log("On done for code: ", code, "has content...", content)
-            // }
+            let onDone = (status: string) => {
+                let flat_array = Array.prototype.concat(...contentMatrix)
+                response["content"] = flat_array
+                console.log(`${code} finished with status [${status}]. Response: `, response)
 
-            // this.sendCodeToKernel(code, exec_time, onReply, onDone);
-            this.sendCodeToKernel(code, exec_time, onReply);
+                resolve(response)
+            }
+
+            this.sendCodeToKernel(code, onReply, onDone);
         });
     }
 
@@ -162,18 +156,13 @@ export class ProfileModel { // implements Executor
         await this.ready;
         let var_names = await this.getVariableNames();
 
-        console.log("Var names are...", var_names)
-
         if (var_names) {
             let isDF = await this.getDFVars(var_names);
             let vars_DF = var_names.filter((d, idx) => isDF[idx] === "True")
 
-            console.log("The dataframes in memory are: ", vars_DF)
-
             if (vars_DF) {
 
                 // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
-
                 let dfColMap: IDFColMap = {};
                 for (let index = 0; index < vars_DF.length; index++) {
                     let columns = await this.getColumns(vars_DF[index]);
@@ -200,11 +189,9 @@ export class ProfileModel { // implements Executor
 
     public async getVariableNames(): Promise<string[]> {
         let code = '%who_ls'; // a python magic command
-        let et = this.exec_count
-        this.exec_count++;
 
         return new Promise<string[]>(resolve => {
-            let onReply = (type: string, content: any, exec_t: number) => {
+            let onReply = (type: string, content: any) => {
                 if (type == 'execute_result') {
                     // parse data into usable format
                     let data = (content.data['text/plain'] + '').replace(/'/g, '"');
@@ -212,12 +199,11 @@ export class ProfileModel { // implements Executor
                     let names = JSON.parse(jsn).names;
 
                     // return variable names
-                    console.log("getVariableNames sent at ", et, " returned at ", exec_t)
                     resolve(names);
                 }
             };
 
-            this.sendCodeToKernel(code, et, onReply);
+            this.sendCodeToKernel(code, onReply);
         });
     }
 
@@ -228,13 +214,8 @@ export class ProfileModel { // implements Executor
         let code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
         varNames.forEach(name => code_lines.push(`print(type(${name}) == pd.DataFrame)`))
 
-        let et = this.exec_count
-        this.exec_count++;
-        let res = await this.executeCode(code_lines.join('\n'), et);
-        console.log("Result in getDFVars: ", res)
+        let res = await this.executeCode(code_lines.join('\n'));
         let content = res["content"]
-        let returned_time = res["et"]
-        console.log(`${code_lines} time sent = ${et}, time back = ${returned_time}`)
 
         return content
     }
@@ -245,26 +226,15 @@ export class ProfileModel { // implements Executor
         Returns array of "True" or "False" if that variable is a pandas dataframe
         */
         let code = `print(${varName}.dtypes)`;
-        let et = this.exec_count
-        this.exec_count++;
-
-        let res = await this.executeCode(code, et);
+        let res = await this.executeCode(code);
         let content = res["content"]
-        let returned_time = res["et"]
-        console.log(`${code} time sent = ${et}, time back = ${returned_time}`)
-
         return content
     }
 
     public async getShape(dfName: string, colInfo?: IColTypeTuple[]): Promise<number[]> {
         let code = `print(${dfName}.shape)`; // returns '(3, 2)' so need to parse
-        let et = this.exec_count
-        this.exec_count++;
-        let res = await this.executeCode(code, et);
-
+        let res = await this.executeCode(code);
         let content = res["content"]
-        let returned_time = res["et"]
-        console.log(`${code} time sent = ${et}, time back = ${returned_time}`)
 
         let shapeString = content[0];
 
@@ -278,17 +248,11 @@ export class ProfileModel { // implements Executor
         /*
         Pandas print shows the index along with dataframe description so have to be trimmed off
         */
-
         const code = `print(${dfName}["${colName}"].head(${n}))`;
-        let et = this.exec_count
-        this.exec_count++;
-        let res = await this.executeCode(code, et);
-
+        let res = await this.executeCode(code);
         let content = res["content"]
-        let returned_time = res["et"]
-        console.log(`${code} time sent = ${et}, time back = ${returned_time}`)
 
-        return content.slice(0, -1).map(x => x.split(/\s+/)[1])
+        return content.slice(0, -2).map(x => x.split(/\s+/)[1])
     }
 
     public async getQuantMeta(dfName: string, colName: string): Promise<IQuantMeta> {
@@ -296,14 +260,9 @@ export class ProfileModel { // implements Executor
         let median_code = `print(${dfName}["${colName}"].median())`
         let numNull_code = `print(${dfName}["${colName}"].isna().sum())`
         let code_lines = [mean_code, median_code, numNull_code]
-        let et = this.exec_count
-        this.exec_count++;
-        let res = await this.executeCode(code_lines.join('\n'), et);
+        let res = await this.executeCode(code_lines.join('\n'));
 
         let content = res["content"]
-        let returned_time = res["et"]
-        console.log(`${code_lines} time sent = ${et}, time back = ${returned_time}`)
-        // return new Promise(resolve => resolve({ "mean": res[0], "median": res[1], "num_invalid": res[2] }))
         return { "mean": content[0], "median": content[1], "num_invalid": content[2] }
     }
 
@@ -311,14 +270,9 @@ export class ProfileModel { // implements Executor
         let numUnique_code = `print(${dfName}["${colName}"].nunique())`
         let numNull_code = `print(${dfName}["${colName}"].isna().sum())`
         let code_lines = [numUnique_code, numNull_code]
-        let et = this.exec_count
-        this.exec_count++;
-        let res = await this.executeCode(code_lines.join('\n'), et);
+        let res = await this.executeCode(code_lines.join('\n'));
 
         let content = res["content"]
-        let returned_time = res["et"]
-        console.log(`${code_lines} time sent = ${et}, time back = ${returned_time}`)
-        // return new Promise(resolve => resolve({ "unique": res[0], "num_invalid": res[1] }))
         return { "num_unique": content[0], "num_invalid": content[1] }
     }
 
@@ -330,12 +284,8 @@ export class ProfileModel { // implements Executor
         */
 
         let code = `print(${dfName}["${colName}"].value_counts()[:${n}].to_json())`
-        let et = this.exec_count
-        this.exec_count++;
-        let res = await this.executeCode(code, et);
+        let res = await this.executeCode(code);
         let content = res["content"]
-        let returned_time = res["et"]
-        console.log(`${code} time sent = ${et}, time back = ${returned_time}`)
 
         let json_res = JSON.parse(content[0].replace(/'/g, "")) // remove single quotes bc not JSON parseable
         let data: INomChartData = []
@@ -353,12 +303,8 @@ export class ProfileModel { // implements Executor
         */
 
         let code = `print(${dfName}["${colName}"].value_counts(bins=min(${maxbins}, ${dfName}["${colName}"].nunique()), sort=False).to_json())`
-        let et = this.exec_count
-        this.exec_count++;
-        let res = await this.executeCode(code, et);
+        let res = await this.executeCode(code);
         let content = res["content"]
-        let returned_time = res["et"]
-        console.log(`${code} time sent = ${et}, time back = ${returned_time}`)
 
         let json_res = JSON.parse(content[0].replace(/'/g, "")) // remove single quotes bc not JSON parseable
         let data: any[] = []
