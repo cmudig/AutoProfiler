@@ -5,7 +5,10 @@
 
     export let profileModel: ProfileModel;
 
-    // $: console.log('In the rootComp dataFramesAndCols is: ', $dataFramesAndCols);
+    $: console.log(
+        '[SVELTE] root Profiler dataFramesAndCols is: ',
+        $dataFramesAndCols
+    );
 </script>
 
 <main>

@@ -5,20 +5,20 @@
     import { CollapsibleCard } from 'svelte-collapsible';
     // import type {IQuantMeta, INomMeta} from '../dataAPI/exchangeInterfaces';
 
-    export let type: string;
+    export let col_type: string;
     export let columnName: string;
     export let dfName: string;
     export let profileModel: ProfileModel;
     export let idx: number;
 
-    console.log(
-        `Making column preview for ${dfName}.${columnName} with index ${idx}`
+    // locals init
+    let headRows: Promise<string[]>;
+
+    $: console.log(
+        `[SVELTE] Making column preview for ${dfName}.${columnName} with index ${idx}`
     );
 
-    let headRows: Promise<string[]> = profileModel.getColHeadRows(
-        dfName,
-        columnName
-    );
+    $: headRows = profileModel.getColHeadRows(dfName, columnName);
 
     let quantSpec: VisualizationSpec = {
         $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
@@ -94,12 +94,15 @@
     }
 
     // TODO put these type in an enum or something
-    if (type === 'int64' || type === 'float64') {
-        spec = getQuantInfo();
-        colMd = profileModel.getQuantMeta(dfName, columnName);
-    } else {
-        spec = getNomInfo();
-        colMd = profileModel.getNomMeta(dfName, columnName);
+    $: {
+        console.log(`Updating column data for ${dfName}.${columnName}`);
+        if (col_type === 'int64' || col_type === 'float64') {
+            spec = getQuantInfo();
+            colMd = profileModel.getQuantMeta(dfName, columnName);
+        } else {
+            spec = getNomInfo();
+            colMd = profileModel.getNomMeta(dfName, columnName);
+        }
     }
 </script>
 
@@ -111,7 +114,7 @@
         >
             <div class="header-left header-item">
                 <h3 class="ilb-item">{columnName}</h3>
-                <i class="ilb-item">({type})</i>
+                <i class="ilb-item">({col_type})</i>
             </div>
 
             <div class="cp-vis header-item header-right">
@@ -161,7 +164,7 @@
                         Getting column metadata...
                     {:then colMd}
                         <ul class="minimalList">
-                            {#if type === 'int64' || type === 'float64'}
+                            {#if col_type === 'int64' || col_type === 'float64'}
                                 <li>Mean: {colMd?.mean}</li>
                                 <li>Median: {colMd?.median}</li>
                                 <li>Number Missing: {colMd?.num_invalid}</li>

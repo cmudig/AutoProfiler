@@ -8,10 +8,13 @@
     export let colInfo: IColTypeTuple[];
     export let profileModel: ProfileModel;
 
-    console.log('Making DFProfile for ', dfName, ' with ', colInfo);
+    // Locals
+    let shape: Promise<number[]>;
+
+    $: console.log('[SVELTE] Making DFProfile for ', dfName, ' with ', colInfo);
 
     // locals
-    let shape: Promise<number[]> = profileModel.getShape(dfName);
+    $: shape = profileModel.getShape(dfName, colInfo); // colInfo isnt actually necessary for the call but I want this to re-run if colInfo updates, so I'm passing it in anyway
 </script>
 
 <div class="dataframe-profile">
@@ -35,7 +38,7 @@
                 <!-- do async at this level likely, or break into comps so can get each async -->
                 {#each colInfo as colData, idx}
                     <ColumnPreview
-                        type={colData.col_type}
+                        col_type={colData.col_type}
                         columnName={colData.col_name}
                         {dfName}
                         {profileModel}
