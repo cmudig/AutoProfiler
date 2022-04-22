@@ -31,7 +31,7 @@
             x: {
                 field: 'bin_0',
                 bin: { binned: true },
-                title: 'label stuff'
+                title: null
             },
             x2: { field: 'bin_1' },
             y: {
@@ -56,7 +56,8 @@
             y: {
                 field: 'col_a',
                 type: 'nominal',
-                sort: '-x'
+                sort: '-x',
+                title: null
             }
         }
     };
@@ -77,7 +78,7 @@
         inputData.table = quantInfo['binned_data'];
         // quantSpec.encoding.x["bin"]["step"] = quantInfo["bin_size"];
         // @ts-ignore
-        quantSpec.encoding.x['title'] = columnName;
+        // quantSpec.encoding.x['title'] = columnName;
         return new Promise(resolve => resolve(quantSpec));
     }
 
@@ -232,11 +233,11 @@
     }
 
     .header-left {
-        width: 30%;
+        width: 100%;
     }
 
     .header-right {
-        width: 70%;
+        width: 100%;
     }
 
     ul.minimalList {
