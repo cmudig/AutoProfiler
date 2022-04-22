@@ -1,19 +1,32 @@
 # AutoProfile
 
-Profile your data
+Profile your Pandas Dataframes! Autoprofile will automatically visualize your Pandas dataframes after every execution, no extra code necessary. 
+
+There's more bugs than features right now so buyer beware!
+
+![screenshot of autoprofile](examples/basic_profiler_sc.png)
+
+## Short Demo
+
+Autoprofile reads your current Jupyter notebook and produces profiles for the Pandas Dataframes in your memory along with some summary statistics and a data preview.
+
+![demo of autoprofile](examples/demo.gif)
 
 
 ## Requirements
 
 * JupyterLab >= 3.0
+* Pandas 
 
-## Install
+# Install
 
-To install the extension, execute:
+Pip install coming soon :)
+
+<!-- To install the extension, execute:
 
 ```bash
 pip install AutoProfile
-```
+``` -->
 
 ## Development install
 
@@ -30,6 +43,8 @@ The `jlpm` command is JupyterLab's pinned version of
 pip install -e .
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
+# OR
+jupyter labextension install .
 # Rebuild extension Typescript source after making changes
 npm run build
 ```
@@ -62,4 +77,3 @@ pip uninstall AutoProfile
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
 folder is located. Then you can remove the symlink named `AutoProfile` within that folder.
-
