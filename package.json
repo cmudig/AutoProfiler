@@ -54,7 +54,11 @@
   },
   "dependencies": {
     "@jupyterlab/application": "^3.3.3",
-    "@jupyterlab/notebook": "^3.3.3"
+    "@jupyterlab/notebook": "^3.3.3",
+    "d3-format": "^3.1.0",
+    "d3-shape": "^3.1.0",
+    "d3-time": "^3.0.0",
+    "d3-time-format": "^4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
