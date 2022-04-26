@@ -20,9 +20,12 @@
 
     $: headRows = profileModel.getColHeadRows(dfName, columnName);
 
+    let chartHeight: number = 50;
+
     let quantSpec: VisualizationSpec = {
         $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
         description: 'a chart',
+        height: chartHeight,
         data: {
             name: 'table'
         },
@@ -37,13 +40,15 @@
             y: {
                 field: 'count',
                 type: 'quantitative'
-            }
+            },
+            // color: {value: "#DF4141"}
         }
     };
 
     let nomSpec: VisualizationSpec = {
         $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
         description: 'a chart',
+        height: chartHeight,
         data: {
             name: 'table'
         },
@@ -58,7 +63,8 @@
                 type: 'nominal',
                 sort: '-x',
                 title: null
-            }
+            },
+            // color: {value: "#DF4141"}
         }
     };
 
@@ -128,7 +134,7 @@
                         options={{
                             actions: false,
                             renderer: 'svg',
-                            height: 50
+                            height: chartHeight
                         }}
                     />
                 {:catch error}
