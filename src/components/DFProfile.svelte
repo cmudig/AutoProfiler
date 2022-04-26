@@ -3,8 +3,7 @@
     import type { IColTypeTuple } from '../dataAPI/exchangeInterfaces';
     import type { ProfileModel } from '../ProfileModel';
     import { CollapsibleCard } from 'svelte-collapsible';
-
-    import { CollapsibleTableSummary } from "./rill-lib/column-profile/CollapsibleTableSummary.svelte";
+    import CollapsibleTableSummary from './rill-lib/column-profile/CollapsibleTableSummary.svelte';
 
     export let dfName: string;
     export let colInfo: IColTypeTuple[];
@@ -51,16 +50,20 @@
         </div>
     </CollapsibleCard>
 
-    <CollapsibleTableSummary
-        showTitle={false}
-        showContextButton={false}
-        show={true}
-        emphasizeTitle={false}
-        name={dfName}
-        cardinality={shape[0] ?? 0} 
-        profile={currentDerivedModel?.profile ?? []}
-        head={currentDerivedModel?.preview ?? []}
-    />
+    {#await shape}
+        Loading profile...
+    {:then shape}
+        <CollapsibleTableSummary
+            showTitle={false}
+            showContextButton={false}
+            show={true}
+            emphasizeTitle={false}
+            name={dfName}
+            cardinality={shape[0] ?? 0}
+            profile={currentDerivedModel?.profile ?? []}
+            head={currentDerivedModel?.preview ?? []}
+        />
+    {/await}
 </div>
 
 <style>

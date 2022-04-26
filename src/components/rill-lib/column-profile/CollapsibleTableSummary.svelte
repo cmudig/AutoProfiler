@@ -1,31 +1,31 @@
 <script lang="ts">
-import { SvelteComponent, tick } from "svelte/internal";
-import { onMount, createEventDispatcher } from "svelte";
+import type { SvelteComponent } from "svelte/internal";
+import { onMount } from "svelte";
 import { slide } from "svelte/transition";
 import { tweened } from "svelte/motion";
 import { cubicInOut as easing } from "svelte/easing";
-import { format } from "d3-format";
+// import { format } from "d3-format";
 
-import Menu from "../menu/Menu.svelte";
-import MenuItem from "../menu/MenuItem.svelte";
+// import Menu from "../menu/Menu.svelte";
+// import MenuItem from "../menu/MenuItem.svelte";
 import * as classes from "../util/component-classes";
-import FloatingElement from "../tooltip/FloatingElement.svelte";
+// import FloatingElement from "../tooltip/FloatingElement.svelte";
 import Spacer from "../icons/Spacer.svelte";
-import MoreIcon from "../icons/MoreHorizontal.svelte";
-import Shortcut from "../tooltip/Shortcut.svelte";
-import StackingWord from "../tooltip/StackingWord.svelte";
-import TooltipShortcutContainer from "../tooltip/TooltipShortcutContainer.svelte";
-import TooltipTitle from "../tooltip/TooltipTitle.svelte";
-import ContextButton from "./ContextButton.svelte";
+// import MoreIcon from "../icons/MoreHorizontal.svelte";
+// import Shortcut from "../tooltip/Shortcut.svelte";
+// import StackingWord from "../tooltip/StackingWord.svelte";
+// import TooltipShortcutContainer from "../tooltip/TooltipShortcutContainer.svelte";
+// import TooltipTitle from "../tooltip/TooltipTitle.svelte";
+// import ContextButton from "./ContextButton.svelte";
 import ColumnProfile from "./ColumnProfile.svelte";
-import NavEntry from "./NavEntry.svelte";
+// import NavEntry from "./NavEntry.svelte";
 import { defaultSort, sortByNullity, sortByName } from "./sort-utils"
 
-import { dropStore } from '../drop-store';
+// import { dropStore } from '../drop-store';
 
 // import notificationStore from "./notifications/";
 
-import { onClickOutside } from "../util/on-click-outside";
+// import { onClickOutside } from "../util/on-click-outside";
 import { config } from "./utils";
 
 export let icon:SvelteComponent;
@@ -42,14 +42,14 @@ export let showTitle = true;
 export let showContextButton = true;
 export let indentLevel = 0;
 
-const dispatch = createEventDispatcher();
+// const dispatch = createEventDispatcher();
 
-const formatInteger = format(',');
+// const formatInteger = format(',');
 
 let containerWidth = 0;
-let contextMenu;
-let contextMenuOpen = false;
-let container;
+// let contextMenu;
+// let contextMenuOpen = false;
+let container: any;
 
 
 onMount(() => {
@@ -86,159 +86,10 @@ $: if (sortMethod !== sortByOriginalOrder) {
 
 let previewView = 'summaries';
 
-let menuX;
-let menuY;
-let clickOutsideListener;
-$: if (!contextMenuOpen && clickOutsideListener) {
-    clickOutsideListener();
-    clickOutsideListener = undefined;
-}
-
-// state for title bar hover.
-let titleElementHovered = false;
-
 </script>
 
 <div bind:this={container}>
-    {#if showTitle}
-    <div {draggable} 
-        class="active:cursor-grabbing"
-        on:dragstart={(evt) => {
-            var elem = document.createElement("div");
-            elem.id = "drag-ghost";
-            elem.textContent = `${name}`;
-            elem.style.position = "absolute";
-            elem.style.top = "-1000px";
-            elem.style.fontSize = '12px';
-            elem.style.transform = 'translateY(-5em)';
-            elem.classList.add('draggable');
-            document.body.appendChild(elem);
-            evt.dataTransfer.setDragImage(elem, 0, 0);
-            dropStore.set({
-                type: "source-to-query",
-                props: {
-                    content: `SELECT \n  ${selectingColumns && selectedColumns.length ? selectedColumns.join(',\n  ') : '*' }\nFROM '${path}';`,
-                    name: 'whatever.sql'
-                }
-            });
-        }}
-        on:dragend={() => {
-            var ghost = document.getElementById("drag-ghost");
-            if (ghost.parentNode) {
-                ghost.parentNode.removeChild(ghost);
-            }
-            dropStore.set(undefined);
-        }}>
-
-    <NavEntry
-        expanded={show}
-        selected={emphasizeTitle}
-        bind:hovered={titleElementHovered}
-        on:shift-click={async () => {
-            await navigator.clipboard.writeText(name);
-            notificationStore.send({ message: `copied "${name}" to clipboard`});
-        }}
-        on:select-body={async (event) => { 
-            dispatch('select');
-        }}
-        on:expand={() => {
-            show = !show;
-            // pass up expand
-            dispatch('expand');
-        }}
-        {icon} >
-        <svelte:fragment slot='tooltip-content'>
-            <TooltipTitle>
-                <svelte:fragment slot="name">
-                    {name}
-                </svelte:fragment>
-                <svelte:fragment slot="description">
-                    
-                </svelte:fragment>
-            </TooltipTitle>
-            <TooltipShortcutContainer>
-                <div>
-                    open in workspace
-                </div>
-                <Shortcut>
-                    click
-                </Shortcut>
-                <div>
-                    <StackingWord>copy</StackingWord> to clipboard
-                </div>
-                <Shortcut>
-                    shift + click
-                </Shortcut>
-            </TooltipShortcutContainer>
-        </svelte:fragment>
-        <!-- note: the classes in this span are also used for UI tests. -->
-        <span
-            class='collapsible-table-summary-title w-full'
-            class:is-active={emphasizeTitle}
-            class:font-bold={emphasizeTitle} 
-            class:italic={selectingColumns}
-            >
-            {#if name.split('.').length > 1}
-                {name.split('.').slice(0, -1).join('.')}<span class='text-gray-500 italic pl-1'>.{name.split('.').slice(-1).join('.')}</span>
-            {:else}
-                {name}
-            {/if}
-            {#if selectingColumns}&nbsp;<span class="font-bold"> *</span>{/if}
-        </span>
-            <svelte:fragment slot='contextual-information'>
-                    <div class='italic text-gray-600'>
-                        {#if selectingColumns}
-                            <span>
-                                {#if selectedColumns.length}
-                                    selected {selectedColumns.length} column{#if selectedColumns.length > 1}s{/if}
-                                {:else}
-                                    select columns
-                                {/if}
-                            </span>
-                        {:else}
-                            <span class="grid grid-flow-col gap-x-2 text-gray-500 text-clip overflow-hidden whitespace-nowrap ">
-                                {#if titleElementHovered || emphasizeTitle}
-                                <span ><span>{cardinality !== undefined && cardinality !== NaN ? formatInteger(interimCardinality) : "no"}</span> row{#if cardinality !== 1}s{/if}</span>
-                                <span class='self-center'>
-                                    <ContextButton tooltipText="delete" suppressTooltip={contextMenuOpen} on:click={async (event) => { 
-                                        contextMenuOpen = !contextMenuOpen;
-                                        menuX = event.clientX;
-                                        menuY = event.clientY;
-
-                                        if (!clickOutsideListener) {
-                                            await tick();
-                                            clickOutsideListener = onClickOutside(() => {
-                                                contextMenuOpen = false;
-                                            }, contextMenu);
-                                        }
-                                        
-                                        
-                                    }}><MoreIcon /></ContextButton>
-                                </span>
-                                {/if}
-                            </span>
-                        {/if}
-                    </div>
-
-            </svelte:fragment>
-      </NavEntry>
-    </div>
-    {#if contextMenuOpen}
-        <!-- place this above codemirror.-->
-        <div bind:this={contextMenu}>
-            <FloatingElement relationship="mouse" target={{x: menuX, y:menuY}} location="right" alignment="start">
-                <Menu on:escape={()=> { contextMenuOpen = false; }} on:item-select={() => { contextMenuOpen = false; }}>
-                    <MenuItem on:select={() => {
-                        dispatch("delete");
-                    }}>
-                        delete {name}
-                    </MenuItem>
-                </Menu>
-            </FloatingElement>
-        </div>
-    {/if}
-    {/if}
-
+  
     {#if show}
         <div class="pt-1 pb-3 pl-accordion" transition:slide|local={{duration: 120 }}>
             <!-- pl-16 -->

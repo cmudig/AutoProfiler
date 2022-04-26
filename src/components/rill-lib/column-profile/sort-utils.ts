@@ -1,4 +1,4 @@
-import { BOOLEANS, CATEGORICALS, INTEGERS, FLOATS, TIMESTAMPS } from "$lib/duckdb-data-types";
+import { BOOLEANS, CATEGORICALS, INTEGERS, FLOATS, TIMESTAMPS } from "../duckdb-data-types";
 
 export function sortByCardinality(a,b) {
     if (a.summary && b.summary) {
