@@ -5,7 +5,7 @@ import Varchar from "./Varchar.svelte";
 import Number from "./Number.svelte";
 import Timestamp from "./Timestamp.svelte";
 import Interval from "./Interval.svelte";
-import { formatDataType } from "$lib/util/formatters";
+import { formatDataType } from "../utils/formatters";
 
 export let type = 'VARCHAR';
 export let isNull = false;

@@ -1,8 +1,7 @@
 <script lang="ts">
-import Tooltip from "../../tooltip/Tooltip.svelte";
-import TooltipContent from "../../tooltip/TooltipContent.svelte";
+
 import HistogramBase from "./HistogramBase.svelte";
-import { datePortion, timePortion, intervalToTimestring, removeTimezoneOffset } from "../../util/formatters";
+import { datePortion, timePortion, intervalToTimestring, removeTimezoneOffset } from "../../utils/formatters";
 import { TIMESTAMP_TOKENS } from "../../duckdb-data-types";
 export let data;
 export let type;
@@ -20,27 +19,16 @@ $: timeLength = interval ? intervalToTimestring(type === "DATE" ? {days: interva
 
 {#if interval}
 <div class="grid space-between grid-cols-2 items-baseline pr-6">
-    <Tooltip location="top" distance={16}>
     <div class="italic pt-1 pb-2">
         {timeLength}
     </div>
-    <TooltipContent slot="tooltip-content">
-        <div style:width="240px">
-            This column represents <span class='italic'>{timeLength}</span> of data.
-        </div>
-    </TooltipContent>
-    </Tooltip>
+    
     {#if estimatedSmallestTimeGrain}
-    <Tooltip location="top" distance={16}>
+    
         <div class="justify-self-end text-gray-500 text-right leading-4">
             time grain in <span class='italic'>{estimatedSmallestTimeGrain}</span>
         </div>
-    <TooltipContent slot='tooltip-content'>
-        <div style:width="240px">
-            The smallest estimated time grain of this column is at the <span class='italic'>{estimatedSmallestTimeGrain}</span> level.
-        </div>
-    </TooltipContent>
-    </Tooltip>
+    
     {/if}
 </div>
 {/if}

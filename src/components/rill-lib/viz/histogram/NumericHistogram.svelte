@@ -1,6 +1,6 @@
 <script lang="ts">
 import { fly } from "svelte/transition";
-import { guidGenerator } from "../../util/guid";
+import { guidGenerator } from "../../utils/guid";
 import HistogramBase from "./HistogramBase.svelte";
 import { NUMERIC_TOKENS } from "../../duckdb-data-types"
 export let data;

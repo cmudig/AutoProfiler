@@ -4,7 +4,7 @@
     import { cubicOut as easing } from 'svelte/easing';
     import { scaleLinear } from 'd3-scale';
     import { format } from "d3-format";
-    import { guidGenerator } from "../util/guid";
+    import { guidGenerator } from "../utils/guid";
 
     interface HistogramBin {
         bucket:number;
