@@ -18,3 +18,25 @@ export type INomMeta = {
     "num_unique": string,
     "num_invalid": string,
 }
+
+export type ColumnProfileData = {
+    "name": string,
+    "type": string,
+    "summary": {
+        "cardinality": number,
+        "histogram": {
+            "length": number
+        }
+        "topK": any[]
+        "statistics": {
+            "min": number,
+            "q25": number,
+            "q50": number,
+            "q75": number,
+            "max": number,
+            "mean": number,
+        }
+    }
+    "nullCount": number,
+    "example": any,
+}

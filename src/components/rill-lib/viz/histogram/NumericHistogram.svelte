@@ -2,7 +2,7 @@
 import { fly } from "svelte/transition";
 import { guidGenerator } from "../../utils/guid";
 import HistogramBase from "./HistogramBase.svelte";
-import { NUMERIC_TOKENS } from "../../duckdb-data-types"
+import { NUMERIC_TOKENS } from "../../data-types/pandas-data-types";
 export let data;
 export let width;
 export let height = 100;

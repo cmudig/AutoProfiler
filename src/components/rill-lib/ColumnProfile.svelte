@@ -1,50 +1,51 @@
 <script lang="ts">
     import { slide } from 'svelte/transition';
     import ColumnEntry from './ColumnEntry.svelte';
-    import DataTypeIcon  from './data-types/DataTypeIcon.svelte';
+    import DataTypeIcon from './data-types/DataTypeIcon.svelte';
     import BarAndLabel from './viz//BarAndLabel.svelte';
     import TopKSummary from './viz/TopKSummary.svelte';
     import FormattedDataType from './data-types/FormattedDataType.svelte';
-    import { config } from './sizes/sizes';
-    import { percentage } from './sizes/sizes';
-    import {
-        formatInteger,
-        formatCompactInteger
-    } from '../util/formatters';
+    import { config } from './utils/sizes';
+    import { percentage } from './utils/sizes';
+    import { formatInteger, formatCompactInteger } from './utils/formatters';
     import {
         CATEGORICALS,
         NUMERICS,
         TIMESTAMPS,
         DATA_TYPE_COLORS,
         BOOLEANS
-    } from './duckdb-data-types';
+    } from './data-types/pandas-data-types';
 
     import Histogram from './viz/histogram/SmallHistogram.svelte';
     import TimestampHistogram from './viz/histogram/TimestampHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
-    // import notificationStore from "../notifications/";
 
-    export let name;
-    export let type;
+    // props
+    export let name: string;
+    export let type: string;
     export let summary;
-    export let totalRows;
-    export let nullCount;
-    export let example;
-    export let view = 'summaries'; // summaries, example
+    export let totalRows: number;
+    export let nullCount: number;
+    export let example: any; // TODO cast harder
+    export let view: string = 'summaries'; // summaries, example
     export let containerWidth: number;
-
     export let indentLevel = 1;
-
     export let hideRight = false;
     // hide the null percentage number
     export let hideNullPercentage = false;
-    export let compactBreakpoint = 350;
+    export let compactBreakpoint = config.compactBreakpoint; //
 
+    // locals
     let active = false;
 
     export function close() {
         active = false;
     }
+
+    // let exampleWidth = config.exampleWidth.small // or medium
+    // let summaryWidthSize = config.summaryVizWidth.small // or medium
+    // let cardinalityFormatter = formatInteger // or formatCompactInteger
+
     $: exampleWidth =
         containerWidth > config.mediumCutoff
             ? config.exampleWidth.medium
@@ -57,8 +58,6 @@
         containerWidth > config.compactBreakpoint
             ? formatInteger
             : formatCompactInteger;
-
-    let titleTooltip;
 </script>
 
 <!-- pl-10 -->
@@ -90,6 +89,7 @@
                 {#if totalRows}
                     {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.cardinality}
                         <BarAndLabel
+                            title={name}
                             color={DATA_TYPE_COLORS['VARCHAR'].bgClass}
                             value={summary?.cardinality / totalRows}
                         >
@@ -124,6 +124,7 @@
             >
                 {#if totalRows !== 0 && totalRows !== undefined && nullCount !== undefined}
                     <BarAndLabel
+                        title={name}
                         showBackground={nullCount !== 0}
                         color={DATA_TYPE_COLORS[type].bgClass}
                         value={nullCount / totalRows || 0}

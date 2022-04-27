@@ -1,44 +1,66 @@
 <script lang="ts">
-    import ColumnPreview from './ColumnPreview.svelte';
-    import ColumnProfile from './rill-lib/ColumnProfile.svelte'
-    import type { IColTypeTuple } from '../dataAPI/exchangeInterfaces';
+    import ColumnProfile from './rill-lib/ColumnProfile.svelte';
+    import type {
+        IColTypeTuple,
+        ColumnProfileData
+    } from '../dataAPI/exchangeInterfaces';
     import type { ProfileModel } from '../ProfileModel';
     import { CollapsibleCard } from 'svelte-collapsible';
 
     export let dfName: string;
+    $: console.log('[SVELTE] Making DFProfile for ', dfName, ' with ', colInfo);
     export let colInfo: IColTypeTuple[];
     export let profileModel: ProfileModel;
 
     // Locals
-    let shape: Promise<number[]>;
+    let shape: number[];
+    let columnProfiles: Promise<ColumnProfileData[]>;
+    let previewView = 'summaries';
+    let profileWidth: number;
 
-    $: console.log('[SVELTE] Making DFProfile for ', dfName, ' with ', colInfo);
+    async function getColProfiles(colMetaInfoArr: IColTypeTuple[]): Promise<ColumnProfileData[]> {
+        shape = await profileModel.getShape(dfName, colInfo);
+        // TODO get data for ColumnProfileData
 
-    // locals
-    $: shape = profileModel.getShape(dfName, colInfo); // colInfo isnt actually necessary for the call but I want this to re-run if colInfo updates, so I'm passing it in anyway
+        return undefined;
+    }
+
+    $: columnProfiles = getColProfiles(colInfo);
+
+    // data updates
+    // $: shape = profileModel.getShape(dfName, colInfo); // colInfo isnt actually necessary for the call but I want this to re-run if colInfo updates, so I'm passing it in anyway
 </script>
 
 <div class="dataframe-profile">
-    <CollapsibleCard open={false}>
-        <div slot="header" class="dfprofile-header">
-            <h2>{dfName}</h2>
+    {#await columnProfiles}
+        <CollapsibleCard open={false}>
+            <div slot="header" class="dfprofile-header">
+                <h2>{dfName}</h2>
+                <p class="metadata">Loading...</p>
+            </div>
 
-            <p class="metadata">
-                {#await shape}
-                    <p>? x ?</p>
-                {:then shape}
-                    <p>{shape[0]} x {shape[1]}</p>
-                {:catch error}
-                    <p>ERROR getting shape!</p>
-                {/await}
-            </p>
-        </div>
+            <div slot="body" class="dfprofile-body">Loading...</div>
+        </CollapsibleCard>
+    {:then columnProfiles}
+        <CollapsibleCard open={false}>
+            <div slot="header" class="dfprofile-header">
+                <h2>{dfName}</h2>
 
-        <div slot="body" class="dfprofile-body">
-            <div class="col-profiles">
-                <!-- do async at this level likely, or break into comps so can get each async -->
-                {#each colInfo as colData, idx}
-                    <!-- <ColumnPreview
+                <p class="metadata">
+                    {#await shape}
+                        <p>? x ?</p>
+                    {:then shape}
+                        <p>{shape[0]} x {shape[1]}</p>
+                    {:catch error}
+                        <p>ERROR getting shape!</p>
+                    {/await}
+                </p>
+            </div>
+
+            <div slot="body" class="dfprofile-body">
+                <div bind:clientWidth={profileWidth} class="col-profiles">
+                    {#each columnProfiles as column}
+                        <!-- <ColumnPreview
                         col_type={colData.col_type}
                         columnName={colData.col_name}
                         {dfName}
@@ -46,12 +68,22 @@
                         {idx}
                     /> -->
 
-                    <ColumnProfile>
-                    </ColumnProfile>
-                {/each}
+                        <ColumnProfile
+                            example={column.example}
+                            name={column.name}
+                            type={column.type}
+                            summary={column.summary}
+                            nullCount={column.nullCount}
+                            
+                            containerWidth={profileWidth}
+                            view={previewView}
+                            totalRows={shape[0]}
+                        />
+                    {/each}
+                </div>
             </div>
-        </div>
-    </CollapsibleCard>
+        </CollapsibleCard>
+    {/await}
 </div>
 
 <style>

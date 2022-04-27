@@ -1,6 +1,6 @@
 <script>
 /** provides the formatting for data types */
-import { INTERVALS, NUMERICS, TIMESTAMPS } from "../duckdb-data-types"
+import { INTERVALS, NUMERICS, TIMESTAMPS } from "./pandas-data-types"
 import Varchar from "./Varchar.svelte";
 import Number from "./Number.svelte";
 import Timestamp from "./Timestamp.svelte";

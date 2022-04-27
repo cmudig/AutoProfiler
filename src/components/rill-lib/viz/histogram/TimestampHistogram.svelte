@@ -2,7 +2,7 @@
 
 import HistogramBase from "./HistogramBase.svelte";
 import { datePortion, timePortion, intervalToTimestring, removeTimezoneOffset } from "../../utils/formatters";
-import { TIMESTAMP_TOKENS } from "../../duckdb-data-types";
+import { TIMESTAMP_TOKENS } from "../../data-types/pandas-data-types";
 export let data;
 export let type;
 export let interval;

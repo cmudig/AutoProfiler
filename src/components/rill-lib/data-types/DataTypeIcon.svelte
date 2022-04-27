@@ -6,7 +6,7 @@
         INTERVALS,
         FLOATS,
         BOOLEANS
-    } from '../duckdb-data-types';
+    } from './pandas-data-types';
 
     import CategoricalType from '../icons/CategoricalType.svelte';
     import TimestampType from '../icons/TimestampType.svelte';
@@ -14,8 +14,8 @@
     import IntegerType from '../icons/IntegerType.svelte';
     import FloatType from '../icons/FloatType.svelte';
     export let color = 'text-gray-400';
-    export let type;
-    export let suppressTooltip = false;
+    export let type: string;
+    // export let suppressTooltip = false;
 
     function typeToSymbol(fieldType: string) {
         if (INTEGERS.has(fieldType)) {
