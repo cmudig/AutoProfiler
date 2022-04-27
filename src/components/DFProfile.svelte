@@ -1,5 +1,6 @@
 <script lang="ts">
     import ColumnPreview from './ColumnPreview.svelte';
+    import ColumnProfile from './rill-lib/ColumnProfile.svelte'
     import type { IColTypeTuple } from '../dataAPI/exchangeInterfaces';
     import type { ProfileModel } from '../ProfileModel';
     import { CollapsibleCard } from 'svelte-collapsible';
@@ -37,13 +38,16 @@
             <div class="col-profiles">
                 <!-- do async at this level likely, or break into comps so can get each async -->
                 {#each colInfo as colData, idx}
-                    <ColumnPreview
+                    <!-- <ColumnPreview
                         col_type={colData.col_type}
                         columnName={colData.col_name}
                         {dfName}
                         {profileModel}
                         {idx}
-                    />
+                    /> -->
+
+                    <ColumnProfile>
+                    </ColumnProfile>
                 {/each}
             </div>
         </div>
