@@ -1,6 +1,5 @@
 <script>
     export let active = false;
-    export let emphasize = false;
     export let hideRight = false;
 
     export let left = 8; // "pl-8 pl-10";
@@ -30,7 +29,7 @@
                 <slot name="icon" />
             </div>
             <div
-                class:font-bold={emphasize}
+                class:font-bold={active}
                 class="justify-items-stretch shrink w-full text-left flex-1"
                 style:min-width="0px"
             >
@@ -39,7 +38,6 @@
         </div>
         <div class:hidden={hideRight} class="flex gap-2 items-center">
             <slot name="right" />
-            <slot name="context-button" />
         </div>
     </button>
     <div class="w-full">

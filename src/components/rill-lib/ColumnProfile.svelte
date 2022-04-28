@@ -38,10 +38,6 @@
     // locals
     let active = false;
 
-    export function close() {
-        active = false;
-    }
-
     // let exampleWidth = config.exampleWidth.small // or medium
     // let summaryWidthSize = config.summaryVizWidth.small // or medium
     // let cardinalityFormatter = formatInteger // or formatCompactInteger
@@ -58,6 +54,12 @@
         containerWidth > config.compactBreakpoint
             ? formatInteger
             : formatCompactInteger;
+    
+// Whats gonna get made?
+console.log("[COLUMNPROFILE] Making profile for, ", name, " of type ", type);
+console.log("[COLUMNPROFILE] Isnumeric? ", NUMERICS.has(type))
+console.log("[COLUMNPROFILE] length: ", summary.histogram?.length)
+
 </script>
 
 <!-- pl-10 -->
@@ -65,19 +67,18 @@
     left={indentLevel === 1 ? 10 : 4}
     {hideRight}
     {active}
-    emphasize={active}
-    on:select={async event => {
-        // we should only allow activation when there are rows present.
-        if (totalRows) {
-            active = !active;
-        }
-    }}
 >
     <svelte:fragment slot="icon">
         <DataTypeIcon {type} />
     </svelte:fragment>
 
-    <svelte:fragment slot="left" />
+    <svelte:fragment slot="left">
+        <div style:width="100%">
+            <div class="column-profile-name text-ellipsis overflow-hidden whitespace-nowrap">
+                {name}
+            </div>
+        </div>
+    </svelte:fragment>
 
     <svelte:fragment slot="right">
         <div
@@ -90,7 +91,7 @@
                     {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.cardinality}
                         <BarAndLabel
                             title={name}
-                            color={DATA_TYPE_COLORS['VARCHAR'].bgClass}
+                            color={DATA_TYPE_COLORS[type].bgClass}
                             value={summary?.cardinality / totalRows}
                         >
                             |{cardinalityFormatter(summary?.cardinality)}|
@@ -100,8 +101,8 @@
                             data={summary.histogram}
                             width={summaryWidthSize}
                             height={18}
-                            fillColor={DATA_TYPE_COLORS['DOUBLE'].vizFillClass}
-                            baselineStrokeColor={DATA_TYPE_COLORS['DOUBLE']
+                            fillColor={DATA_TYPE_COLORS[type].vizFillClass}
+                            baselineStrokeColor={DATA_TYPE_COLORS[type]
                                 .vizStrokeClass}
                         />
                     {:else if TIMESTAMPS.has(type) && summary?.histogram?.length}
@@ -109,9 +110,8 @@
                             data={summary.histogram}
                             width={summaryWidthSize}
                             height={18}
-                            fillColor={DATA_TYPE_COLORS['TIMESTAMP']
-                                .vizFillClass}
-                            baselineStrokeColor={DATA_TYPE_COLORS['TIMESTAMP']
+                            fillColor={DATA_TYPE_COLORS[type].vizFillClass}
+                            baselineStrokeColor={DATA_TYPE_COLORS[type]
                                 .vizStrokeClass}
                         />
                     {/if}
@@ -148,10 +148,6 @@
                 value={example}
             />
         </div>
-    </svelte:fragment>
-
-    <svelte:fragment slot="context-button">
-        <slot name="context-button" />
     </svelte:fragment>
 
     <svelte:fragment slot="details">

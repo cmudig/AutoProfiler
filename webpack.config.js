@@ -11,7 +11,14 @@ const rules = [
     test: /\.svelte$/,
     loader: 'svelte-loader',
     options: {
-      preprocess: SveltePreprocess(),
+      preprocess: SveltePreprocess({
+        postcss: {
+          plugins: [
+            require('tailwindcss'),
+            require('autoprefixer'),
+          ]
+        }
+      }),
     }
   },
   {

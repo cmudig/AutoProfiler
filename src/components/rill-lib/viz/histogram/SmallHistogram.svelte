@@ -1,6 +1,8 @@
 <script lang="ts">
 import HistogramBase from "./HistogramBase.svelte";
 
+console.log("Making a histogram!")
+
 interface HistogramBin {
     bucket:number;
     low:number;

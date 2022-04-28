@@ -73,7 +73,7 @@ export class ProfileModel { // implements Executor
 
     public async updateRootData() {
         let alldf = await this.getAllDataFrames()
-        console.log("[STORE] updating dataFramesAndCols to ", alldf)
+        // console.log("[STORE] updating dataFramesAndCols to ", alldf)
         dataFramesAndCols.set(alldf)
     }
 
@@ -140,7 +140,7 @@ export class ProfileModel { // implements Executor
             let onDone = (status: string) => {
                 let flat_array = Array.prototype.concat(...contentMatrix)
                 response["content"] = flat_array
-                console.log(`${code} finished with status [${status}]. Response: `, response)
+                // console.log(`${code} finished with status [${status}]. Response: `, response)
 
                 resolve(response)
             }
