@@ -1,5 +1,5 @@
 <script lang="ts">
-    import "app.css" // maybe this works?
+    import "../app.css" // maybe this works?
     import DFProfile from './DFProfile.svelte';
     import { dataFramesAndCols } from '../stores';
     import type { ProfileModel } from '../ProfileModel';

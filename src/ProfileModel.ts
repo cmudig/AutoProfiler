@@ -12,8 +12,8 @@ import type {
     IColTypeTuple,
     IDFColMap,
     IQuantMeta,
-    INomMeta,
-    IQuantChartData,
+    IColMeta,
+    IHistogram,
     INomChartData
 } from "./dataAPI/exchangeInterfaces"
 
@@ -256,24 +256,58 @@ export class ProfileModel { // implements Executor
     }
 
     public async getQuantMeta(dfName: string, colName: string): Promise<IQuantMeta> {
+        // code to execute
+        let min_code = `print(${dfName}["${colName}"].min())`
+        let q25_code = `print(${dfName}["${colName}"].quantile(q=.25))`
+        let q50_code = `print(${dfName}["${colName}"].quantile(q=.50))`
+        // let median_code = `print(${dfName}["${colName}"].median())`
+        let q75_code = `print(${dfName}["${colName}"].quantile(q=.75))`
+        let max_code = `print(${dfName}["${colName}"].max())`
         let mean_code = `print(${dfName}["${colName}"].mean())`
-        let median_code = `print(${dfName}["${colName}"].median())`
-        let numNull_code = `print(${dfName}["${colName}"].isna().sum())`
-        let code_lines = [mean_code, median_code, numNull_code]
-        let res = await this.executeCode(code_lines.join('\n'));
 
+        // execute and parse
+        let code_lines = [min_code,
+            q25_code,
+            q50_code,
+            q75_code,
+            max_code,
+            mean_code]
+        let res = await this.executeCode(code_lines.join('\n'));
         let content = res["content"]
-        return { "mean": content[0], "median": content[1], "num_invalid": content[2] }
+
+        return {
+            "min": parseFloat(content[0]),
+            "q25": parseFloat(content[1]),
+            "q50": parseFloat(content[2]),
+            "q75": parseFloat(content[3]),
+            "max": parseFloat(content[4]),
+            "mean": parseFloat(content[5])
+        }
     }
 
-    public async getNomMeta(dfName: string, colName: string): Promise<INomMeta> {
+    // public async getNomMeta(dfName: string, colName: string): Promise<INomMeta> {
+    //     let numUnique_code = `print(${dfName}["${colName}"].nunique())`
+    //     let numNull_code = `print(${dfName}["${colName}"].isna().sum())`
+    //     let code_lines = [numUnique_code, numNull_code]
+    //     let res = await this.executeCode(code_lines.join('\n'));
+
+    //     let content = res["content"]
+    //     return { "num_unique": content[0], "num_invalid": content[1] }
+    // }
+
+    public async getColMeta(dfName: string, colName: string): Promise<IColMeta> {
+        // Code to execute
         let numUnique_code = `print(${dfName}["${colName}"].nunique())`
         let numNull_code = `print(${dfName}["${colName}"].isna().sum())`
+
+        // execute and parse
         let code_lines = [numUnique_code, numNull_code]
         let res = await this.executeCode(code_lines.join('\n'));
-
         let content = res["content"]
-        return { "num_unique": content[0], "num_invalid": content[1] }
+        return {
+            "numUnique": parseInt(content[0]),
+            "nullCount": parseInt(content[1])
+        }
     }
 
 
@@ -296,7 +330,7 @@ export class ProfileModel { // implements Executor
         return data
     }
 
-    async getQuantBinnedData(dfName: string, colName: string, maxbins: number = 5): Promise<IQuantChartData> {
+    async getQuantBinnedData(dfName: string, colName: string, maxbins: number = 5): Promise<IHistogram> {
         /*
         *   Returns data for VL spec to plot quant data. In form of array of shape
         *   [ { "bin_0": 0, "bin_1": 1, "count": 5 }, ]
@@ -307,18 +341,18 @@ export class ProfileModel { // implements Executor
         let content = res["content"]
 
         let json_res = JSON.parse(content[0].replace(/'/g, "")) // remove single quotes bc not JSON parseable
-        let data: any[] = []
+        let data: IHistogram = []
 
-        Object.keys(json_res).forEach(k => {
+        Object.keys(json_res).forEach((k, i) => {
             let cleank = k.replace(/[\])}[{(]/g, '') // comes in interval formatting like [22, 50)
             let [low, high] = cleank.split(",")
 
-            data.push({ "bin_0": parseFloat(low), "bin_1": parseFloat(high), "count": json_res[k] })
+            data.push({ "low": parseFloat(low), "high": parseFloat(high), "count": json_res[k], "bucket": i })
         })
 
-        let bin_size = data.length > 0 ? Math.abs(data[0].bin_1 - data[0].bin_0) : undefined
+        // let bin_size = data.length > 0 ? Math.abs(data[0].bin_1 - data[0].bin_0) : undefined
 
-        return { "binned_data": data, "bin_size": bin_size }
+        return data
     }
 
 }

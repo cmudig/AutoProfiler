@@ -6,16 +6,9 @@
     import { format } from "d3-format";
     // FIXME: move util to $lib or add a $util
     import { guidGenerator } from "../../utils/guid";
+    import type {IHistogram} from "../../../../dataAPI/exchangeInterfaces"
 
-    interface HistogramBin {
-        bucket:number;
-        low:number;
-        high:number;
-        count:number;
-    }
-
-    export let data:HistogramBin[];
-    
+    export let data:IHistogram;
     export let width = 60;
     export let height = 19;
     export let time = 1000;

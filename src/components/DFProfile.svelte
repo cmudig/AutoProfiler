@@ -6,6 +6,7 @@
     } from '../dataAPI/exchangeInterfaces';
     import type { ProfileModel } from '../ProfileModel';
     import { CollapsibleCard } from 'svelte-collapsible';
+    import { NUMERICS } from './rill-lib/data-types/pandas-data-types';
 
     export let dfName: string;
     $: console.log('[SVELTE] Making DFProfile for ', dfName, ' with ', colInfo);
@@ -18,11 +19,53 @@
     let previewView = 'summaries';
     let profileWidth: number;
 
-    async function getColProfiles(colMetaInfoArr: IColTypeTuple[]): Promise<ColumnProfileData[]> {
+    async function getColProfiles(
+        colMetaInfoArr: IColTypeTuple[]
+    ): Promise<ColumnProfileData[]> {
         shape = await profileModel.getShape(dfName, colInfo);
         // TODO get data for ColumnProfileData
 
-        return undefined;
+        let resultData: ColumnProfileData[] = [];
+
+        for (let i = 0; i < colMetaInfoArr.length; i++) {
+            let ci = colMetaInfoArr[i];
+            let col_name = ci.col_name;
+            let col_type = ci.col_type;
+
+            // model calls
+
+            let headRows = await profileModel.getColHeadRows(dfName, col_name);
+            let colMd = await profileModel.getColMeta(dfName, col_name);
+
+            let cd: ColumnProfileData = {
+                name: col_name,
+                type: col_type,
+                summary: {
+                    cardinality: shape[0],
+                    topK: headRows
+                },
+                nullCount: colMd.nullCount,
+                example: headRows[0]
+            };
+
+            if (NUMERICS.has(col_type)) {
+                let chartData = await profileModel.getQuantBinnedData(
+                    dfName,
+                    col_name
+                );
+                let statistics = await profileModel.getQuantMeta(
+                    dfName,
+                    col_name
+                );
+
+                cd['statistics'] = statistics;
+                cd['histogram'] = chartData;
+            }
+
+            resultData.push(cd);
+        }
+
+        return resultData;
     }
 
     $: columnProfiles = getColProfiles(colInfo);
@@ -47,34 +90,19 @@
                 <h2>{dfName}</h2>
 
                 <p class="metadata">
-                    {#await shape}
-                        <p>? x ?</p>
-                    {:then shape}
-                        <p>{shape[0]} x {shape[1]}</p>
-                    {:catch error}
-                        <p>ERROR getting shape!</p>
-                    {/await}
+                    {shape[0]} x {shape[1]}
                 </p>
             </div>
 
             <div slot="body" class="dfprofile-body">
                 <div bind:clientWidth={profileWidth} class="col-profiles">
                     {#each columnProfiles as column}
-                        <!-- <ColumnPreview
-                        col_type={colData.col_type}
-                        columnName={colData.col_name}
-                        {dfName}
-                        {profileModel}
-                        {idx}
-                    /> -->
-
                         <ColumnProfile
                             example={column.example}
                             name={column.name}
                             type={column.type}
                             summary={column.summary}
                             nullCount={column.nullCount}
-                            
                             containerWidth={profileWidth}
                             view={previewView}
                             totalRows={shape[0]}
