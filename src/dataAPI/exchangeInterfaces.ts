@@ -3,7 +3,7 @@ export type IColTypeTuple = { "col_name": string, "col_type": string }
 export type IDFColMap = { [key: string]: IColTypeTuple[] }
 
 export type IQuantChartData = { "binned_data": any[], "bin_size": number }
-export type INomChartData = any[]
+// export type INomChartData = any[]
 
 // export type IColMeta = {"num_unique": string, "num_invalid": string }
 
@@ -32,25 +32,30 @@ export type ColumnProfileData = {
 
 export type ColumnSummary = {
     "cardinality": number, // total size
-    "topK": any[],
+    "topK": ValueCount[],
     "histogram"?: IHistogram,
     "statistics"?: IQuantMeta,
-    interval?: Interval ,
-    estimatedSmallestTimeGrain
+    interval?: Interval,
+    estimatedSmallestTimeGrain?: string
 }
 
-interface IHistogramBin {
-    bucket: number;
-    low: number;
-    high: number;
-    count: number;
+export type ValueCount = {
+    "value": any,
+    "count": number,
+}
+
+export type IHistogramBin = {
+    "bucket": number,
+    "low": number,
+    "high": number,
+    "count": number,
 }
 
 // TODO update this
-export interface Interval {
-    months:number;
-    days:number;
-    micros:number;
+export type Interval = {
+    "months": number,
+    "days": number,
+    "micros": number,
 }
 
 export type IHistogram = IHistogramBin[]

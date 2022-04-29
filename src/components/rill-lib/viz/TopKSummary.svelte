@@ -3,11 +3,15 @@
     import BarAndLabel from './BarAndLabel.svelte';
     import { config } from '../utils/sizes';
 
-    export let displaySize: string = 'md';
+    import type {ValueCount} from "../../../dataAPI/exchangeInterfaces"
+
+    // export let displaySize: string = 'md';
     export let totalRows: number;
-    export let topK: any; // FIXME
+    export let topK: ValueCount[]; // FIXME
     export let color: string;
     export let containerWidth: number;
+
+    console.log("Making topK summary with ", topK)
 
     $: smallestPercentage = Math.min(
         ...topK.slice(0, 5).map(entry => entry.count / totalRows)

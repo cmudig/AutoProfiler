@@ -14,7 +14,7 @@ import type {
     IQuantMeta,
     IColMeta,
     IHistogram,
-    INomChartData
+    ValueCount
 } from "./dataAPI/exchangeInterfaces"
 
 type ExecResult = { "content": string[], "exec_count": number }
@@ -61,7 +61,6 @@ export class ProfileModel { // implements Executor
         await this.session.ready;
         // have to do this as arrow function or else this doesnt work
         this._notebook.changed.connect((sender, value) => {
-            // console.log("Notebook changed signal received in ProfileModel of type: ", value)
             if (value === "cell run") {
                 this.updateRootData()
             }
@@ -73,7 +72,6 @@ export class ProfileModel { // implements Executor
 
     public async updateRootData() {
         let alldf = await this.getAllDataFrames()
-        // console.log("[STORE] updating dataFramesAndCols to ", alldf)
         dataFramesAndCols.set(alldf)
     }
 
@@ -311,20 +309,19 @@ export class ProfileModel { // implements Executor
     }
 
 
-    async getNomColVisData(dfName: string, colName: string, n: number = 5): Promise<INomChartData> {
+    async getValueCounts(dfName: string, colName: string, n: number = 10): Promise<ValueCount[]> {
         /*
         *   Returns data for VL spec to plot nominal data. In form of array of shape
         *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
         */
 
-        let code = `print(${dfName}["${colName}"].value_counts()[:${n}].to_json())`
+        let code = `print(${dfName}["${colName}"].value_counts().iloc[:${n}].to_json())`
         let res = await this.executeCode(code);
+        let data: ValueCount[] = []
         let content = res["content"]
-
         let json_res = JSON.parse(content[0].replace(/'/g, "")) // remove single quotes bc not JSON parseable
-        let data: INomChartData = []
         Object.keys(json_res).forEach(k => {
-            data.push({ [colName]: k, "count": json_res[k] })
+            data.push({ "value": k, "count": json_res[k] })
         })
 
         return data

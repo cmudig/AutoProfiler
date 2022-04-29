@@ -26,9 +26,8 @@
     async function getColProfiles(
         colMetaInfoArr: IColTypeTuple[]
     ): Promise<ColumnProfileData[]> {
-        console.log('[DFPROFILE] Getting col profiles');
+        // console.log('[DFPROFILE] Getting col profiles');
         shape = await profileModel.getShape(dfName, colInfo);
-        // TODO get data for ColumnProfileData
 
         let resultData: ColumnProfileData[] = [];
 
@@ -41,7 +40,7 @@
 
             // model calls
 
-            let headRows = await profileModel.getColHeadRows(dfName, col_name);
+            let rowVC = await profileModel.getValueCounts(dfName, col_name);
             let colMd = await profileModel.getColMeta(dfName, col_name);
 
             let cd: ColumnProfileData = {
@@ -49,15 +48,13 @@
                 type: col_type,
                 summary: {
                     cardinality: colMd.numUnique,
-                    topK: headRows
+                    topK: rowVC
                 },
                 nullCount: colMd.nullCount,
-                example: headRows[0],
-
+                example: rowVC[0].value
             };
 
             if (NUMERICS.has(col_type)) {
-                console.log("[NUMERICS] caculating...")
                 let chartData = await profileModel.getQuantBinnedData(
                     dfName,
                     col_name
@@ -71,8 +68,6 @@
                 cd.summary.histogram = chartData;
             }
 
-            console.log('[DFPROFILE] Got col profile: ', cd);
-
             resultData.push(cd);
         }
 
@@ -81,18 +76,12 @@
         return new Promise<ColumnProfileData[]>(resolve => resolve(resultData));
     }
 
-    $: {
-        console.log("UPDATING column profiles!!!!!!!!!!")
-        columnProfiles = getColProfiles(colInfo);
-    }
-
-    // data updates
-    // $: shape = profileModel.getShape(dfName, colInfo); // colInfo isnt actually necessary for the call but I want this to re-run if colInfo updates, so I'm passing it in anyway
+    $: columnProfiles = getColProfiles(colInfo);
 </script>
 
 <div>
     {#await columnProfiles}
-        <!-- <CollapsibleCard bind:open={expanded}>
+        <CollapsibleCard bind:open={expanded}>
             <div slot="header" class="dfprofile-header">
                 <div class="inline-block">
                     <ExpanderButton rotated={expanded} />
@@ -101,10 +90,8 @@
                 <p class="inline-block text-red-800">Loading...</p>
             </div>
 
-            <div slot="body" class="dfprofile-body">Loading...</div>
-        </CollapsibleCard> -->
-
-        <div> LOADING...</div>
+            <!-- <div slot="body" class="dfprofile-body">Loading...</div> -->
+        </CollapsibleCard>
     {:then columnProfiles}
         <CollapsibleCard bind:open={expanded}>
             <div slot="header" class="dfprofile-header">
@@ -120,7 +107,6 @@
             <div slot="body" class="dfprofile-body">
                 <div bind:clientWidth={profileWidth} class="col-profiles">
                     {#each columnProfiles as column}
-
                         <ColumnProfile
                             example={column.example}
                             name={column.name}

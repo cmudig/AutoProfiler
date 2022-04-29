@@ -56,11 +56,6 @@
         containerWidth > config.compactBreakpoint
             ? formatInteger
             : formatCompactInteger;
-    
-// // Whats gonna get made?
-// console.log("[COLUMNPROFILE] Making profile for, ", name, " of type ", type);
-// console.log("[COLUMNPROFILE] Isnumeric? ", NUMERICS.has(type))
-// console.log("[COLUMNPROFILE] length: ", summary.histogram?.length)
 
 </script>
 
