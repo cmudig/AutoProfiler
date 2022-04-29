@@ -4,7 +4,7 @@
     import type {
         IColTypeTuple,
         ColumnProfileData
-    } from '../dataAPI/exchangeInterfaces';
+    } from '../common/exchangeInterfaces';
     import type { ProfileModel } from '../ProfileModel';
     import { CollapsibleCard } from 'svelte-collapsible';
     import { NUMERICS } from './rill-lib/data-types/pandas-data-types';
@@ -26,7 +26,6 @@
     async function getColProfiles(
         colMetaInfoArr: IColTypeTuple[]
     ): Promise<ColumnProfileData[]> {
-        // console.log('[DFPROFILE] Getting col profiles');
         shape = await profileModel.getShape(dfName, colInfo);
 
         let resultData: ColumnProfileData[] = [];
@@ -39,7 +38,6 @@
             console.log('[DFPROFILE] Getting data for column: ', col_name);
 
             // model calls
-
             let rowVC = await profileModel.getValueCounts(dfName, col_name);
             let colMd = await profileModel.getColMeta(dfName, col_name);
 
@@ -71,7 +69,7 @@
             resultData.push(cd);
         }
 
-        console.log('[DFPROFILE] FINISHED getting col profiles', resultData);
+        // console.log('[DFPROFILE] FINISHED getting col profiles', resultData);
 
         return new Promise<ColumnProfileData[]>(resolve => resolve(resultData));
     }
@@ -132,25 +130,9 @@
     .dfprofile-header {
         margin: 0;
         padding: 0.5em;
-        /* border: 1px solid #9e9e9e; */
-        /* border-radius: 5px; */
-        /* background: rgb(244, 244, 244); */
-        /* transition: border-radius 0.5s step-end; */
     }
 
-    /* :global(.card.open) .dfprofile-header {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-        transition: border-radius 0.5s step-start;
-    } */
-
     .dfprofile-body {
-        /* padding: 1em; */
-        /* border: 1px solid #9e9e9e;
-        border-top: 0px; */
         display: flex;
-        /* border-radius: 5px; */
-        /* border-top-left-radius: 0;
-        border-top-right-radius: 0; */
     }
 </style>

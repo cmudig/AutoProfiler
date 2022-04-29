@@ -15,7 +15,7 @@ import type {
     IColMeta,
     IHistogram,
     ValueCount
-} from "./dataAPI/exchangeInterfaces"
+} from "./common/exchangeInterfaces"
 
 type ExecResult = { "content": string[], "exec_count": number }
 
