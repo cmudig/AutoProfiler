@@ -52,7 +52,8 @@
                     topK: headRows
                 },
                 nullCount: colMd.nullCount,
-                example: headRows[0]
+                example: headRows[0],
+
             };
 
             if (NUMERICS.has(col_type)) {
@@ -66,8 +67,8 @@
                     col_name
                 );
 
-                cd['statistics'] = statistics;
-                cd['histogram'] = chartData;
+                cd.summary.statistics = statistics;
+                cd.summary.histogram = chartData;
             }
 
             console.log('[DFPROFILE] Got col profile: ', cd);
@@ -77,10 +78,13 @@
 
         console.log('[DFPROFILE] FINISHED getting col profiles', resultData);
 
-        return resultData;
+        return new Promise<ColumnProfileData[]>(resolve => resolve(resultData));
     }
 
-    $: columnProfiles = getColProfiles(colInfo);
+    $: {
+        console.log("UPDATING column profiles!!!!!!!!!!")
+        columnProfiles = getColProfiles(colInfo);
+    }
 
     // data updates
     // $: shape = profileModel.getShape(dfName, colInfo); // colInfo isnt actually necessary for the call but I want this to re-run if colInfo updates, so I'm passing it in anyway
@@ -88,7 +92,7 @@
 
 <div>
     {#await columnProfiles}
-        <CollapsibleCard bind:open={expanded}>
+        <!-- <CollapsibleCard bind:open={expanded}>
             <div slot="header" class="dfprofile-header">
                 <div class="inline-block">
                     <ExpanderButton rotated={expanded} />
@@ -98,7 +102,9 @@
             </div>
 
             <div slot="body" class="dfprofile-body">Loading...</div>
-        </CollapsibleCard>
+        </CollapsibleCard> -->
+
+        <div> LOADING...</div>
     {:then columnProfiles}
         <CollapsibleCard bind:open={expanded}>
             <div slot="header" class="dfprofile-header">
@@ -114,6 +120,7 @@
             <div slot="body" class="dfprofile-body">
                 <div bind:clientWidth={profileWidth} class="col-profiles">
                     {#each columnProfiles as column}
+
                         <ColumnProfile
                             example={column.example}
                             name={column.name}

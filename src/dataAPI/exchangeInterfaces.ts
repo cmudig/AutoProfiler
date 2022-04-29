@@ -25,14 +25,16 @@ export type IColMeta = {
 export type ColumnProfileData = {
     "name": string,
     "type": string,
-    "summary": {
-        "cardinality": number, // total size
-        "topK": any[]
-        "histogram"?: IHistogram
-        "statistics"?: IQuantMeta
-    }
+    "summary": ColumnSummary,
     "nullCount": number,
     "example": any,
+}
+
+export type ColumnSummary = {
+    "cardinality": number, // total size
+    "topK": any[]
+    "histogram"?: IHistogram
+    "statistics"?: IQuantMeta
 }
 
 interface IHistogramBin {

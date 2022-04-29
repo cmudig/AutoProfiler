@@ -20,10 +20,12 @@
     import TimestampHistogram from './viz/histogram/TimestampHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
 
+    import type {ColumnSummary} from "../../dataAPI/exchangeInterfaces";
+
     // props
     export let name: string;
     export let type: string;
-    export let summary;
+    export let summary: ColumnSummary;
     export let totalRows: number;
     export let nullCount: number;
     export let example: any; // TODO cast harder
@@ -34,6 +36,8 @@
     // hide the null percentage number
     export let hideNullPercentage = false;
     export let compactBreakpoint = config.compactBreakpoint; //
+
+    console.log("In column profile, SUMMARY is: ", summary);
 
     // locals
     let active = false;
