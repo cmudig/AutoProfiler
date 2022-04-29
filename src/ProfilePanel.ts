@@ -2,8 +2,8 @@ import { StackedPanel } from '@lumino/widgets';
 import type { ISessionContext} from '@jupyterlab/apputils';
 import type { Message } from '@lumino/messaging';
 import type { NotebookAPI } from './dataAPI/jupyter/notebook'
-import { ProfileModel } from './ProfileModel';
-import { ProfileView } from './ProfileView';
+import { ProfileModel } from './dataAPI/ProfileModel';
+import { ProfileView } from './components/ProfileView';
 
 
 export class ProfilePanel extends StackedPanel {

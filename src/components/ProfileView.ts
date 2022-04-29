@@ -1,7 +1,7 @@
 
 import { Widget } from '@lumino/widgets';
-import type { ProfileModel } from './ProfileModel';
-import Profiler from './components/Profiler.svelte';
+import type { ProfileModel } from '../dataAPI/ProfileModel';
+import Profiler from './Profiler.svelte';
 
 export class ProfileView extends Widget {
     constructor(model: ProfileModel) {

@@ -4,9 +4,9 @@ import type { //Kernel,
     KernelMessage
 } from '@jupyterlab/services';
 // import { type ISignal, Signal } from '@lumino/signaling';
-import type { NotebookAPI } from './dataAPI/jupyter/notebook'
+import type { NotebookAPI } from './jupyter/notebook'
 
-import { dataFramesAndCols } from './stores';
+import { dataFramesAndCols } from '../stores';
 
 import type {
     IColTypeTuple,
@@ -15,7 +15,7 @@ import type {
     IColMeta,
     IHistogram,
     ValueCount
-} from "./common/exchangeInterfaces"
+} from "../common/exchangeInterfaces"
 
 type ExecResult = { "content": string[], "exec_count": number }
 

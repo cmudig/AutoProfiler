@@ -2,7 +2,7 @@
     // import "../app.css" // maybe this works?
     import DFProfile from './DFProfile.svelte';
     import { dataFramesAndCols } from '../stores';
-    import type { ProfileModel } from '../ProfileModel';
+    import type { ProfileModel } from '../dataAPI/ProfileModel';
 
     export let profileModel: ProfileModel;
 

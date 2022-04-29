@@ -5,7 +5,7 @@
         IColTypeTuple,
         ColumnProfileData
     } from '../common/exchangeInterfaces';
-    import type { ProfileModel } from '../ProfileModel';
+    import type { ProfileModel } from '../dataAPI/ProfileModel';
     import { CollapsibleCard } from 'svelte-collapsible';
     import { NUMERICS } from './data-types/pandas-data-types';
 
