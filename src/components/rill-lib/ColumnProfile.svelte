@@ -37,8 +37,6 @@
     export let hideNullPercentage = false;
     export let compactBreakpoint = config.compactBreakpoint; //
 
-    console.log("In column profile, SUMMARY is: ", summary);
-
     // locals
     let active = false;
 
@@ -59,10 +57,10 @@
             ? formatInteger
             : formatCompactInteger;
     
-// Whats gonna get made?
-console.log("[COLUMNPROFILE] Making profile for, ", name, " of type ", type);
-console.log("[COLUMNPROFILE] Isnumeric? ", NUMERICS.has(type))
-console.log("[COLUMNPROFILE] length: ", summary.histogram?.length)
+// // Whats gonna get made?
+// console.log("[COLUMNPROFILE] Making profile for, ", name, " of type ", type);
+// console.log("[COLUMNPROFILE] Isnumeric? ", NUMERICS.has(type))
+// console.log("[COLUMNPROFILE] length: ", summary.histogram?.length)
 
 </script>
 
@@ -70,7 +68,7 @@ console.log("[COLUMNPROFILE] length: ", summary.histogram?.length)
 <ColumnEntry
     left={indentLevel === 1 ? 10 : 4}
     {hideRight}
-    {active}
+    bind:active={active}
 >
     <svelte:fragment slot="icon">
         <DataTypeIcon {type} />
@@ -165,7 +163,7 @@ console.log("[COLUMNPROFILE] length: ", summary.histogram?.length)
                         <!-- pl-16 pl-8 -->
                         <TopKSummary
                             {containerWidth}
-                            color={DATA_TYPE_COLORS['VARCHAR'].bgClass}
+                            color={DATA_TYPE_COLORS[type].bgClass}
                             {totalRows}
                             topK={summary.topK}
                         />

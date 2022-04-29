@@ -1,4 +1,5 @@
 import { INTERVALS, INTEGERS, FLOATS, CATEGORICALS, TIMESTAMPS, BOOLEANS } from "../data-types/pandas-data-types";
+import type {Interval} from "../../../dataAPI/exchangeInterfaces"
 import { format } from "d3-format";
 import { timeFormat } from "d3-time-format";
 
@@ -58,12 +59,6 @@ export function microsToTimestring(microseconds:number) {
     return `${sign == 1 ? '' : '-'}${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}.${msPad(ms)}`
 }
 
-// TODO update this
-interface Interval {
-    months:number;
-    days:number;
-    micros:number;
-}
 
 export function intervalToTimestring(interval:Interval) {
     const months = interval.months ? `${formatInteger(interval.months)} month${interval.months > 1 ? 's' : ''} ` : '';

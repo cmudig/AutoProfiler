@@ -32,16 +32,25 @@ export type ColumnProfileData = {
 
 export type ColumnSummary = {
     "cardinality": number, // total size
-    "topK": any[]
-    "histogram"?: IHistogram
-    "statistics"?: IQuantMeta
+    "topK": any[],
+    "histogram"?: IHistogram,
+    "statistics"?: IQuantMeta,
+    interval?: Interval ,
+    estimatedSmallestTimeGrain
 }
 
 interface IHistogramBin {
-    bucket:number;
-    low:number;
-    high:number;
-    count:number;
+    bucket: number;
+    low: number;
+    high: number;
+    count: number;
+}
+
+// TODO update this
+export interface Interval {
+    months:number;
+    days:number;
+    micros:number;
 }
 
 export type IHistogram = IHistogramBin[]

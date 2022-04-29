@@ -3,9 +3,12 @@
 import HistogramBase from "./HistogramBase.svelte";
 import { datePortion, timePortion, intervalToTimestring, removeTimezoneOffset } from "../../utils/formatters";
 import { TIMESTAMP_TOKENS } from "../../data-types/pandas-data-types";
+
+//import type {Interval} from "../../../../dataAPI/exchangeInterfaces";
+
 export let data;
 export let type;
-export let interval;
+export let interval //: Interval;
 export let width;
 export let height = 100;
 export let estimatedSmallestTimeGrain:string;

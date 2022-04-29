@@ -4,6 +4,10 @@
 
     export let left = 8; // "pl-8 pl-10";
     export let right = 4; // pr-2";
+
+    // So another way of handling click is with 
+    // on:click={(event) => { dispatch('select'); }}
+
 </script>
 
 <div>
@@ -20,6 +24,7 @@
         focus:outline-gray-300 flex-1
         justify-between w-full"
         class:bg-gray-50={active}
+        on:click= {() => {active = !active}}
     >
         <div
             class="flex gap-2 grow items-baseline flex-1"
