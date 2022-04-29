@@ -1,13 +1,13 @@
 <script lang="ts">
-    import ColumnProfile from './rill-lib/ColumnProfile.svelte';
-    import ExpanderButton from './rill-lib/nav/ExpanderButton.svelte';
+    import ColumnProfile from './ColumnProfile.svelte';
+    import ExpanderButton from './nav/ExpanderButton.svelte';
     import type {
         IColTypeTuple,
         ColumnProfileData
     } from '../common/exchangeInterfaces';
     import type { ProfileModel } from '../ProfileModel';
     import { CollapsibleCard } from 'svelte-collapsible';
-    import { NUMERICS } from './rill-lib/data-types/pandas-data-types';
+    import { NUMERICS } from './data-types/pandas-data-types';
 
     export let dfName: string;
     $: console.log('[SVELTE] Making DFProfile for ', dfName, ' with ', colInfo);

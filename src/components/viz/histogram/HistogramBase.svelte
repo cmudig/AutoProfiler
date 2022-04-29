@@ -6,7 +6,7 @@
     import { format } from "d3-format";
     // FIXME: move util to $lib or add a $util
     import { guidGenerator } from "../../utils/guid";
-    import type {IHistogram} from  "../../../../common/exchangeInterfaces"
+    import type {IHistogram} from  "../../../common/exchangeInterfaces"
 
     export let data:IHistogram;
     export let width = 60;

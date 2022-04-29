@@ -3,7 +3,7 @@
     import BarAndLabel from './BarAndLabel.svelte';
     import { config } from '../utils/sizes';
 
-    import type {ValueCount} from "../../../common/exchangeInterfaces"
+    import type {ValueCount} from "../../common/exchangeInterfaces"
 
     // export let displaySize: string = 'md';
     export let totalRows: number;

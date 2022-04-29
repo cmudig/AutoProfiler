@@ -20,7 +20,7 @@
     import TimestampHistogram from './viz/histogram/TimestampHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
 
-    import type {ColumnSummary} from "../../common/exchangeInterfaces";
+    import type {ColumnSummary} from "../common/exchangeInterfaces";
 
     // props
     export let name: string;

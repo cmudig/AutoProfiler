@@ -1,5 +1,5 @@
 import { INTERVALS, INTEGERS, FLOATS, CATEGORICALS, TIMESTAMPS, BOOLEANS } from "../data-types/pandas-data-types";
-import type {Interval} from "../../../common/exchangeInterfaces"
+import type {Interval} from "../../common/exchangeInterfaces"
 import { format } from "d3-format";
 import { timeFormat } from "d3-time-format";
 
