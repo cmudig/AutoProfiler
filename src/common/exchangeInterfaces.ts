@@ -1,6 +1,10 @@
 
 export type IColTypeTuple = { "col_name": string, "col_type": string }
-export type IDFColMap = { [key: string]: IColTypeTuple[] }
+
+export type IDFColMap = {
+    [key: string]:
+    { "columns": IColTypeTuple[], "python_id": string }
+}
 
 export type IQuantChartData = { "binned_data": any[], "bin_size": number }
 // export type INomChartData = any[]
@@ -51,14 +55,13 @@ export type IHistogramBin = {
     "count": number,
 }
 
-// TODO update this
+export type IHistogram = IHistogramBin[]
+
 export type Interval = {
     "months": number,
     "days": number,
     "micros": number,
 }
-
-export type IHistogram = IHistogramBin[]
 
 // // executor interface for ArqueroExecutor below
 // export interface Executor {

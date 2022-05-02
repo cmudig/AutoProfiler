@@ -26,11 +26,7 @@
             <p>
                 {name} is a
                 <span class="font-semibold">
-                    {#await lang}
-                        ?
-                    {:then lang}
-                        {lang}
-                    {/await}
+                    {#await lang} ? {:then lang} {lang} {/await}
                 </span>
                 notebook.
             </p>
@@ -49,7 +45,7 @@
             {#each Object.keys($dataFramesAndCols) as dfName}
                 <DFProfile
                     {dfName}
-                    colInfo={$dataFramesAndCols[dfName]}
+                    colInfo={$dataFramesAndCols[dfName].columns}
                     {profileModel}
                 />
             {/each}

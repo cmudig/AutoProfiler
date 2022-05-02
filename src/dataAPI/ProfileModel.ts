@@ -159,15 +159,17 @@ export class ProfileModel { // implements Executor
             let vars_DF = var_names.filter((d, idx) => isDF[idx] === "True")
 
             if (vars_DF) {
-
                 // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
                 let dfColMap: IDFColMap = {};
+                let python_ids = await this.getObjectIds(vars_DF)
+
                 for (let index = 0; index < vars_DF.length; index++) {
-                    let columns = await this.getColumns(vars_DF[index]);
+
+                    let dfName = vars_DF[index]
+                    let columns = await this.getColumns(dfName);
 
                     // columns is array of strings
                     let columnTuples: IColTypeTuple[] = columns.reduce((totalArr, current_txt) => {
-
                         if (current_txt !== "dtype: object") {
                             let [_name, _type] = current_txt.split(/\s+/)
                             if (_name && _type) {
@@ -177,7 +179,7 @@ export class ProfileModel { // implements Executor
                         return totalArr
                     }, [])
 
-                    dfColMap[vars_DF[index]] = columnTuples
+                    dfColMap[dfName] = { "columns": columnTuples, "python_id": python_ids[index] }
                 }
 
                 return dfColMap
@@ -211,6 +213,19 @@ export class ProfileModel { // implements Executor
         */
         let code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
         varNames.forEach(name => code_lines.push(`print(type(${name}) == pd.DataFrame)`))
+
+        let res = await this.executeCode(code_lines.join('\n'));
+        let content = res["content"]
+
+        return content
+    }
+
+    private async getObjectIds(varNames: string[]): Promise<string[]> {
+        /*
+        Returns array of python object ids for varNames. Used to see if id has changed and update interface.
+        */
+        let code_lines = [];
+        varNames.forEach(name => code_lines.push(`print(id(${name}))`))
 
         let res = await this.executeCode(code_lines.join('\n'));
         let content = res["content"]
