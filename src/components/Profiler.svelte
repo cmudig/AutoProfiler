@@ -3,6 +3,7 @@
     import DFProfile from './DFProfile.svelte';
     import { dataFramesAndCols } from '../stores';
     import type { ProfileModel } from '../dataAPI/ProfileModel';
+    import Parquet from './icons/Parquet.svelte';
 
     export let profileModel: ProfileModel;
 
@@ -17,14 +18,14 @@
 </script>
 
 <main class="p-4 m-0">
-    <h1>Dataframe Profiler</h1>
+    <h1 class="text-lg">AutoProfile</h1>
 
     {#if $dataFramesAndCols}
         <!-- <div id="header-icon" /> -->
         <div class="mb-4">
             <p>
                 {name} is a
-                <span class="bold">
+                <span class="font-semibold">
                     {#await lang}
                         ?
                     {:then lang}
@@ -33,6 +34,15 @@
                 </span>
                 notebook.
             </p>
+        </div>
+
+        <div>
+            <div class="inline-block align-middle">
+                <Parquet size="16px" />
+            </div>
+            <h2 class="inline-block align-middle">
+                DataFrames
+            </h2>
         </div>
 
         <div>
@@ -47,89 +57,41 @@
     {:else}
         <p>
             All Pandas dataframes in your jupyter notebook will be profiled
-            below (no data yet).
+            below <span class="italic">(no data yet).</span>
         </p>
     {/if}
 </main>
 
-<!-- <style>
-    main {
-        /* text-align: center; */
-        padding: 1em;
-        /* max-width: 240px; */
-        margin: 0 auto;
-    }
-
-    .notebook-info {
-        margin-bottom: 1em;
-    }
-
-    /* .df-cards  {
-        margin-bottom: 1em;
-    } */
-</style> -->
 <style global lang="postcss">
     /* TAILWIND stuff */
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
 
-    /* @layer base {
+    @layer base {
         h1,
         h2,
         h3,
         h4 {
-            @apply font-bold;
+            @apply font-semibold;
         }
-    } */
+    }
 
-    ::selection {
+    /* ::selection {
         background-color: black;
         color: white;
-    }
+    } */
 
-    html {
+    /* html {
         @apply bg-gray-400;
-    }
+    } */
 
-    body {
+    /* button {
         font-family: 'MD IO';
-        font-size: 12px;
-
-        /* Use this for a few keyboard characters in tooltips, etc. */
-        /* --system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-            Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-            'Segoe UI Symbol'; */
-        margin: 0;
-        padding: 0;
-        --header-height: 3.5rem;
-        --right-drawer-width: 400px;
-
-        --left-sidebar-width: 400px;
-
-        --hue: 217;
-        --sat: 20%;
-        --lgt: 95%;
-
-        --info-bg: hsl(var(--hue), var(--sat), 80%);
-        --info-text: hsl(var(--hue), var(--sat), 20%);
-
-        --error-bg: hsl(1, 60%, 90%);
-        --error-text: hsl(1, 60%, 30%);
-
-        overscroll-behavior: none;
-    }
-
-    .body {
-        background-color: blue;
-    }
-
-    button {
-        font-family: 'MD IO';
-    }
+    } */
 
     .ͼ1 .cm-scroller {
-        font-family: 'MD IO';
+        /* font-family: 'MD IO'; */
         font-size: 13px;
     }
 
@@ -221,10 +183,6 @@
         place-items: center;
         height: 18px;
     }
-
-    /* .pl-accordion {
-    padding-left: calc(14px + .25rem);
-} */
 
     .draggable:active {
         cursor: dragging;

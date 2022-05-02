@@ -12,6 +12,7 @@
   font-size: var(--jp-ui-font-size1);
   /* text-align: center; */
   overflow-y: auto;
+  min-width: 320px;
 }
 
 .AutoProfileWrapper {

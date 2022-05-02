@@ -32,8 +32,7 @@ const externals = ['@jupyter-widgets/base',
   '@lumino/widgets'];
 
 const resolve = {
-  // Add '.ts' and '.tsx' as resolvable extensions.
-  extensions: [".webpack.js", ".web.js", ".ts", ".js", ".svelte"],
+  extensions: [".webpack.js", ".web.js", ".ts", ".js", ".svelte", ".css", ".svg"],
   mainFields: ['svelte', 'browser', 'module', 'main']
 };
 
