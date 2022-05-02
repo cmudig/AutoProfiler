@@ -1,5 +1,5 @@
 <script lang="ts">
-    // import "../app.css" // maybe this works?
+    import _ from 'lodash';
     import DFProfile from './DFProfile.svelte';
     import { dataFramesAndCols } from '../stores';
     import type { ProfileModel } from '../dataAPI/ProfileModel';
@@ -14,6 +14,10 @@
     $: if ($dataFramesAndCols) {
         name = profileModel.name;
         lang = profileModel.language;
+        console.log(
+            'In PROFILER svelte, the dataFramesAndCols are ',
+            $dataFramesAndCols
+        );
     }
 </script>
 
@@ -32,29 +36,34 @@
             </p>
         </div>
 
-        <div>
-            <div class="inline-block align-middle">
-                <Parquet size="16px" />
+        {#if !_.isEmpty($dataFramesAndCols)}
+            <div>
+                <div class="inline-block align-middle">
+                    <Parquet size="16px" />
+                </div>
+                <h2 class="inline-block align-middle">DataFrames</h2>
             </div>
-            <h2 class="inline-block align-middle">
-                DataFrames
-            </h2>
-        </div>
 
-        <div>
-            {#each Object.keys($dataFramesAndCols) as dfName}
-                <DFProfile
-                    {dfName}
-                    colInfo={$dataFramesAndCols[dfName].columns}
-                    {profileModel}
-                />
-            {/each}
-        </div>
+            <div>
+                {#each Object.keys($dataFramesAndCols) as dfName}
+                    <DFProfile
+                        {dfName}
+                        colInfo={$dataFramesAndCols[dfName].columns}
+                        {profileModel}
+                    />
+                {/each}
+            </div>
+        {:else}
+            <p>
+                All Pandas dataframes in your jupyter notebook will be profiled
+                below.
+            </p>
+            <p class="italic">
+                No DataFrames detected yet!
+            </p>
+        {/if}
     {:else}
-        <p>
-            All Pandas dataframes in your jupyter notebook will be profiled
-            below <span class="italic">(no data yet).</span>
-        </p>
+        <p>No notebook connection or executions yet.</p>
     {/if}
 </main>
 
