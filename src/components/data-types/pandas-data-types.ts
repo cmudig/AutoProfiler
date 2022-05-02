@@ -1,5 +1,5 @@
 /**
- * Provides mappings from duckdb's data types to conceptual types we use in the application:
+ * Provides mappings from pandas data types to conceptual types we use in the application:
  * CATEGORICALS, NUMERICS, and TIMESTAMPS.
  */
 
@@ -8,7 +8,7 @@
 export const INTEGERS = new Set([
     'int',
     'int8', 'int16', 'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64',
-    'Int8', 'Int16', 'Int32', 'Int64', 'UInt8', 'UInt16', 'UInt32', 'UInt64', // TODO unclear if these are necessary
+    'Int8', 'Int16', 'Int32', 'Int64', 'UInt8', 'UInt16', 'UInt32', 'UInt64', // unclear if these are necessary
 ])
 
 export const FLOATS = new Set([

@@ -1,17 +1,22 @@
 
-export type IColTypeTuple = { "col_name": string, "col_type": string }
+export type IColTypeTuple = {
+    "col_name": string,
+    "col_type": string
+}
 
 export type IDFColMap = {
     [key: string]:
-    { "columns": IColTypeTuple[], "python_id": string }
+    {
+        "columns": IColTypeTuple[],
+        "python_id": string
+    }
 }
 
-export type IQuantChartData = { "binned_data": any[], "bin_size": number }
-// export type INomChartData = any[]
+export type IQuantChartData = { 
+    "binned_data": any[], 
+    "bin_size": number 
+}
 
-// export type IColMeta = {"num_unique": string, "num_invalid": string }
-
-// TODO add string to these types to be able to ref later
 export type IQuantMeta = {
     "min": number,
     "q25": number,
@@ -35,7 +40,7 @@ export type ColumnProfileData = {
 }
 
 export type ColumnSummary = {
-    "cardinality": number, // total size
+    "cardinality": number, // num unique
     "topK": ValueCount[],
     "histogram"?: IHistogram,
     "statistics"?: IQuantMeta,

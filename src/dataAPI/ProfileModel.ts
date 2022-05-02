@@ -1,9 +1,7 @@
 import type { ISessionContext } from '@jupyterlab/apputils';
-// import type { IOutput } from '@jupyterlab/nbformat';
-import type { //Kernel,
+import type { 
     KernelMessage
 } from '@jupyterlab/services';
-// import { type ISignal, Signal } from '@lumino/signaling';
 import type { NotebookAPI } from './jupyter/notebook'
 
 import { dataFramesAndCols } from '../stores';
@@ -49,7 +47,6 @@ export class ProfileModel { // implements Executor
     }
 
     get name(): string {
-        // return this.session.kernelDisplayName;
         return this.session.name;
     }
 
@@ -298,15 +295,6 @@ export class ProfileModel { // implements Executor
         }
     }
 
-    // public async getNomMeta(dfName: string, colName: string): Promise<INomMeta> {
-    //     let numUnique_code = `print(${dfName}["${colName}"].nunique())`
-    //     let numNull_code = `print(${dfName}["${colName}"].isna().sum())`
-    //     let code_lines = [numUnique_code, numNull_code]
-    //     let res = await this.executeCode(code_lines.join('\n'));
-
-    //     let content = res["content"]
-    //     return { "num_unique": content[0], "num_invalid": content[1] }
-    // }
 
     public async getColMeta(dfName: string, colName: string): Promise<IColMeta> {
         // Code to execute
@@ -361,9 +349,7 @@ export class ProfileModel { // implements Executor
 
             data.push({ "low": parseFloat(low), "high": parseFloat(high), "count": json_res[k], "bucket": i })
         })
-
-        // let bin_size = data.length > 0 ? Math.abs(data[0].bin_1 - data[0].bin_0) : undefined
-
+        
         return data
     }
 
