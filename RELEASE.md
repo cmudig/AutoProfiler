@@ -21,7 +21,7 @@ To create a Python source package (`.tar.gz`) and the binary package (`.whl`) in
 python3 -m build
 ```
 
-> `python setup.py sdist bdist_wheel` is deprecated and will not work for this package.
+<!-- > `python setup.py sdist bdist_wheel` is deprecated and will not work for this package. -->
 
 Then to upload the package to PyPI, do:
 
@@ -38,7 +38,7 @@ npm login
 npm publish --access public
 ```
 
-## Automated releases with the Jupyter Releaser
+<!-- ## Automated releases with the Jupyter Releaser
 
 The extension repository should already be compatible with the Jupyter Releaser.
 
@@ -52,7 +52,7 @@ Here is a summary of the steps to cut a new release:
 -   Run the "Draft Changelog" workflow
 -   Merge the Changelog PR
 -   Run the "Draft Release" workflow
--   Run the "Publish Release" workflow
+-   Run the "Publish Release" workflow -->
 
 ## Publishing to `conda-forge`
 

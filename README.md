@@ -25,6 +25,8 @@ pip install digautoprofile
 
 For development install instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+If you're having install issues, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
 ## Acknowledgements
 
 Big thanks to the Rill Data team! Much of our profiler UI code is from [Rill Developer](https://github.com/rilldata/rill-developer).
