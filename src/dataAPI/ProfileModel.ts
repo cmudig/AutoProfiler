@@ -345,7 +345,7 @@ export class ProfileModel { // implements Executor
         return data
     }
 
-    async getQuantBinnedData(dfName: string, colName: string, maxbins: number = 5): Promise<IHistogram> {
+    async getQuantBinnedData(dfName: string, colName: string, maxbins: number = 10): Promise<IHistogram> {
         /*
         *   Returns data for VL spec to plot quant data. In form of array of shape
         *   [ { "bin_0": 0, "bin_1": 1, "count": 5 }, ]
