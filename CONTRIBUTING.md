@@ -11,7 +11,6 @@ The `jlpm` command is JupyterLab's pinned version of
 # Change directory to the AutoProfile directory
 # Install package in development mode
 pip install -e .
-npm install
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 # OR

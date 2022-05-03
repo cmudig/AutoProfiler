@@ -1,7 +1,7 @@
 {
   "name": "digautoprofile",
-  "version": "0.1.0",
-  "description": "profile your data",
+  "version": "0.1.1",
+  "description": "Automatically profile your pandas dataframes in jupyter lab.",
   "keywords": [
     "jupyter",
     "jupyterlab",
@@ -25,11 +25,11 @@
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/github_username/AutoProfile.git"
+    "url": "https://github.com/cmudig/AutoProfile.git"
   },
   "scripts": {
     "build": "jlpm build:lib && jlpm build:labextension:dev",
-    "build:prod": "jlpm clean && webpack --mode=production && jlpm build:labextension",
+    "build:prod": "jlpm clean && npm install && tsc && webpack --mode=production && jlpm build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc && webpack --mode=development",
