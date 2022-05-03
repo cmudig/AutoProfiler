@@ -4,13 +4,13 @@ Profile your Pandas Dataframes! Autoprofile will automatically visualize your Pa
 
 There's more bugs than features right now so buyer beware!
 
-![screenshot of autoprofile](examples/basic_profiler_sc.png)
+![screenshot of autoprofile](examples/profiler_sc.png)
 
-## Short Demo
+<!-- ## Short Demo
 
 Autoprofile reads your current Jupyter notebook and produces profiles for the Pandas Dataframes in your memory along with some summary statistics and a data preview.
 
-![demo of autoprofile](examples/demo.gif)
+![demo of autoprofile](examples/demo.gif) -->
 
 
 ## Requirements
