@@ -36,7 +36,7 @@
     >
         {#each topK.slice(0, 10) as { value, count }}
             {@const printValue = value === null ? ' null ∅' : value}
-            <div>
+            <div class="text-ellipsis overflow-hidden whitespace-nowrap">
                 {printValue}
             </div>
 
@@ -46,10 +46,8 @@
                 : formatPercentage(count / totalRows)}
             <div>
                 <BarAndLabel value={count / totalRows} {color}>
-                    <span
-                        class:text-gray-500={negligiblePercentage &&
-                            containerWidth >= config.hideRight}
-                        >{formatCount(count)}
+                    <span class:text-gray-500={negligiblePercentage && containerWidth >= config.hideRight}> 
+                        {formatCount(count)}
                         {#if !containerWidth || containerWidth >= config.hideRight}
                             {#if percentage.length < 6}&nbsp;{/if}{#if percentage.length < 5}&nbsp;{/if}&nbsp;<span
                                 class:text-gray-600={!negligiblePercentage}
