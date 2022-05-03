@@ -1,7 +1,7 @@
 <script lang="ts">
     import _ from 'lodash';
     import DFProfile from './DFProfile.svelte';
-    import { dataFramesAndCols, profileModel } from '../stores';
+    import { columnProfiles, dataFramesAndCols, profileModel } from '../stores';
     import Parquet from './icons/Parquet.svelte';
 
     // Locals
@@ -11,10 +11,6 @@
     $: if ($dataFramesAndCols && $profileModel) {
         name = $profileModel.name;
         lang = $profileModel.language;
-        console.log(
-            'In PROFILER svelte, the dataFramesAndCols are ',
-            $dataFramesAndCols
-        );
     }
 </script>
 
@@ -33,7 +29,7 @@
             </p>
         </div>
 
-        {#if !_.isEmpty($dataFramesAndCols)}
+        {#if !_.isEmpty($columnProfiles)}
             <div>
                 <div class="inline-block align-middle">
                     <Parquet size="16px" />
@@ -42,18 +38,16 @@
             </div>
 
             <div>
-                {#each Object.keys($dataFramesAndCols) as dfName}
-                    <DFProfile {dfName}/>
+                {#each Object.keys($columnProfiles) as dfName}
+                    <DFProfile {dfName} />
                 {/each}
             </div>
         {:else}
-            <p>
+            <p class="mb-4">
                 All Pandas dataframes in your jupyter notebook will be profiled
                 below.
             </p>
-            <p class="italic">
-                No DataFrames detected yet!
-            </p>
+            <p class="italic">No DataFrames detected yet!</p>
         {/if}
     {:else}
         <p>No notebook connection or executions yet.</p>

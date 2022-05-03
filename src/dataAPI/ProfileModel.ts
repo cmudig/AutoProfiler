@@ -47,7 +47,7 @@ export class ProfileModel { // implements Executor
     }
 
     get name(): string {
-        return this.session.name;
+        return this.session?.name;
     }
 
     public async connectNotebook(notebook: NotebookAPI) {
@@ -62,8 +62,23 @@ export class ProfileModel { // implements Executor
                 this.updateRootData()
             }
         })
+        this.listenForRestart()
         this._ready = true
         this.updateRootData()
+    }
+
+    public async listenForRestart() {
+        this.session.session?.kernel.statusChanged.connect( (_, status) => {
+            if (status.endsWith('restarting')) {
+                // DO something
+                console.log("Kernel restarting!!!")
+                this.resetData()
+              }
+        })
+    }
+
+    public async resetData() {
+        dataFramesAndCols.set(undefined)
     }
 
 

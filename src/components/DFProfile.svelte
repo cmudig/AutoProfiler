@@ -1,35 +1,13 @@
 <script lang="ts">
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
-    import type {
-        // IColTypeTuple,
-        ColumnProfileData
-    } from '../common/exchangeInterfaces';
     import { CollapsibleCard } from 'svelte-collapsible';
     import { columnProfiles } from '../stores';
 
     export let dfName: string;
-    // export let colInfo: IColTypeTuple[];
 
-    // $: console.log('[SVELTE] Making DFProfile for ', dfName, ' with ', colInfo);
-    // export let profileModel: ProfileModel;
-
-    // Locals
-    let shape: number[] = [undefined, undefined];
-    let cp: ColumnProfileData[];
+    // locals
     let previewView = 'summaries';
-
-    $: console.log(
-        'Making DF Profile with data for column ',
-        dfName,
-        'with data',
-        $columnProfiles?.[dfName]
-    );
-
-    $: if ($columnProfiles) {
-        shape = $columnProfiles[dfName]?.shape;
-        cp = $columnProfiles[dfName]?.profile;
-    }
 
     // view variables
     let profileWidth: number;
@@ -45,14 +23,20 @@
             <p class="inline-block font-bold">{dfName}</p>
 
             <p class="inline-block">
-                {shape[0]} x {shape[1]}
+                {#await $columnProfiles[dfName]}
+                    Loading...
+                {:then cp}
+                    {cp.shape[0]} x {cp.shape[1]}
+                {/await}
             </p>
         </div>
 
         <div slot="body" class="dfprofile-body">
-            {#if cp}
+            {#await $columnProfiles[dfName]}
+                <div />
+            {:then cp}
                 <div bind:clientWidth={profileWidth} class="col-profiles">
-                    {#each cp as column}
+                    {#each cp.profile as column}
                         <ColumnProfile
                             example={column.example}
                             name={column.name}
@@ -61,11 +45,11 @@
                             nullCount={column.nullCount}
                             containerWidth={profileWidth}
                             view={previewView}
-                            totalRows={shape[0]}
+                            totalRows={cp.shape[0]}
                         />
                     {/each}
                 </div>
-            {/if}
+            {/await}
         </div>
     </CollapsibleCard>
 </div>

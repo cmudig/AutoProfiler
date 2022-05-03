@@ -1,5 +1,5 @@
 import { type Writable, type Readable, writable, derived } from 'svelte/store';
-import type { IDFColMap, IColumnProfileMap, ColumnProfileData } from './common/exchangeInterfaces';
+import type { IDFColMap, IColumnProfileMap, ColumnProfileData, IColumnProfileWrapper } from './common/exchangeInterfaces';
 import { NUMERICS } from './components/data-types/pandas-data-types';
 import type { ProfileModel } from "./dataAPI/ProfileModel";
 
@@ -10,70 +10,71 @@ export const profileModel: Writable<ProfileModel> = writable(undefined);
 export const columnProfiles: Readable<IColumnProfileMap> = derived(
     [dataFramesAndCols, profileModel],
 
-    ([$dataFramesAndCols, $profileModel], set) => {
+    ([$dataFramesAndCols, $profileModel]) => {
         if ($dataFramesAndCols && $profileModel)
-            getColProfiles($dataFramesAndCols, $profileModel, set)
+            return fetchColumnPromises($dataFramesAndCols, $profileModel)
     },
     undefined // default value
 )
 
-async function getColProfiles(dfColMap: IDFColMap, model: ProfileModel, set: (arg0: any) => void) {
-
+function fetchColumnPromises(dfColMap: IDFColMap, model: ProfileModel): IColumnProfileMap { //, set: (arg0: any) => void) {
     console.log("Updating column stores in getColProfiles!")
     let colProfileMap: IColumnProfileMap = {};
     let alldf_names = Object.keys(dfColMap)
 
-    for (let i = 0; i < alldf_names.length; i++) {
-        let dfName = alldf_names[i]
+    alldf_names.forEach(dfName => {
+        colProfileMap[dfName] = getColProfiles(dfName, dfColMap, model)
+    })
+    console.log("Setting derived data in fetchColumnPromises...")
+    return colProfileMap
+}
 
-        let shape = await model.getShape(dfName);
-        let colMetaInfoArr = dfColMap[dfName].columns
-        let resultData: ColumnProfileData[] = [];
+async function getColProfiles(dfName: string, dfColMap: IDFColMap, model: ProfileModel): Promise<IColumnProfileWrapper> {
 
-        for (let j = 0; j < colMetaInfoArr.length; j++) {
-            let ci = colMetaInfoArr[j];
-            let col_name = ci.col_name;
-            let col_type = ci.col_type;
+    let shape = await model.getShape(dfName);
+    let colMetaInfoArr = dfColMap[dfName].columns
+    let resultData: ColumnProfileData[] = [];
 
-            console.log('[DFPROFILE] Getting data for column: ', col_name);
+    for (let j = 0; j < colMetaInfoArr.length; j++) {
+        let ci = colMetaInfoArr[j];
+        let col_name = ci.col_name;
+        let col_type = ci.col_type;
 
-            // model calls
-            let rowVC = await model.getValueCounts(dfName, col_name);
-            let colMd = await model.getColMeta(dfName, col_name);
+        console.log('[DFPROFILE] Getting data for column: ', col_name);
 
-            let cd: ColumnProfileData = {
-                name: col_name,
-                type: col_type,
-                summary: {
-                    cardinality: colMd.numUnique,
-                    topK: rowVC
-                },
-                nullCount: colMd.nullCount,
-                example: rowVC[0].value
-            };
+        // model calls
+        let rowVC = await model.getValueCounts(dfName, col_name);
+        let colMd = await model.getColMeta(dfName, col_name);
 
-            if (NUMERICS.has(col_type)) {
-                let chartData = await model.getQuantBinnedData(
-                    dfName,
-                    col_name
-                );
-                let statistics = await model.getQuantMeta(
-                    dfName,
-                    col_name
-                );
+        let cd: ColumnProfileData = {
+            name: col_name,
+            type: col_type,
+            summary: {
+                cardinality: colMd.numUnique,
+                topK: rowVC
+            },
+            nullCount: colMd.nullCount,
+            example: rowVC[0].value
+        };
 
-                cd.summary.statistics = statistics;
-                cd.summary.histogram = chartData;
-            }
+        if (NUMERICS.has(col_type)) {
+            let chartData = await model.getQuantBinnedData(
+                dfName,
+                col_name
+            );
+            let statistics = await model.getQuantMeta(
+                dfName,
+                col_name
+            );
 
-            resultData.push(cd);
+            cd.summary.statistics = statistics;
+            cd.summary.histogram = chartData;
         }
 
-        console.log('[DFPROFILE] FINISHED getting col profiles', resultData);
-        colProfileMap[dfName] = { "profile": resultData, "shape": shape };
+        resultData.push(cd);
     }
 
-    console.log("Setting derived store...", colProfileMap)
+    console.log('[DFPROFILE] FINISHED getting col profiles', resultData);
+    return { "profile": resultData, "shape": shape };
 
-    set(colProfileMap)
 }

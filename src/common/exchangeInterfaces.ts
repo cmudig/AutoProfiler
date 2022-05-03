@@ -14,16 +14,18 @@ export type IDFColMap = {
 
 // data fetched from kernel for frontend
 export type IColumnProfileMap = {
-    [dfname: string]:
-    {
-        "profile": ColumnProfileData[],
-        "shape": number[]
-    }
+    [dfname: string]: Promise<IColumnProfileWrapper>
 }
 
-export type IQuantChartData = { 
-    "binned_data": any[], 
-    "bin_size": number 
+export type IColumnProfileWrapper = {
+    "profile": ColumnProfileData[],
+    "shape": number[]
+}
+
+
+export type IQuantChartData = {
+    "binned_data": any[],
+    "bin_size": number
 }
 
 export type IQuantMeta = {
