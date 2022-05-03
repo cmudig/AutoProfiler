@@ -1,19 +1,18 @@
 import { StackedPanel } from '@lumino/widgets';
-import type { ISessionContext} from '@jupyterlab/apputils';
+import type { ISessionContext } from '@jupyterlab/apputils';
 import type { Message } from '@lumino/messaging';
-import type { NotebookAPI } from './dataAPI/jupyter/notebook'
+import type { NotebookAPI } from './dataAPI/jupyter/notebook';
 import { ProfileModel } from './dataAPI/ProfileModel';
 import { ProfileView } from './components/ProfileView';
-
 
 export class ProfilePanel extends StackedPanel {
     constructor() {
         super();
-        this.addClass('AutoProfileWrapper');
+        this.addClass('auto-profile-wrapper');
         this.id = 'auto-profile-app';
         this.title.caption = 'AutoProfile';
-        this.title.label = "AutoProfile"
-        this.title.iconClass = 'jp-SideBar-tabIcon myIcon';
+        this.title.label = 'AutoProfile';
+        this.title.iconClass = 'jp-SideBar-tabIcon autoprofile-logo';
 
         // MODEL init
         this._profileModel = new ProfileModel(this._sessionContext);
@@ -37,7 +36,7 @@ export class ProfilePanel extends StackedPanel {
     }
 
     public async connectNotebook(notebook: NotebookAPI) {
-        this.session = notebook.panel.sessionContext
+        this.session = notebook.panel.sessionContext;
         await this._profileModel.connectNotebook(notebook);
     }
 

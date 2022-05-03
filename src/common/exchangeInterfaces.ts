@@ -1,83 +1,81 @@
 //  types for store set on notebook re-run
 export type IColTypeTuple = {
-    "col_name": string,
-    "col_type": string
-}
+    col_name: string;
+    col_type: string;
+};
 
 export type IDFColMap = {
-    [key: string]:
-    {
-        "columns": IColTypeTuple[],
-        "python_id": string
-    }
-}
+    [key: string]: {
+        columns: IColTypeTuple[];
+        python_id: string;
+    };
+};
 
 // data fetched from kernel for frontend
 export type IColumnProfileMap = {
-    [dfname: string]: Promise<IColumnProfileWrapper>
-}
+    [dfname: string]: Promise<IColumnProfileWrapper>;
+};
 
 export type IColumnProfileWrapper = {
-    "profile": ColumnProfileData[],
-    "shape": number[]
-}
-
+    profile: ColumnProfileData[];
+    shape: number[];
+};
 
 export type IQuantChartData = {
-    "binned_data": any[],
-    "bin_size": number
-}
+    binned_data: any[];
+    bin_size: number;
+};
 
 export type IQuantMeta = {
-    "min": number,
-    "q25": number,
-    "q50": number,
-    "q75": number,
-    "max": number,
-    "mean": number,
-}
+    min: number;
+    q25: number;
+    q50: number;
+    q75: number;
+    max: number;
+    mean: number;
+};
 
 export type IColMeta = {
-    "numUnique": number,
-    "nullCount": number,
-}
+    numUnique: number;
+    nullCount: number;
+};
 
 export type ColumnProfileData = {
-    "name": string,
-    "type": string,
-    "summary": ColumnSummary,
-    "nullCount": number,
-    "example": any,
-}
+    name: string;
+    type: string;
+    summary: ColumnSummary;
+    nullCount: number;
+    example: any;
+};
 
 export type ColumnSummary = {
-    "cardinality": number, // num unique
-    "topK": ValueCount[],
-    "histogram"?: IHistogram,
-    "statistics"?: IQuantMeta,
-    interval?: Interval,
-    estimatedSmallestTimeGrain?: string
-}
+    cardinality: number; // num unique
+    topK: ValueCount[];
+    histogram?: IHistogram;
+    statistics?: IQuantMeta;
+    interval?: Interval;
+    estimatedSmallestTimeGrain?: string;
+};
 
 export type ValueCount = {
-    "value": any,
-    "count": number,
-}
+    value: any;
+    count: number;
+};
 
 export type IHistogramBin = {
-    "bucket": number,
-    "low": number,
-    "high": number,
-    "count": number,
-}
+    bucket: number;
+    low: number;
+    high: number;
+    count: number;
+};
 
-export type IHistogram = IHistogramBin[]
+export type IHistogram = IHistogramBin[];
 
 export type Interval = {
-    "months": number,
-    "days": number,
-    "micros": number,
-}
+    months: number;
+    days: number;
+    micros: number;
+};
 
 // // executor interface for ArqueroExecutor below
 // export interface Executor {

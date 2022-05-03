@@ -46,13 +46,13 @@ Check out the [workflow documentation](https://github.com/jupyter-server/jupyter
 
 Here is a summary of the steps to cut a new release:
 
-- Fork the [`jupyter-releaser` repo](https://github.com/jupyter-server/jupyter_releaser)
-- Add `ADMIN_GITHUB_TOKEN`, `PYPI_TOKEN` and `NPM_TOKEN` to the Github Secrets in the fork
-- Go to the Actions panel
-- Run the "Draft Changelog" workflow
-- Merge the Changelog PR
-- Run the "Draft Release" workflow
-- Run the "Publish Release" workflow
+-   Fork the [`jupyter-releaser` repo](https://github.com/jupyter-server/jupyter_releaser)
+-   Add `ADMIN_GITHUB_TOKEN`, `PYPI_TOKEN` and `NPM_TOKEN` to the Github Secrets in the fork
+-   Go to the Actions panel
+-   Run the "Draft Changelog" workflow
+-   Merge the Changelog PR
+-   Run the "Draft Release" workflow
+-   Run the "Publish Release" workflow
 
 ## Publishing to `conda-forge`
 

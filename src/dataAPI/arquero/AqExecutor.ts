@@ -1,6 +1,5 @@
-export {}
+export {};
 // import * as aq from 'arquero';
-
 
 // export class ArqueroExecutor { // implements Executor
 

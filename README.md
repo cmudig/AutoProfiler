@@ -1,6 +1,6 @@
 # AutoProfile
 
-Profile your Pandas Dataframes! Autoprofile will automatically visualize your Pandas dataframes after every execution, no extra code necessary. 
+Profile your Pandas Dataframes! Autoprofile will automatically visualize your Pandas dataframes after every execution, no extra code necessary.
 
 There's more bugs than features right now so buyer beware!
 
@@ -12,11 +12,10 @@ Autoprofile reads your current Jupyter notebook and produces profiles for the Pa
 
 ![demo of autoprofile](examples/demo.gif) -->
 
-
 ## Requirements
 
-* JupyterLab >= 3.0
-* Pandas 
+-   JupyterLab >= 3.0
+-   Pandas
 
 ## Install
 
@@ -27,4 +26,5 @@ pip install digautoprofile
 For development install instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Acknowledgements
+
 Big thanks to the Rill Data team! Much of our profiler UI code is from [Rill Developer](https://github.com/rilldata/rill-developer).
