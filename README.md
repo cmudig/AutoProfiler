@@ -18,10 +18,13 @@ Autoprofile reads your current Jupyter notebook and produces profiles for the Pa
 * JupyterLab >= 3.0
 * Pandas 
 
-# Install
+## Install
 
 ```bash
 pip install digautoprofile
 ```
 
-For development install instructions, see [CONTRIBUTING](CONTRIBUTING.md).
+For development install instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Acknowledgements
+Big thanks to the Rill Data team! Much of our profiler UI code is from [Rill Developer](https://github.com/rilldata/rill-developer).
