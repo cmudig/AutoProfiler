@@ -18,7 +18,7 @@ pip install build twine
 To create a Python source package (`.tar.gz`) and the binary package (`.whl`) in the `dist/` directory, do:
 
 ```bash
-python -m build
+python3 -m build
 ```
 
 > `python setup.py sdist bdist_wheel` is deprecated and will not work for this package.

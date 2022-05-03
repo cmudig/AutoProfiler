@@ -7,7 +7,7 @@ include install.json
 include ts*.json
 include yarn.lock
 
-graft AutoProfile/labextension
+graft digautoprofile/labextension
 
 # Javascript files
 graft src

@@ -1,5 +1,5 @@
 {
-  "name": "AutoProfile",
+  "name": "digautoprofile",
   "version": "0.1.0",
   "description": "profile your data",
   "keywords": [
@@ -7,9 +7,9 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/github_username/AutoProfile",
+  "homepage": "https://github.com/cmudig/AutoProfile",
   "bugs": {
-    "url": "https://github.com/github_username/AutoProfile/issues"
+    "url": "https://github.com/cmudig/AutoProfile/issues"
   },
   "license": "BSD-3-Clause",
   "author": {
@@ -36,7 +36,7 @@
     "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-    "clean:labextension": "rimraf AutoProfile/labextension",
+    "clean:labextension": "rimraf digautoprofile/labextension",
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
@@ -110,7 +110,7 @@
   },
   "jupyterlab": {
     "extension": true,
-    "outputDir": "AutoProfile/labextension",
+    "outputDir": "digautoprofile/labextension",
     "sharedPackages": {
       "@jupyter-widgets/base": {
         "bundled": false,
