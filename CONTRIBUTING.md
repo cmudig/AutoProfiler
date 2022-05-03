@@ -13,8 +13,6 @@ The `jlpm` command is JupyterLab's pinned version of
 pip install -e .
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
-# OR
-jupyter labextension install .
 # Rebuild extension Typescript source after making changes
 npm run build
 ```
@@ -46,4 +44,4 @@ pip uninstall digautoprofile
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `AutoProfile` within that folder.
+folder is located. Then you can remove the symlink named `digautoprofile` within that folder.

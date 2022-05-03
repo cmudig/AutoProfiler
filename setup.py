@@ -4,6 +4,7 @@ digautoprofile setup
 import json
 import sys
 from pathlib import Path
+# from os import path
 
 import setuptools
 
@@ -11,6 +12,14 @@ HERE = Path(__file__).parent.resolve()
 
 # Get the package info from package.json
 pkg_json = json.loads((HERE / "package.json").read_bytes())
+
+# with open((HERE / "requirements.txt")) as fp:
+#     install_requires = fp.read()
+
+install_requires = [
+    "jupyterlab>=3.3.3",
+    "pandas>=1.4.2"
+]
 
 # The name of the project
 name = "digautoprofile"
@@ -40,7 +49,7 @@ version = (
 ) 
 
 setup_args = dict(
-    name=name,
+    name=name, # pypi name
     version=version,
     url=pkg_json["homepage"],
     author=pkg_json["author"]["name"],
@@ -51,7 +60,7 @@ setup_args = dict(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
-    install_requires=[],
+    install_requires=install_requires,
     zip_safe=False,
     include_package_data=True,
     python_requires=">=3.7",
@@ -70,6 +79,11 @@ setup_args = dict(
         "Framework :: Jupyter :: JupyterLab :: 3",
         "Framework :: Jupyter :: JupyterLab :: Extensions",
         "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Other Audience",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Scientific/Engineering :: Visualization",
     ],
 )
 
