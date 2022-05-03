@@ -90,6 +90,7 @@
     "svelte": "^3.46.6",
     "svelte-collapsible": "^0.2.1",
     "svelte-loader": "^3.1.2",
+    "svelte-loading-spinners": "^0.1.7",
     "svelte-preprocess": "^4.10.5",
     "svelte-vega": "^1.1.0",
     "svg-url-loader": "^7.1.1",

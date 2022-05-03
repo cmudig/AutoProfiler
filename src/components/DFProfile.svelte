@@ -2,6 +2,8 @@
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
     import { CollapsibleCard } from 'svelte-collapsible';
+    import { Circle } from 'svelte-loading-spinners';
+
     import { columnProfiles } from '../stores';
 
     export let dfName: string;
@@ -22,13 +24,16 @@
             </div>
             <p class="inline-block font-bold">{dfName}</p>
 
-            <p class="inline-block">
-                {#await $columnProfiles[dfName]}
-                    Loading...
-                {:then cp}
+            {#await $columnProfiles[dfName]}
+                <div class="inline-block align-middle pl-2">
+                    <!-- <Pulse size="1" color="#FF3E00" unit="rem" duration="1s" /> -->
+                    <Circle size="1" color="#FF3E00" unit="rem" duration="1s" />
+                </div>
+            {:then cp}
+                <p class="inline-block">
                     {cp.shape[0]} x {cp.shape[1]}
-                {/await}
-            </p>
+                </p>
+            {/await}
         </div>
 
         <div slot="body" class="dfprofile-body">
