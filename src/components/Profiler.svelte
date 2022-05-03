@@ -1,19 +1,16 @@
 <script lang="ts">
     import _ from 'lodash';
     import DFProfile from './DFProfile.svelte';
-    import { dataFramesAndCols } from '../stores';
-    import type { ProfileModel } from '../dataAPI/ProfileModel';
+    import { dataFramesAndCols, profileModel } from '../stores';
     import Parquet from './icons/Parquet.svelte';
-
-    export let profileModel: ProfileModel;
 
     // Locals
     let name: string;
     let lang: Promise<string>;
 
-    $: if ($dataFramesAndCols) {
-        name = profileModel.name;
-        lang = profileModel.language;
+    $: if ($dataFramesAndCols && $profileModel) {
+        name = $profileModel.name;
+        lang = $profileModel.language;
         console.log(
             'In PROFILER svelte, the dataFramesAndCols are ',
             $dataFramesAndCols
@@ -46,11 +43,7 @@
 
             <div>
                 {#each Object.keys($dataFramesAndCols) as dfName}
-                    <DFProfile
-                        {dfName}
-                        colInfo={$dataFramesAndCols[dfName].columns}
-                        {profileModel}
-                    />
+                    <DFProfile {dfName}/>
                 {/each}
             </div>
         {:else}

@@ -1,4 +1,4 @@
-
+//  types for store set on notebook re-run
 export type IColTypeTuple = {
     "col_name": string,
     "col_type": string
@@ -9,6 +9,15 @@ export type IDFColMap = {
     {
         "columns": IColTypeTuple[],
         "python_id": string
+    }
+}
+
+// data fetched from kernel for frontend
+export type IColumnProfileMap = {
+    [dfname: string]:
+    {
+        "profile": ColumnProfileData[],
+        "shape": number[]
     }
 }
 

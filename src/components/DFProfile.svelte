@@ -2,109 +2,57 @@
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
     import type {
-        IColTypeTuple,
+        // IColTypeTuple,
         ColumnProfileData
     } from '../common/exchangeInterfaces';
-    import type { ProfileModel } from '../dataAPI/ProfileModel';
     import { CollapsibleCard } from 'svelte-collapsible';
-    import { NUMERICS } from './data-types/pandas-data-types';
+    import { columnProfiles } from '../stores';
 
     export let dfName: string;
-    $: console.log('[SVELTE] Making DFProfile for ', dfName, ' with ', colInfo);
-    export let colInfo: IColTypeTuple[];
-    export let profileModel: ProfileModel;
+    // export let colInfo: IColTypeTuple[];
+
+    // $: console.log('[SVELTE] Making DFProfile for ', dfName, ' with ', colInfo);
+    // export let profileModel: ProfileModel;
 
     // Locals
-    let shape: number[];
-    let columnProfiles: Promise<ColumnProfileData[]>;
+    let shape: number[] = [undefined, undefined];
+    let cp: ColumnProfileData[];
     let previewView = 'summaries';
+
+    $: console.log(
+        'Making DF Profile with data for column ',
+        dfName,
+        'with data',
+        $columnProfiles?.[dfName]
+    );
+
+    $: if ($columnProfiles) {
+        shape = $columnProfiles[dfName]?.shape;
+        cp = $columnProfiles[dfName]?.profile;
+    }
 
     // view variables
     let profileWidth: number;
-    let expanded = true;
-
-    async function getColProfiles(
-        colMetaInfoArr: IColTypeTuple[]
-    ): Promise<ColumnProfileData[]> {
-        shape = await profileModel.getShape(dfName, colInfo);
-
-        let resultData: ColumnProfileData[] = [];
-
-        for (let i = 0; i < colMetaInfoArr.length; i++) {
-            let ci = colMetaInfoArr[i];
-            let col_name = ci.col_name;
-            let col_type = ci.col_type;
-
-            console.log('[DFPROFILE] Getting data for column: ', col_name);
-
-            // model calls
-            let rowVC = await profileModel.getValueCounts(dfName, col_name);
-            let colMd = await profileModel.getColMeta(dfName, col_name);
-
-            let cd: ColumnProfileData = {
-                name: col_name,
-                type: col_type,
-                summary: {
-                    cardinality: colMd.numUnique,
-                    topK: rowVC
-                },
-                nullCount: colMd.nullCount,
-                example: rowVC[0].value
-            };
-
-            if (NUMERICS.has(col_type)) {
-                let chartData = await profileModel.getQuantBinnedData(
-                    dfName,
-                    col_name
-                );
-                let statistics = await profileModel.getQuantMeta(
-                    dfName,
-                    col_name
-                );
-
-                cd.summary.statistics = statistics;
-                cd.summary.histogram = chartData;
-            }
-
-            resultData.push(cd);
-        }
-
-        // console.log('[DFPROFILE] FINISHED getting col profiles', resultData);
-
-        return new Promise<ColumnProfileData[]>(resolve => resolve(resultData));
-    }
-
-    $: columnProfiles = getColProfiles(colInfo);
+    let expanded = false;
 </script>
 
 <div>
-    {#await columnProfiles}
-        <CollapsibleCard bind:open={expanded}>
-            <div slot="header" class="dfprofile-header">
-                <div class="inline-block">
-                    <ExpanderButton rotated={expanded} />
-                </div>
-                <p class="inline-block font-bold">{dfName}</p>
-                <p class="inline-block text-red-800">Loading...</p>
+    <CollapsibleCard bind:open={expanded}>
+        <div slot="header" class="dfprofile-header">
+            <div class="inline-block">
+                <ExpanderButton rotated={expanded} />
             </div>
+            <p class="inline-block font-bold">{dfName}</p>
 
-            <!-- <div slot="body" class="dfprofile-body">Loading...</div> -->
-        </CollapsibleCard>
-    {:then columnProfiles}
-        <CollapsibleCard bind:open={expanded}>
-            <div slot="header" class="dfprofile-header">
-                <div class="inline-block">
-                    <ExpanderButton rotated={expanded} />
-                </div>
-                <p class="inline-block font-bold">{dfName}</p>
-                <p class="inline-block">
-                    {shape[0]} x {shape[1]}
-                </p>
-            </div>
+            <p class="inline-block">
+                {shape[0]} x {shape[1]}
+            </p>
+        </div>
 
-            <div slot="body" class="dfprofile-body">
+        <div slot="body" class="dfprofile-body">
+            {#if cp}
                 <div bind:clientWidth={profileWidth} class="col-profiles">
-                    {#each columnProfiles as column}
+                    {#each cp as column}
                         <ColumnProfile
                             example={column.example}
                             name={column.name}
@@ -117,9 +65,9 @@
                         />
                     {/each}
                 </div>
-            </div>
-        </CollapsibleCard>
-    {/await}
+            {/if}
+        </div>
+    </CollapsibleCard>
 </div>
 
 <style>
