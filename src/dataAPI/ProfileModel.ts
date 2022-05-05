@@ -320,37 +320,69 @@ export class ProfileModel {
         }
     }
 
+    // public async getQuantMeta(
+    //     dfName: string,
+    //     colName: string
+    // ): Promise<IQuantMeta> {
+    //     try {
+    //         // code to execute
+    //         const min_code = `print(${dfName}["${colName}"].min())`;
+    //         const q25_code = `print(${dfName}["${colName}"].quantile(q=.25))`;
+    //         const q50_code = `print(${dfName}["${colName}"].quantile(q=.50))`;
+    //         // let median_code = `print(${dfName}["${colName}"].median())`
+    //         const q75_code = `print(${dfName}["${colName}"].quantile(q=.75))`;
+    //         const max_code = `print(${dfName}["${colName}"].max())`;
+    //         const mean_code = `print(${dfName}["${colName}"].mean())`;
+    //         // execute and parse
+    //         const code_lines = [
+    //             min_code,
+    //             q25_code,
+    //             q50_code,
+    //             q75_code,
+    //             max_code,
+    //             mean_code
+    //         ];
+    //         console.log(`Getting quant meta for ${dfName}.${colName}`)
+    //         const res = await this.executeCode(code_lines.join('\n'));
+    //         const content = res['content'];
+    //         return {
+    //             min: parseFloat(content[0]),
+    //             q25: parseFloat(content[1]),
+    //             q50: parseFloat(content[2]),
+    //             q75: parseFloat(content[3]),
+    //             max: parseFloat(content[4]),
+    //             mean: parseFloat(content[5])
+    //         };
+    //     } catch (error) {
+    //         console.warn("[Error caught] in getQuantMeta", error)
+    //         return {
+    //             min: undefined,
+    //             q25: undefined,
+    //             q50: undefined,
+    //             q75: undefined,
+    //             max: undefined,
+    //             mean: undefined
+    //         }
+    //     }
+    // }
+
     public async getQuantMeta(
         dfName: string,
         colName: string
     ): Promise<IQuantMeta> {
         try {
-            // code to execute
-            const min_code = `print(${dfName}["${colName}"].min())`;
-            const q25_code = `print(${dfName}["${colName}"].quantile(q=.25))`;
-            const q50_code = `print(${dfName}["${colName}"].quantile(q=.50))`;
-            // let median_code = `print(${dfName}["${colName}"].median())`
-            const q75_code = `print(${dfName}["${colName}"].quantile(q=.75))`;
-            const max_code = `print(${dfName}["${colName}"].max())`;
-            const mean_code = `print(${dfName}["${colName}"].mean())`;
-            // execute and parse
-            const code_lines = [
-                min_code,
-                q25_code,
-                q50_code,
-                q75_code,
-                max_code,
-                mean_code
-            ];
-            const res = await this.executeCode(code_lines.join('\n'));
-            const content = res['content'];
+            const code = `print(${dfName}["${colName}"].describe().to_json())`;
+            const res = await this.executeCode(code);
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
+
             return {
-                min: parseFloat(content[0]),
-                q25: parseFloat(content[1]),
-                q50: parseFloat(content[2]),
-                q75: parseFloat(content[3]),
-                max: parseFloat(content[4]),
-                mean: parseFloat(content[5])
+                min: parseFloat(json_res["min"]),
+                q25: parseFloat(json_res["25%"]),
+                q50: parseFloat(json_res["50%"]),
+                q75: parseFloat(json_res["75%"]),
+                max: parseFloat(json_res["max"]),
+                mean: parseFloat(json_res["mean"])
             };
         } catch (error) {
             console.warn("[Error caught] in getQuantMeta", error)

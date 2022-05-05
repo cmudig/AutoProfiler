@@ -71,10 +71,10 @@ let buffer = 4;
             {#each [['min', min], ['25%', qlow], ['median', median], ['mean', mean], ['75%', qhigh], ['max', max]] as [label, value], i} 
                 {@const yi = y(0) + anchorBuffer + i * (fontSize + buffer + anchorBuffer / 2) + anchorBuffer * 2 }
                 {@const anchor = x(value) < (width / 2) ? 'start' : 'end'}
-                {#if value}
-                    <line x1={left}  x2={width - right} y1={yi - fontSize / 4 } y2={yi - fontSize / 4 } stroke-dasharray=2,1 class="stroke-gray-300" />
-                    <line x1={x(value)}  x2={x(value)} y1={yi - fontSize / 4} y2={y(0) + 4}  class="stroke-gray-300" />
-                {/if}
+                
+                <line x1={left}  x2={width - right} y1={yi - fontSize / 4 } y2={yi - fontSize / 4 } stroke-dasharray=2,1 class="stroke-gray-300" />
+                <line x1={x(value)}  x2={x(value)} y1={yi - fontSize / 4} y2={y(0) + 4}  class="stroke-gray-300" />
+                
             {/each}
 
             <!-- circles with data labels -->
@@ -82,19 +82,19 @@ let buffer = 4;
                 {@const yi = y(0) + anchorBuffer + i * (fontSize + buffer + anchorBuffer / 2)  + anchorBuffer * 2 }
                 {@const anchor = x(value) < (width / 2) ? 'start' : 'end'}
                 {@const anchorPlacement = anchor === 'start' ? anchorBuffer : -anchorBuffer}
-                {#if value} 
-                    <text text-anchor="end" x={left - labelOffset} y={yi}>
-                        {label}
-                    </text>
-                    <text 
-                        filter="url(#outline-{histogramID})"
-                        x={x(value) + anchorPlacement} 
-                        y={yi}
-                        font-size=11
-                        fill="hsl(217,1%,40%)"
-                        text-anchor={anchor}>{transformValue(value)}</text>
-                    <circle in:fly={{duration: 500, y: -5}} class={color} cx={x(value)} cy={yi - fontSize / 4 } r=3 />
-                {/if}
+                
+                <text text-anchor="end" x={left - labelOffset} y={yi}>
+                    {label}
+                </text>
+                <text 
+                    filter="url(#outline-{histogramID})"
+                    x={x(value) + anchorPlacement} 
+                    y={yi}
+                    font-size=11
+                    fill="hsl(217,1%,40%)"
+                    text-anchor={anchor}>{transformValue(value)}</text>
+                <circle in:fly={{duration: 500, y: -5}} class={color} cx={x(value)} cy={yi - fontSize / 4 } r=3 />
+                
             {/each}
         </g>
     </svelte:fragment>
