@@ -52,6 +52,7 @@ export class ProfileModel {
         console.log('Connecting notebook to ProfilePanel');
         this._notebook = notebook;
         this.setSession(notebook.panel.sessionContext);
+        this.resetData()
 
         await this.session.ready;
         // have to do this as arrow function or else this doesnt work
@@ -75,7 +76,7 @@ export class ProfileModel {
         });
     }
 
-    public async resetData() {
+    public resetData() {
         dataFramesAndCols.set(undefined);
     }
 

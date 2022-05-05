@@ -17,7 +17,7 @@
 <main class="p-4 m-0">
     <h1 class="text-lg">AutoProfile</h1>
 
-    {#if $dataFramesAndCols}
+    {#if $profileModel.ready}
         <!-- <div id="header-icon" /> -->
         <div class="mb-4">
             <p>
