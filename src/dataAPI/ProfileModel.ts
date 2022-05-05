@@ -165,9 +165,13 @@ export class ProfileModel {
             };
 
             const onDone = (status: string) => {
-                const flat_array = Array.prototype.concat(...contentMatrix);
+                let flat_array = Array.prototype.concat(...contentMatrix);
+
+                /* prevent empty strings that happen from extra returns at end of print(), 
+                    this causes big issues if onReply() returns multiple times and the order of code results gets thrown off */
+                flat_array = flat_array.filter(item => item !== "")
                 response['content'] = flat_array;
-                // console.log(`${code} finished with status [${status}]. Response: `, response)
+                // console.log(`[executeCode] ${code} finished with status [${status}]. Response: `, response)
                 resolve(response);
             };
 
@@ -320,51 +324,6 @@ export class ProfileModel {
         }
     }
 
-    // public async getQuantMeta(
-    //     dfName: string,
-    //     colName: string
-    // ): Promise<IQuantMeta> {
-    //     try {
-    //         // code to execute
-    //         const min_code = `print(${dfName}["${colName}"].min())`;
-    //         const q25_code = `print(${dfName}["${colName}"].quantile(q=.25))`;
-    //         const q50_code = `print(${dfName}["${colName}"].quantile(q=.50))`;
-    //         // let median_code = `print(${dfName}["${colName}"].median())`
-    //         const q75_code = `print(${dfName}["${colName}"].quantile(q=.75))`;
-    //         const max_code = `print(${dfName}["${colName}"].max())`;
-    //         const mean_code = `print(${dfName}["${colName}"].mean())`;
-    //         // execute and parse
-    //         const code_lines = [
-    //             min_code,
-    //             q25_code,
-    //             q50_code,
-    //             q75_code,
-    //             max_code,
-    //             mean_code
-    //         ];
-    //         console.log(`Getting quant meta for ${dfName}.${colName}`)
-    //         const res = await this.executeCode(code_lines.join('\n'));
-    //         const content = res['content'];
-    //         return {
-    //             min: parseFloat(content[0]),
-    //             q25: parseFloat(content[1]),
-    //             q50: parseFloat(content[2]),
-    //             q75: parseFloat(content[3]),
-    //             max: parseFloat(content[4]),
-    //             mean: parseFloat(content[5])
-    //         };
-    //     } catch (error) {
-    //         console.warn("[Error caught] in getQuantMeta", error)
-    //         return {
-    //             min: undefined,
-    //             q25: undefined,
-    //             q50: undefined,
-    //             q75: undefined,
-    //             max: undefined,
-    //             mean: undefined
-    //         }
-    //     }
-    // }
 
     public async getQuantMeta(
         dfName: string,
@@ -422,7 +381,7 @@ export class ProfileModel {
         }
     }
 
-    async getValueCounts(
+    public async getValueCounts(
         dfName: string,
         colName: string,
         n = 10
@@ -447,7 +406,7 @@ export class ProfileModel {
         }
     }
 
-    async getQuantBinnedData(
+    public async getQuantBinnedData(
         dfName: string,
         colName: string,
         maxbins = 10
