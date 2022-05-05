@@ -32,8 +32,7 @@ function fetchColumnPromises(
     const colProfileMap: IColumnProfileMap = {};
     const alldf_names = Object.keys(dfColMap);
 
-
-    // TODO since this is a promise, it reloads every dataframe each time rather than only those that change. 
+    // TODO since this is a promise, it reloads every dataframe each time rather than only those that change.
     // (I guess stores update everything with new promises)
     // Maybe there is a way to not use a promise or only make calls when we know the dataframe has changed?
     alldf_names.forEach(dfName => {

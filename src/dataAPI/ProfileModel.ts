@@ -169,7 +169,7 @@ export class ProfileModel {
 
                 /* prevent empty strings that happen from extra returns at end of print(), 
                     this causes big issues if onReply() returns multiple times and the order of code results gets thrown off */
-                flat_array = flat_array.filter(item => item !== "")
+                flat_array = flat_array.filter(item => item !== '');
                 response['content'] = flat_array;
                 // console.log(`[executeCode] ${code} finished with status [${status}]. Response: `, response)
                 resolve(response);
@@ -189,7 +189,9 @@ export class ProfileModel {
 
             if (var_names) {
                 const isDF = await this.getDFVars(var_names);
-                const vars_DF = var_names.filter((d, idx) => isDF[idx] === 'True');
+                const vars_DF = var_names.filter(
+                    (d, idx) => isDF[idx] === 'True'
+                );
 
                 if (vars_DF) {
                     // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
@@ -204,7 +206,8 @@ export class ProfileModel {
                         const columnTuples: IColTypeTuple[] = columns.reduce(
                             (totalArr, current_txt) => {
                                 if (current_txt !== 'dtype: object') {
-                                    const [_name, _type] = current_txt.split(/\s+/);
+                                    const [_name, _type] =
+                                        current_txt.split(/\s+/);
                                     if (_name && _type) {
                                         totalArr.push({
                                             col_name: _name,
@@ -226,12 +229,13 @@ export class ProfileModel {
                 }
             }
         } catch (error) {
-            console.warn("[Error caught] in getAllDataFrames", error)
-            return undefined
+            console.warn('[Error caught] in getAllDataFrames', error);
+            return undefined;
         }
     }
 
-    public async getVariableNames(): Promise<string[]> { // TODO use normal execute with this...
+    public async getVariableNames(): Promise<string[]> {
+        // TODO use normal execute with this...
         const code = '%who_ls'; // a python magic command
 
         return new Promise<string[]>(resolve => {
@@ -268,8 +272,8 @@ export class ProfileModel {
             const content = res['content'];
             return content;
         } catch (error) {
-            console.warn("[Error caught] in getDFVars", error)
-            return []
+            console.warn('[Error caught] in getDFVars', error);
+            return [];
         }
     }
 
@@ -284,8 +288,8 @@ export class ProfileModel {
             const content = res['content'];
             return content;
         } catch (error) {
-            console.warn("[Error caught] in getObjectIds", error)
-            return []
+            console.warn('[Error caught] in getObjectIds', error);
+            return [];
         }
     }
 
@@ -300,8 +304,8 @@ export class ProfileModel {
             const content = res['content'];
             return content;
         } catch (error) {
-            console.warn("[Error caught] in getColumns", error)
-            return []
+            console.warn('[Error caught] in getColumns', error);
+            return [];
         }
     }
 
@@ -319,11 +323,10 @@ export class ProfileModel {
                 .split(',')
                 .map(x => parseFloat(x));
         } catch (error) {
-            console.warn("[Error caught] in getShape", error)
-            return [undefined, undefined]
+            console.warn('[Error caught] in getShape', error);
+            return [undefined, undefined];
         }
     }
-
 
     public async getQuantMeta(
         dfName: string,
@@ -336,15 +339,15 @@ export class ProfileModel {
             const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
 
             return {
-                min: parseFloat(json_res["min"]),
-                q25: parseFloat(json_res["25%"]),
-                q50: parseFloat(json_res["50%"]),
-                q75: parseFloat(json_res["75%"]),
-                max: parseFloat(json_res["max"]),
-                mean: parseFloat(json_res["mean"])
+                min: parseFloat(json_res['min']),
+                q25: parseFloat(json_res['25%']),
+                q50: parseFloat(json_res['50%']),
+                q75: parseFloat(json_res['75%']),
+                max: parseFloat(json_res['max']),
+                mean: parseFloat(json_res['mean'])
             };
         } catch (error) {
-            console.warn("[Error caught] in getQuantMeta", error)
+            console.warn('[Error caught] in getQuantMeta', error);
             return {
                 min: undefined,
                 q25: undefined,
@@ -352,7 +355,7 @@ export class ProfileModel {
                 q75: undefined,
                 max: undefined,
                 mean: undefined
-            }
+            };
         }
     }
 
@@ -373,11 +376,11 @@ export class ProfileModel {
                 nullCount: parseInt(content[1])
             };
         } catch (error) {
-            console.warn("[Error caught] in getColMeta", error)
+            console.warn('[Error caught] in getColMeta', error);
             return {
                 numUnique: undefined,
                 nullCount: undefined
-            }
+            };
         }
     }
 
@@ -387,9 +390,9 @@ export class ProfileModel {
         n = 10
     ): Promise<ValueCount[]> {
         /*
-        *   Returns data for VL spec to plot nominal data. In form of array of shape
-        *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
-        */
+         *   Returns data for VL spec to plot nominal data. In form of array of shape
+         *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
+         */
         try {
             const code = `print(${dfName}["${colName}"].value_counts().iloc[:${n}].to_json())`;
             const res = await this.executeCode(code);
@@ -399,10 +402,10 @@ export class ProfileModel {
             Object.keys(json_res).forEach(k => {
                 data.push({ value: k, count: json_res[k] });
             });
-            return data
+            return data;
         } catch (error) {
-            console.warn("[Error caught] in getValueCounts", error)
-            return []
+            console.warn('[Error caught] in getValueCounts', error);
+            return [];
         }
     }
 
@@ -432,10 +435,10 @@ export class ProfileModel {
                     bucket: i
                 });
             });
-            return data
+            return data;
         } catch (error) {
-            console.warn("[Error caught] in getQuantBinnedData", error)
-            return []
+            console.warn('[Error caught] in getQuantBinnedData', error);
+            return [];
         }
     }
 }
