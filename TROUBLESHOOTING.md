@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Installing Jupyter extensions can be tricky, these are some common issues we've run into. If your issue isn't covered here please (open an issue)[https://github.com/cmudig/AutoProfile/issues] in the repo and we'll try to help you out.
+Installing Jupyter extensions can be tricky, these are some common issues we've run into. If your issue isn't covered here please [open an issue](https://github.com/cmudig/AutoProfile/issues) in the repo and we'll try to help you out.
 
 ### How do I load this into a fresh conda env? 
 
@@ -29,6 +29,6 @@ which jupyter
 which pip
 ``` 
 
-These should point to the same conda env if you're using conda. For example, mine is `~/opt/anaconda3/envs/testing/bin/`
+These should point to the same conda env if you're using conda. For example, if you made the conda env from earlier in the troubleshooting then it might be `~/opt/anaconda3/envs/autoprofile/bin/`
 
 Check 2: Another way to make sure the extension is installed is to run jupyter and then click on the puzzle piece in the left side bar. This shows all your activate extensions. These should be allowed to run and digautoprofile should be listed.
