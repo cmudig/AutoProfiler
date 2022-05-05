@@ -11,7 +11,7 @@
     export let color: string;
     export let containerWidth: number;
 
-    console.log("Making topK summary with ", topK)
+    // console.log("Making topK summary with ", topK)
 
     $: smallestPercentage = Math.min(
         ...topK.slice(0, 5).map(entry => entry.count / totalRows)

@@ -28,7 +28,6 @@ function fetchColumnPromises(
     model: ProfileModel
 ): IColumnProfileMap {
     //, set: (arg0: any) => void) {
-    console.log('Updating column stores in getColProfiles!');
     const colProfileMap: IColumnProfileMap = {};
     const alldf_names = Object.keys(dfColMap);
 
@@ -38,7 +37,6 @@ function fetchColumnPromises(
     alldf_names.forEach(dfName => {
         colProfileMap[dfName] = getColProfiles(dfName, dfColMap, model);
     });
-    console.log('Setting derived data in fetchColumnPromises...');
     return colProfileMap;
 }
 
@@ -82,6 +80,6 @@ async function getColProfiles(
         resultData.push(cd);
     }
 
-    console.log('[DFPROFILE] FINISHED getting col profiles', resultData);
+    console.log('[getColProfiles] FINISHED getting col profiles', resultData);
     return { profile: resultData, shape: shape };
 }
