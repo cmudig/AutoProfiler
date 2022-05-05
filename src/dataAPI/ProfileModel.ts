@@ -70,7 +70,7 @@ export class ProfileModel {
         this.session.session?.kernel.statusChanged.connect((_, status) => {
             if (status.endsWith('restarting')) {
                 // DO something
-                console.log('Kernel restarting!!!');
+                console.log('[AutoProfile] resetting data on kernel restart.');
                 this.resetData();
             }
         });
@@ -155,13 +155,6 @@ export class ProfileModel {
                 } else if (type === 'stream') {
                     const cont: string[] = content.text.split('\n');
                     contentMatrix.push(cont);
-                } else {
-                    console.log(
-                        'Unhandled message type: ',
-                        type,
-                        'with content ',
-                        content
-                    );
                 }
             };
 
@@ -236,28 +229,17 @@ export class ProfileModel {
     }
 
     public async getVariableNames(): Promise<string[]> {
-        // TODO use normal execute with this...
-        const code = '%who_ls'; // a python magic command
-
-        return new Promise<string[]>(resolve => {
-            const onReply = (type: string, content: any) => {
-                if (type === 'execute_result') {
-                    // parse data into usable format
-                    // console.log("who_ls result is ", content.data['text/plain'] )
-                    const data = (content.data['text/plain'] + '').replace(
-                        /'/g,
-                        '"'
-                    );
-                    const jsn = `{"names": ${data}}`;
-                    const names = JSON.parse(jsn).names;
-
-                    // return variable names
-                    resolve(names);
-                }
-            };
-
-            this.sendCodeToKernel(code, onReply);
-        });
+        try {
+            const code = '%who_ls'; // python magic command
+            const res = await this.executeCode(code);
+            const content = res['content'];
+            let data = content[0].replace(/'/g, '"');
+            const names = JSON.parse(data);
+            return names;
+        } catch (error) {
+            console.warn('[Error caught] in getVariableNames', error);
+            return [];
+        }
     }
 
     private async getDFVars(varNames: string[]): Promise<string[]> {
