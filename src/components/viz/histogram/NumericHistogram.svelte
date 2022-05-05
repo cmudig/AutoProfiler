@@ -27,10 +27,18 @@ let histogramID = guidGenerator();
 $: effectiveWidth = Math.max(width - 8, 120);
 
 
-function transformValue(value, valueType) {
-    if (valueType === 'mean') {
-        return Math.round(value *10000) / 10000;
-    } return  value;
+// function transformValue(value, valueType) {
+//     if (valueType === 'mean') {
+//         return Math.round(value *10000) / 10000;
+//     } return  value;
+// }
+
+function transformValue(value) {
+    try {
+        return value.toFixed(2)
+    } catch(e) {
+        return undefined
+    }
 }
 
 let fontSize = 12;
@@ -59,32 +67,34 @@ let buffer = 4;
             </feMerge>
         </filter>
         <g class='textElements'>
-            <!-- lines first -->
+            <!-- horizontal dashed lines -->
             {#each [['min', min], ['25%', qlow], ['median', median], ['mean', mean], ['75%', qhigh], ['max', max]] as [label, value], i} 
                 {@const yi = y(0) + anchorBuffer + i * (fontSize + buffer + anchorBuffer / 2) + anchorBuffer * 2 }
                 {@const anchor = x(value) < (width / 2) ? 'start' : 'end'}
-
-                <line x1={left}  x2={width - right} y1={yi - fontSize / 4 } y2={yi - fontSize / 4 } stroke-dasharray=2,1 class="stroke-gray-300" />
-                <line x1={x(value)}  x2={x(value)} y1={yi - fontSize / 4} y2={y(0) + 4}  class="stroke-gray-300" />
+                {#if value}
+                    <line x1={left}  x2={width - right} y1={yi - fontSize / 4 } y2={yi - fontSize / 4 } stroke-dasharray=2,1 class="stroke-gray-300" />
+                    <line x1={x(value)}  x2={x(value)} y1={yi - fontSize / 4} y2={y(0) + 4}  class="stroke-gray-300" />
+                {/if}
             {/each}
 
-            <!-- then everythign else -->
+            <!-- circles with data labels -->
             {#each [['min', min], ['25%', qlow], ['median', median], ['mean', mean], ['75%', qhigh], ['max', max]] as [label, value], i} 
                 {@const yi = y(0) + anchorBuffer + i * (fontSize + buffer + anchorBuffer / 2)  + anchorBuffer * 2 }
                 {@const anchor = x(value) < (width / 2) ? 'start' : 'end'}
                 {@const anchorPlacement = anchor === 'start' ? anchorBuffer : -anchorBuffer}
-
-                <text text-anchor="end" x={left - labelOffset} y={yi}>
+                {#if value} 
+                    <text text-anchor="end" x={left - labelOffset} y={yi}>
                         {label}
-                </text>
-                <text 
-                    filter="url(#outline-{histogramID})"
-                    x={x(value) + anchorPlacement} 
-                    y={yi}
-                    font-size=11
-                    fill="hsl(217,1%,40%)"
-                    text-anchor={anchor}>{transformValue(value, label)}</text>
-                <circle in:fly={{duration: 500, y: -5}} class={color} cx={x(value)} cy={yi - fontSize / 4 } r=3 />
+                    </text>
+                    <text 
+                        filter="url(#outline-{histogramID})"
+                        x={x(value) + anchorPlacement} 
+                        y={yi}
+                        font-size=11
+                        fill="hsl(217,1%,40%)"
+                        text-anchor={anchor}>{transformValue(value)}</text>
+                    <circle in:fly={{duration: 500, y: -5}} class={color} cx={x(value)} cy={yi - fontSize / 4 } r=3 />
+                {/if}
             {/each}
         </g>
     </svelte:fragment>

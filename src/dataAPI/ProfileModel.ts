@@ -123,7 +123,7 @@ export class ProfileModel {
                 // reply.content.execution_count // time this code was run
             },
             error => {
-                console.error('Code run failed: ', error);
+                console.warn('Code run failed: ', error);
                 if (onDone) {
                     onDone();
                 }
@@ -131,11 +131,14 @@ export class ProfileModel {
         );
     }
 
-    private async executeCode(code = ''): Promise<ExecResult> {
+    private async executeCode(code: string): Promise<ExecResult> {
         // await this.ready;
 
         return new Promise<ExecResult>(resolve => {
-            const response: ExecResult = { content: [], exec_count: null };
+            const response: ExecResult = {
+                content: [],
+                exec_count: null
+            };
             const contentMatrix: string[][] = [];
 
             const onReply = (type: string, content: any) => {
@@ -165,7 +168,6 @@ export class ProfileModel {
                 const flat_array = Array.prototype.concat(...contentMatrix);
                 response['content'] = flat_array;
                 // console.log(`${code} finished with status [${status}]. Response: `, response)
-
                 resolve(response);
             };
 
@@ -178,56 +180,61 @@ export class ProfileModel {
 
     public async getAllDataFrames(): Promise<IDFColMap> {
         await this.ready;
-        const var_names = await this.getVariableNames();
+        try {
+            const var_names = await this.getVariableNames();
 
-        if (var_names) {
-            const isDF = await this.getDFVars(var_names);
-            const vars_DF = var_names.filter((d, idx) => isDF[idx] === 'True');
+            if (var_names) {
+                const isDF = await this.getDFVars(var_names);
+                const vars_DF = var_names.filter((d, idx) => isDF[idx] === 'True');
 
-            if (vars_DF) {
-                // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
-                const dfColMap: IDFColMap = {};
-                const python_ids = await this.getObjectIds(vars_DF);
+                if (vars_DF) {
+                    // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
+                    const dfColMap: IDFColMap = {};
+                    const python_ids = await this.getObjectIds(vars_DF);
 
-                for (let index = 0; index < vars_DF.length; index++) {
-                    const dfName = vars_DF[index];
-                    const columns = await this.getColumns(dfName);
+                    for (let index = 0; index < vars_DF.length; index++) {
+                        const dfName = vars_DF[index];
+                        const columns = await this.getColumns(dfName);
 
-                    // columns is array of strings
-                    const columnTuples: IColTypeTuple[] = columns.reduce(
-                        (totalArr, current_txt) => {
-                            if (current_txt !== 'dtype: object') {
-                                const [_name, _type] = current_txt.split(/\s+/);
-                                if (_name && _type) {
-                                    totalArr.push({
-                                        col_name: _name,
-                                        col_type: _type
-                                    });
+                        // columns is array of strings
+                        const columnTuples: IColTypeTuple[] = columns.reduce(
+                            (totalArr, current_txt) => {
+                                if (current_txt !== 'dtype: object') {
+                                    const [_name, _type] = current_txt.split(/\s+/);
+                                    if (_name && _type) {
+                                        totalArr.push({
+                                            col_name: _name,
+                                            col_type: _type
+                                        });
+                                    }
                                 }
-                            }
-                            return totalArr;
-                        },
-                        []
-                    );
+                                return totalArr;
+                            },
+                            []
+                        );
 
-                    dfColMap[dfName] = {
-                        columns: columnTuples,
-                        python_id: python_ids[index]
-                    };
+                        dfColMap[dfName] = {
+                            columns: columnTuples,
+                            python_id: python_ids[index]
+                        };
+                    }
+                    return dfColMap;
                 }
-
-                return dfColMap;
             }
+        } catch (error) {
+            console.warn("[Error caught] in getAllDataFrames", error)
+            return undefined
         }
     }
 
-    public async getVariableNames(): Promise<string[]> {
+    public async getVariableNames(): Promise<string[]> { // TODO use normal execute with this...
         const code = '%who_ls'; // a python magic command
 
         return new Promise<string[]>(resolve => {
             const onReply = (type: string, content: any) => {
                 if (type === 'execute_result') {
                     // parse data into usable format
+                    // console.log("who_ls result is ", content.data['text/plain'] )
                     const data = (content.data['text/plain'] + '').replace(
                         /'/g,
                         '"'
@@ -248,28 +255,34 @@ export class ProfileModel {
         /*
         Returns array of "True" or "False" if that variable is a pandas dataframe
         */
-        const code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
-        varNames.forEach(name =>
-            code_lines.push(`print(type(${name}) == pd.DataFrame)`)
-        );
-
-        const res = await this.executeCode(code_lines.join('\n'));
-        const content = res['content'];
-
-        return content;
+        try {
+            const code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
+            varNames.forEach(name =>
+                code_lines.push(`print(type(${name}) == pd.DataFrame)`)
+            );
+            const res = await this.executeCode(code_lines.join('\n'));
+            const content = res['content'];
+            return content;
+        } catch (error) {
+            console.warn("[Error caught] in getDFVars", error)
+            return []
+        }
     }
 
     private async getObjectIds(varNames: string[]): Promise<string[]> {
         /*
         Returns array of python object ids for varNames. Used to see if id has changed and update interface.
         */
-        const code_lines = [];
-        varNames.forEach(name => code_lines.push(`print(id(${name}))`));
-
-        const res = await this.executeCode(code_lines.join('\n'));
-        const content = res['content'];
-
-        return content;
+        try {
+            const code_lines = [];
+            varNames.forEach(name => code_lines.push(`print(id(${name}))`));
+            const res = await this.executeCode(code_lines.join('\n'));
+            const content = res['content'];
+            return content;
+        } catch (error) {
+            console.warn("[Error caught] in getObjectIds", error)
+            return []
+        }
     }
 
     private async getColumns(varName: string): Promise<string[]> {
@@ -277,94 +290,104 @@ export class ProfileModel {
         varNames is array of variables that are pd.DataFrame
         Returns array of "True" or "False" if that variable is a pandas dataframe
         */
-        const code = `print(${varName}.dtypes)`;
-        const res = await this.executeCode(code);
-        const content = res['content'];
-        return content;
+        try {
+            const code = `print(${varName}.dtypes)`;
+            const res = await this.executeCode(code);
+            const content = res['content'];
+            return content;
+        } catch (error) {
+            console.warn("[Error caught] in getColumns", error)
+            return []
+        }
     }
 
-    public async getShape(
-        dfName: string,
-        colInfo?: IColTypeTuple[]
-    ): Promise<number[]> {
-        const code = `print(${dfName}.shape)`; // returns '(3, 2)' so need to parse
-        const res = await this.executeCode(code);
-        const content = res['content'];
-
-        const shapeString = content[0];
-
-        return shapeString
-            .substring(1, shapeString.length - 1)
-            .split(',')
-            .map(x => parseFloat(x));
-    }
-
-    public async getColHeadRows(
-        dfName: string,
-        colName: string,
-        n = 5
-    ): Promise<string[]> {
+    public async getShape(dfName: string): Promise<number[]> {
         /*
-        Pandas print shows the index along with dataframe description so have to be trimmed off
+        returns tuple array [length, width]
         */
-        const code = `print(${dfName}["${colName}"].head(${n}))`;
-        const res = await this.executeCode(code);
-        const content = res['content'];
-
-        return content.slice(0, -2).map(x => x.split(/\s+/)[1]);
+        try {
+            const code = `print(${dfName}.shape)`; // returns '(3, 2)' so need to parse
+            const res = await this.executeCode(code);
+            const content = res['content'];
+            const shapeString = content[0];
+            return shapeString
+                .substring(1, shapeString.length - 1)
+                .split(',')
+                .map(x => parseFloat(x));
+        } catch (error) {
+            console.warn("[Error caught] in getShape", error)
+            return [undefined, undefined]
+        }
     }
 
     public async getQuantMeta(
         dfName: string,
         colName: string
     ): Promise<IQuantMeta> {
-        // code to execute
-        const min_code = `print(${dfName}["${colName}"].min())`;
-        const q25_code = `print(${dfName}["${colName}"].quantile(q=.25))`;
-        const q50_code = `print(${dfName}["${colName}"].quantile(q=.50))`;
-        // let median_code = `print(${dfName}["${colName}"].median())`
-        const q75_code = `print(${dfName}["${colName}"].quantile(q=.75))`;
-        const max_code = `print(${dfName}["${colName}"].max())`;
-        const mean_code = `print(${dfName}["${colName}"].mean())`;
-
-        // execute and parse
-        const code_lines = [
-            min_code,
-            q25_code,
-            q50_code,
-            q75_code,
-            max_code,
-            mean_code
-        ];
-        const res = await this.executeCode(code_lines.join('\n'));
-        const content = res['content'];
-
-        return {
-            min: parseFloat(content[0]),
-            q25: parseFloat(content[1]),
-            q50: parseFloat(content[2]),
-            q75: parseFloat(content[3]),
-            max: parseFloat(content[4]),
-            mean: parseFloat(content[5])
-        };
+        try {
+            // code to execute
+            const min_code = `print(${dfName}["${colName}"].min())`;
+            const q25_code = `print(${dfName}["${colName}"].quantile(q=.25))`;
+            const q50_code = `print(${dfName}["${colName}"].quantile(q=.50))`;
+            // let median_code = `print(${dfName}["${colName}"].median())`
+            const q75_code = `print(${dfName}["${colName}"].quantile(q=.75))`;
+            const max_code = `print(${dfName}["${colName}"].max())`;
+            const mean_code = `print(${dfName}["${colName}"].mean())`;
+            // execute and parse
+            const code_lines = [
+                min_code,
+                q25_code,
+                q50_code,
+                q75_code,
+                max_code,
+                mean_code
+            ];
+            const res = await this.executeCode(code_lines.join('\n'));
+            const content = res['content'];
+            return {
+                min: parseFloat(content[0]),
+                q25: parseFloat(content[1]),
+                q50: parseFloat(content[2]),
+                q75: parseFloat(content[3]),
+                max: parseFloat(content[4]),
+                mean: parseFloat(content[5])
+            };
+        } catch (error) {
+            console.warn("[Error caught] in getQuantMeta", error)
+            return {
+                min: undefined,
+                q25: undefined,
+                q50: undefined,
+                q75: undefined,
+                max: undefined,
+                mean: undefined
+            }
+        }
     }
 
     public async getColMeta(
         dfName: string,
         colName: string
     ): Promise<IColMeta> {
-        // Code to execute
-        const numUnique_code = `print(${dfName}["${colName}"].nunique())`;
-        const numNull_code = `print(${dfName}["${colName}"].isna().sum())`;
-
-        // execute and parse
-        const code_lines = [numUnique_code, numNull_code];
-        const res = await this.executeCode(code_lines.join('\n'));
-        const content = res['content'];
-        return {
-            numUnique: parseInt(content[0]),
-            nullCount: parseInt(content[1])
-        };
+        try {
+            // Code to execute
+            const numUnique_code = `print(${dfName}["${colName}"].nunique())`;
+            const numNull_code = `print(${dfName}["${colName}"].isna().sum())`;
+            // execute and parse
+            const code_lines = [numUnique_code, numNull_code];
+            const res = await this.executeCode(code_lines.join('\n'));
+            const content = res['content'];
+            return {
+                numUnique: parseInt(content[0]),
+                nullCount: parseInt(content[1])
+            };
+        } catch (error) {
+            console.warn("[Error caught] in getColMeta", error)
+            return {
+                numUnique: undefined,
+                nullCount: undefined
+            }
+        }
     }
 
     async getValueCounts(
@@ -373,20 +396,23 @@ export class ProfileModel {
         n = 10
     ): Promise<ValueCount[]> {
         /*
-         *   Returns data for VL spec to plot nominal data. In form of array of shape
-         *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
-         */
-
-        const code = `print(${dfName}["${colName}"].value_counts().iloc[:${n}].to_json())`;
-        const res = await this.executeCode(code);
-        const data: ValueCount[] = [];
-        const content = res['content'];
-        const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
-        Object.keys(json_res).forEach(k => {
-            data.push({ value: k, count: json_res[k] });
-        });
-
-        return data;
+        *   Returns data for VL spec to plot nominal data. In form of array of shape
+        *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
+        */
+        try {
+            const code = `print(${dfName}["${colName}"].value_counts().iloc[:${n}].to_json())`;
+            const res = await this.executeCode(code);
+            const data: ValueCount[] = [];
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            Object.keys(json_res).forEach(k => {
+                data.push({ value: k, count: json_res[k] });
+            });
+            return data
+        } catch (error) {
+            console.warn("[Error caught] in getValueCounts", error)
+            return []
+        }
     }
 
     async getQuantBinnedData(
@@ -398,26 +424,27 @@ export class ProfileModel {
          *   Returns data for VL spec to plot quant data. In form of array of shape
          *   [ { "bin_0": 0, "bin_1": 1, "count": 5 }, ]
          */
+        try {
+            const code = `print(${dfName}["${colName}"].value_counts(bins=min(${maxbins}, ${dfName}["${colName}"].nunique()), sort=False).to_json())`;
+            const res = await this.executeCode(code);
+            const content = res['content'];
+            const data: IHistogram = [];
+            const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
 
-        const code = `print(${dfName}["${colName}"].value_counts(bins=min(${maxbins}, ${dfName}["${colName}"].nunique()), sort=False).to_json())`;
-        const res = await this.executeCode(code);
-        const content = res['content'];
-
-        const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
-        const data: IHistogram = [];
-
-        Object.keys(json_res).forEach((k, i) => {
-            const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
-            const [low, high] = cleank.split(',');
-
-            data.push({
-                low: parseFloat(low),
-                high: parseFloat(high),
-                count: json_res[k],
-                bucket: i
+            Object.keys(json_res).forEach((k, i) => {
+                const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
+                const [low, high] = cleank.split(',');
+                data.push({
+                    low: parseFloat(low),
+                    high: parseFloat(high),
+                    count: json_res[k],
+                    bucket: i
+                });
             });
-        });
-
-        return data;
+            return data
+        } catch (error) {
+            console.warn("[Error caught] in getQuantBinnedData", error)
+            return []
+        }
     }
 }

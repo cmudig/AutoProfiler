@@ -31,7 +31,7 @@
                 </div>
             {:then cp}
                 <p class="inline-block">
-                    {cp.shape[0]} x {cp.shape[1]}
+                    {cp.shape?.[0]} x {cp.shape?.[1]}
                 </p>
             {/await}
         </div>
@@ -50,7 +50,7 @@
                             nullCount={column.nullCount}
                             containerWidth={profileWidth}
                             view={previewView}
-                            totalRows={cp.shape[0]}
+                            totalRows={cp.shape?.[0]}
                         />
                     {/each}
                 </div>

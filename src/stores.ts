@@ -53,8 +53,6 @@ async function getColProfiles(
         const col_name = ci.col_name;
         const col_type = ci.col_type;
 
-        console.log('[DFPROFILE] Getting data for column: ', col_name);
-
         // model calls
         const rowVC = await model.getValueCounts(dfName, col_name);
         const colMd = await model.getColMeta(dfName, col_name);
@@ -67,7 +65,7 @@ async function getColProfiles(
                 topK: rowVC
             },
             nullCount: colMd.nullCount,
-            example: rowVC[0].value
+            example: rowVC[0]?.value
         };
 
         if (NUMERICS.has(col_type)) {
