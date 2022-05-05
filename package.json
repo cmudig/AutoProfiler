@@ -37,7 +37,7 @@
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
     "clean:labextension": "rimraf digautoprofile/labextension",
-    "clean:rest": "rimraf digautoprofile.egg-info node_modules",
+    "clean:rest": "rimraf digautoprofile.egg-info node_modules dist",
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache && jlpm clean:rest",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
