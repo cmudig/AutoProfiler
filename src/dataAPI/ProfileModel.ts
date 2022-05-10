@@ -162,7 +162,9 @@ export class ProfileModel {
                 let flat_array = Array.prototype.concat(...contentMatrix);
 
                 /* prevent empty strings that happen from extra returns at end of print(), 
-                    this causes big issues if onReply() returns multiple times and the order of code results gets thrown off */
+                    this causes big issues if onReply() returns multiple times and the order 
+                    of code results gets thrown off. If future code intentionally prints blank
+                    lines this will cause other issues. */
                 flat_array = flat_array.filter(item => item !== '');
                 response['content'] = flat_array;
                 // console.log(`[executeCode] ${code} finished with status [${status}]. Response: `, response)
