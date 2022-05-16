@@ -52,7 +52,7 @@ export class ProfileModel {
         console.log('Connecting notebook to ProfilePanel');
         this._notebook = notebook;
         this.setSession(notebook.panel.sessionContext);
-        this.resetData()
+        this.resetData();
 
         await this.session.ready;
         // have to do this as arrow function or else this doesnt work
@@ -236,7 +236,7 @@ export class ProfileModel {
             const code = '%who_ls'; // python magic command
             const res = await this.executeCode(code);
             const content = res['content'];
-            let data = content[0].replace(/'/g, '"');
+            const data = content[0].replace(/'/g, '"');
             const names = JSON.parse(data);
             return names;
         } catch (error) {
