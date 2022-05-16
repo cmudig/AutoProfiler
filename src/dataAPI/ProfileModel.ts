@@ -96,7 +96,8 @@ export class ProfileModel {
         // await this.ready
         const future = this.session.session?.kernel?.requestExecute({
             code,
-            stop_on_error: true
+            stop_on_error: true,
+            store_history: false // prevents incrementing execution count for extension code
         });
 
         // this is the output of the execution, may return things multiple times as code runs
