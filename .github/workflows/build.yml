@@ -33,7 +33,7 @@ jobs:
         pip install build
         python -m build --sdist
         cp dist/*.tar.gz myextension.tar.gz
-        pip uninstall -y "AutoProfile" jupyterlab
+        pip uninstall -y "digautoprofile" jupyterlab
         rm -rf myextension
 
     - uses: actions/upload-artifact@v2
