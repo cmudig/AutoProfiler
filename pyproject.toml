@@ -14,4 +14,4 @@ build_cmd = "build:prod"
 npm = ["jlpm"]
 
 [tool.check-manifest]
-ignore = ["digautoprofile/labextension/**", "yarn.lock", ".*", "package-lock.json"]
+ignore = ["digautoprofile/labextension/**", "yarn.lock", ".*", "package-lock.json", "*.cjs", "*.config.js"]
