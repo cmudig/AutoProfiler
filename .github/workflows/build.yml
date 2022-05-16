@@ -23,7 +23,6 @@ jobs:
       run: |
         set -eux
         jlpm
-        jlpm lint:check
         python -m pip install .
 
         jupyter labextension list 2>&1 | grep -ie "AutoProfile.*OK"
