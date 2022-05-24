@@ -15,6 +15,15 @@ import type {
 
 type ExecResult = { content: string[]; exec_count: number };
 
+function replaceSpecial(input_str: string) {
+    /*Format strings when writing code, need to escape double quotes (") 
+    since the code uses same character, single quotes are fine (') */
+
+    let res = input_str.replace(/\\/g, '\\\\') // escape backslashes
+                       .replace(/"/g, '\\"') // escape double quotes
+    return res
+}
+
 export class ProfileModel {
     // implements Executor
 
@@ -168,7 +177,7 @@ export class ProfileModel {
                     lines this will cause other issues. */
                 flat_array = flat_array.filter(item => item !== '');
                 response['content'] = flat_array;
-                // console.log(`[executeCode] ${code} finished with status [${status}]. Response: `, response)
+                console.log(`[executeCode] ${code} finished with status [${status}]. Response: `, response)
                 resolve(response);
             };
 
@@ -203,8 +212,11 @@ export class ProfileModel {
                         const columnTuples: IColTypeTuple[] = columns.reduce(
                             (totalArr, current_txt) => {
                                 if (current_txt !== 'dtype: object') {
-                                    const [_name, _type] =
-                                        current_txt.split(/\s+/);
+                                    const parts = current_txt.split(/\s+/);
+
+                                    let _name = parts.slice(0, -1)?.join(" ")
+                                    let _type = parts[parts.length - 1]
+                                    
                                     if (_name && _type) {
                                         totalArr.push({
                                             col_name: _name,
@@ -319,7 +331,7 @@ export class ProfileModel {
         colName: string
     ): Promise<IQuantMeta> {
         try {
-            const code = `print(${dfName}["${colName}"].describe().to_json())`;
+            const code = `print(${dfName}["${replaceSpecial(colName)}"].describe().to_json())`;
             const res = await this.executeCode(code);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
@@ -351,8 +363,8 @@ export class ProfileModel {
     ): Promise<IColMeta> {
         try {
             // Code to execute
-            const numUnique_code = `print(${dfName}["${colName}"].nunique())`;
-            const numNull_code = `print(${dfName}["${colName}"].isna().sum())`;
+            const numUnique_code = `print(${dfName}["${replaceSpecial(colName)}"].nunique())`;
+            const numNull_code = `print(${dfName}["${replaceSpecial(colName)}"].isna().sum())`;
             // execute and parse
             const code_lines = [numUnique_code, numNull_code];
             const res = await this.executeCode(code_lines.join('\n'));
@@ -380,7 +392,7 @@ export class ProfileModel {
          *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
          */
         try {
-            const code = `print(${dfName}["${colName}"].value_counts().iloc[:${n}].to_json())`;
+            const code = `print(${dfName}["${replaceSpecial(colName)}"].value_counts().iloc[:${n}].to_json())`;
             const res = await this.executeCode(code);
             const data: ValueCount[] = [];
             const content = res['content']; // might be null
@@ -405,7 +417,7 @@ export class ProfileModel {
          *   [ { "bin_0": 0, "bin_1": 1, "count": 5 }, ]
          */
         try {
-            const code = `print(${dfName}["${colName}"].value_counts(bins=min(${maxbins}, ${dfName}["${colName}"].nunique()), sort=False).to_json())`;
+            const code = `print(${dfName}["${replaceSpecial(colName)}"].value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(colName)}"].nunique()), sort=False).to_json())`;
             const res = await this.executeCode(code);
             const content = res['content'];
             const data: IHistogram = [];
