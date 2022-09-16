@@ -5,7 +5,7 @@ import type {
     ColumnProfileData,
     IColumnProfileWrapper
 } from './common/exchangeInterfaces';
-import { NUMERICS } from './components/data-types/pandas-data-types';
+import { NUMERICS, TIMESTAMPS } from './components/data-types/pandas-data-types';
 import type { ProfileModel } from './dataAPI/ProfileModel';
 
 // ~~~~~~~~~~~ Stores ~~~~~~~~~~~~~~~~
@@ -75,6 +75,16 @@ async function getColProfiles(
 
             cd.summary.statistics = statistics;
             cd.summary.histogram = chartData;
+        } else if (TIMESTAMPS.has(col_type)) {
+            const chartData = await model.getTempBinnedData(dfName, col_name);
+            cd.summary.histogram = chartData;
+            
+            const interval = await model.getTempInterval(dfName, col_name);
+            cd.summary.interval = interval;
+
+            // smallestTimeGrain
+            // const timeGrain = await model.getTimeGrain(dfName, col_name);
+            // cd.summary.estimatedSmallestTimeGrain = timeGrain;
         }
 
         resultData.push(cd);

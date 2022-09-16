@@ -3,12 +3,11 @@
 import HistogramBase from "./HistogramBase.svelte";
 import { datePortion, timePortion, intervalToTimestring, removeTimezoneOffset } from "../../utils/formatters";
 import { TIMESTAMP_TOKENS } from "../../data-types/pandas-data-types";
-
-//import type {Interval} from "../../../../dataAPI/exchangeInterfaces";
+import type {Interval} from "../../../common/exchangeInterfaces";
 
 export let data;
 export let type;
-export let interval //: Interval;
+export let interval: Interval;
 export let width;
 export let height = 100;
 export let estimatedSmallestTimeGrain:string;
@@ -17,13 +16,14 @@ $: effectiveWidth = Math.max(width - 8, 120);
 
 let fontSize = 12;
 
-$: timeLength = interval ? intervalToTimestring(type === "DATE" ? {days: interval, months: 0, micros: 0 } : interval) : undefined;
+// $: timeLength = interval ? intervalToTimestring(type === "DATE" ? {days: interval, months: 0, micros: 0 } : interval) : undefined;
+$: timeLength = interval ? intervalToTimestring(interval) : undefined;
 </script>
 
 {#if interval}
 <div class="grid space-between grid-cols-2 items-baseline pr-6">
     <div class="italic pt-1 pb-2">
-        {timeLength}
+        This column spans {timeLength}.
     </div>
     
     {#if estimatedSmallestTimeGrain}
