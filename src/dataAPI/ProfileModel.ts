@@ -10,7 +10,8 @@ import type {
     IQuantMeta,
     IColMeta,
     IHistogram,
-    ValueCount
+    ValueCount,
+    Interval
 } from '../common/exchangeInterfaces';
 
 type ExecResult = { content: string[]; exec_count: number };
@@ -20,7 +21,7 @@ function replaceSpecial(input_str: string) {
     since the code uses same character, single quotes are fine (') */
 
     let res = input_str.replace(/\\/g, '\\\\') // escape backslashes
-                       .replace(/"/g, '\\"') // escape double quotes
+        .replace(/"/g, '\\"') // escape double quotes
     return res
 }
 
@@ -216,7 +217,7 @@ export class ProfileModel {
 
                                     let _name = parts.slice(0, -1)?.join(" ")
                                     let _type = parts[parts.length - 1]
-                                    
+
                                     if (_name && _type) {
                                         totalArr.push({
                                             col_name: _name,
@@ -438,5 +439,82 @@ export class ProfileModel {
             console.warn('[Error caught] in getQuantBinnedData', error);
             return [];
         }
+    }
+
+    /**
+     * 
+     * Get histogram for temporal column
+     * @param dfName: the dataframe
+     * @param colName: the temporal column
+     * @returns Histogram of format  [ { "low": 0, "high": 1, "count": 5, bucket: 0} ]
+     */
+    public async getTempBinnedData(
+        dfName: string,
+        colName: string,
+        maxbins = 15
+    ): Promise<IHistogram> {
+        try {
+            const bin_code = `print( (${dfName}["${replaceSpecial(colName)}"].astype("int")//1e9).value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(colName)}"].nunique()), sort=False).to_json() )`;
+            const min_value_code = `print((${dfName}["${replaceSpecial(colName)}"].astype("int") // 1e9).min())`
+
+            const res = await this.executeCode([bin_code, min_value_code].join('\n'));
+            const content = res['content'];
+            const data: IHistogram = [];
+            const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            const true_minimum = parseFloat(content[1])
+
+            Object.keys(json_res).forEach((k, i) => {
+                const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
+                const [low, high] = cleank.split(',');
+
+                data.push({
+                    // Pandas extends the minimum bin an arbitrary number below the col's minimum so we shift the lowest bin boundary to the actual minimum
+                    low: i === 0 ? true_minimum : parseFloat(low),
+                    high: parseFloat(high),
+                    count: json_res[k],
+                    bucket: i
+                });
+            });
+            return data;
+        } catch (error) {
+            console.warn('[Error caught] in getTempBinnedData', error);
+            return [];
+        }
+
+    }
+
+    /**
+     * Get interval range of the temporal column.
+     * TODO only getting days right now so need to get months or microseconds
+     * @param dfName 
+     * @param colName 
+     * @returns Interval
+     */
+    public async getTempInterval(
+        dfName: string,
+        colName: string
+    ): Promise<Interval> {
+
+        try {
+            // Code to execute
+            const code = `print((${dfName}["${replaceSpecial(colName)}"].max() - ${dfName}["${replaceSpecial(colName)}"].min()).days)`
+
+            // execute and parse
+            const res = await this.executeCode(code);
+            const content = res['content'];
+            return {
+                months: 0,
+                days: parseInt(content[0]),
+                micros: 0
+            }
+        } catch (error) {
+            console.warn('[Error caught] in getColMeta', error);
+            return {
+                months: 0,
+                days: 0,
+                micros: 0
+            }
+        }
+
     }
 }
