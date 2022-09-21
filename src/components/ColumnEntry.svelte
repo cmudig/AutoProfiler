@@ -14,7 +14,6 @@
     <button
         class="
         pl-{left} pr-{right}
-        select-none	
         flex 
         space-between 
         gap-2
