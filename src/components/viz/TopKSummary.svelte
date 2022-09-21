@@ -24,7 +24,7 @@
     // time to create a single way to get the width of an element.
 </script>
 
-<div class="w-full select-none">
+<div class="w-full">
     <div
         class="grid w-full"
         style="
