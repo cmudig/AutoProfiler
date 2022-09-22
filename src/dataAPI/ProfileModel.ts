@@ -67,6 +67,7 @@ export class ProfileModel {
         await this.session.ready;
         // have to do this as arrow function or else this doesnt work
         this._notebook.changed.connect((sender, value) => {
+            // when cell is run, update data
             if (value === 'cell run') {
                 this.updateRootData();
             }
@@ -188,6 +189,12 @@ export class ProfileModel {
 
     // #############################################################################
     // python data functions
+
+    /**
+     * Gets all python variables, checks which ones are pandas dataframes, then returns these dataframe names 
+     * and their columns along with the object id
+     * @returns 
+     */
 
     public async getAllDataFrames(): Promise<IDFColMap> {
         await this.ready;
