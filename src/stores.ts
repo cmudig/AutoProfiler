@@ -5,7 +5,10 @@ import type {
     ColumnProfileData,
     IColumnProfileWrapper
 } from './common/exchangeInterfaces';
-import { NUMERICS, TIMESTAMPS } from './components/data-types/pandas-data-types';
+import {
+    NUMERICS,
+    TIMESTAMPS
+} from './components/data-types/pandas-data-types';
 import type { ProfileModel } from './dataAPI/ProfileModel';
 
 // ~~~~~~~~~~~ Stores ~~~~~~~~~~~~~~~~
@@ -18,14 +21,17 @@ export const columnProfiles: Readable<IColumnProfileMap> = derived(
 
     ([$dataFramesAndCols, $profileModel], set) => {
         if ($dataFramesAndCols && $profileModel) {
-            isLoadingNewData.set(true)
-            let colPromise = fetchColumnPromises($dataFramesAndCols, $profileModel);
+            isLoadingNewData.set(true);
+            const colPromise = fetchColumnPromises(
+                $dataFramesAndCols,
+                $profileModel
+            );
             colPromise.then(result => {
-                set(result)
-                isLoadingNewData.set(false)
-            })
+                set(result);
+                isLoadingNewData.set(false);
+            });
         } else {
-            set(undefined)
+            set(undefined);
         }
     },
     undefined // default value
@@ -43,13 +49,14 @@ async function fetchColumnPromises(
     // (I guess stores update everything with new promises)
     // Maybe there is a way to not use a promise or only make calls when we know the dataframe has changed?
 
-    const resolved_profiles = await Promise.all(alldf_names.map((dfName: string) => {
-         return getColProfiles(dfName, dfColMap, model)
+    const resolved_profiles = await Promise.all(
+        alldf_names.map((dfName: string) => {
+            return getColProfiles(dfName, dfColMap, model);
         })
-    )
+    );
 
     alldf_names.forEach((dfName, index) => {
-        colProfileMap[dfName] = resolved_profiles[index]
+        colProfileMap[dfName] = resolved_profiles[index];
     });
     return colProfileMap;
 }
@@ -92,7 +99,7 @@ async function getColProfiles(
         } else if (TIMESTAMPS.has(col_type)) {
             const chartData = await model.getTempBinnedData(dfName, col_name);
             cd.summary.histogram = chartData;
-            
+
             const interval = await model.getTempInterval(dfName, col_name);
             cd.summary.interval = interval;
 
@@ -104,6 +111,6 @@ async function getColProfiles(
         resultData.push(cd);
     }
 
-    console.log('[getColProfiles] FINISHED getting col profiles', resultData);
+    // console.log('[getColProfiles] FINISHED getting col profiles', resultData);
     return { profile: resultData, shape: shape };
 }

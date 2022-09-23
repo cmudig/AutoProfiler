@@ -3,15 +3,13 @@
     import BarAndLabel from './BarAndLabel.svelte';
     import { config } from '../utils/sizes';
 
-    import type {ValueCount} from "../../common/exchangeInterfaces"
+    import type { ValueCount } from '../../common/exchangeInterfaces';
 
     // export let displaySize: string = 'md';
     export let totalRows: number;
     export let topK: ValueCount[]; // FIXME
     export let color: string;
     export let containerWidth: number;
-
-    // console.log("Making topK summary with ", topK)
 
     $: smallestPercentage = Math.min(
         ...topK.slice(0, 5).map(entry => entry.count / totalRows)
@@ -46,7 +44,10 @@
                 : formatPercentage(count / totalRows)}
             <div>
                 <BarAndLabel value={count / totalRows} {color}>
-                    <span class:text-gray-500={negligiblePercentage && containerWidth >= config.hideRight}> 
+                    <span
+                        class:text-gray-500={negligiblePercentage &&
+                            containerWidth >= config.hideRight}
+                    >
                         {formatCount(count)}
                         {#if !containerWidth || containerWidth >= config.hideRight}
                             {#if percentage.length < 6}&nbsp;{/if}{#if percentage.length < 5}&nbsp;{/if}&nbsp;<span

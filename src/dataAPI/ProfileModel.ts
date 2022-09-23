@@ -20,9 +20,10 @@ function replaceSpecial(input_str: string) {
     /*Format strings when writing code, need to escape double quotes (") 
     since the code uses same character, single quotes are fine (') */
 
-    let res = input_str.replace(/\\/g, '\\\\') // escape backslashes
-        .replace(/"/g, '\\"') // escape double quotes
-    return res
+    const res = input_str
+        .replace(/\\/g, '\\\\') // escape backslashes
+        .replace(/"/g, '\\"'); // escape double quotes
+    return res;
 }
 
 export class ProfileModel {
@@ -81,7 +82,7 @@ export class ProfileModel {
         this.session.session?.kernel.statusChanged.connect((_, status) => {
             if (status.endsWith('restarting')) {
                 // DO something
-                console.log('[AutoProfile] resetting data on kernel restart.');
+                // console.log('[AutoProfile] resetting data on kernel restart.');
                 this.resetData();
             }
         });
@@ -179,7 +180,7 @@ export class ProfileModel {
                     lines this will cause other issues. */
                 flat_array = flat_array.filter(item => item !== '');
                 response['content'] = flat_array;
-                console.log(`[executeCode] ${code} finished with status [${status}]. Response: `, response)
+                // console.log(`[executeCode] ${code} finished with status [${status}]. Response: `, response)
                 resolve(response);
             };
 
@@ -191,9 +192,9 @@ export class ProfileModel {
     // python data functions
 
     /**
-     * Gets all python variables, checks which ones are pandas dataframes, then returns these dataframe names 
+     * Gets all python variables, checks which ones are pandas dataframes, then returns these dataframe names
      * and their columns along with the object id
-     * @returns 
+     * @returns
      */
 
     public async getAllDataFrames(): Promise<IDFColMap> {
@@ -222,8 +223,8 @@ export class ProfileModel {
                                 if (current_txt !== 'dtype: object') {
                                     const parts = current_txt.split(/\s+/);
 
-                                    let _name = parts.slice(0, -1)?.join(" ")
-                                    let _type = parts[parts.length - 1]
+                                    const _name = parts.slice(0, -1)?.join(' ');
+                                    const _type = parts[parts.length - 1];
 
                                     if (_name && _type) {
                                         totalArr.push({
@@ -339,7 +340,9 @@ export class ProfileModel {
         colName: string
     ): Promise<IQuantMeta> {
         try {
-            const code = `print(${dfName}["${replaceSpecial(colName)}"].describe().to_json())`;
+            const code = `print(${dfName}["${replaceSpecial(
+                colName
+            )}"].describe().to_json())`;
             const res = await this.executeCode(code);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
@@ -371,8 +374,12 @@ export class ProfileModel {
     ): Promise<IColMeta> {
         try {
             // Code to execute
-            const numUnique_code = `print(${dfName}["${replaceSpecial(colName)}"].nunique())`;
-            const numNull_code = `print(${dfName}["${replaceSpecial(colName)}"].isna().sum())`;
+            const numUnique_code = `print(${dfName}["${replaceSpecial(
+                colName
+            )}"].nunique())`;
+            const numNull_code = `print(${dfName}["${replaceSpecial(
+                colName
+            )}"].isna().sum())`;
             // execute and parse
             const code_lines = [numUnique_code, numNull_code];
             const res = await this.executeCode(code_lines.join('\n'));
@@ -400,7 +407,9 @@ export class ProfileModel {
          *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
          */
         try {
-            const code = `print(${dfName}["${replaceSpecial(colName)}"].value_counts().iloc[:${n}].to_json())`;
+            const code = `print(${dfName}["${replaceSpecial(
+                colName
+            )}"].value_counts().iloc[:${n}].to_json())`;
             const res = await this.executeCode(code);
             const data: ValueCount[] = [];
             const content = res['content']; // might be null
@@ -425,7 +434,11 @@ export class ProfileModel {
          *   [ { "bin_0": 0, "bin_1": 1, "count": 5 }, ]
          */
         try {
-            const code = `print(${dfName}["${replaceSpecial(colName)}"].value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(colName)}"].nunique()), sort=False).to_json())`;
+            const code = `print(${dfName}["${replaceSpecial(
+                colName
+            )}"].value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(
+                colName
+            )}"].nunique()), sort=False).to_json())`;
             const res = await this.executeCode(code);
             const content = res['content'];
             const data: IHistogram = [];
@@ -449,7 +462,7 @@ export class ProfileModel {
     }
 
     /**
-     * 
+     *
      * Get histogram for temporal column
      * @param dfName: the dataframe
      * @param colName: the temporal column
@@ -461,14 +474,22 @@ export class ProfileModel {
         maxbins = 15
     ): Promise<IHistogram> {
         try {
-            const bin_code = `print( (${dfName}["${replaceSpecial(colName)}"].astype("int")//1e9).value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(colName)}"].nunique()), sort=False).to_json() )`;
-            const min_value_code = `print((${dfName}["${replaceSpecial(colName)}"].astype("int") // 1e9).min())`
+            const bin_code = `print( (${dfName}["${replaceSpecial(
+                colName
+            )}"].astype("int")//1e9).value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(
+                colName
+            )}"].nunique()), sort=False).to_json() )`;
+            const min_value_code = `print((${dfName}["${replaceSpecial(
+                colName
+            )}"].astype("int") // 1e9).min())`;
 
-            const res = await this.executeCode([bin_code, min_value_code].join('\n'));
+            const res = await this.executeCode(
+                [bin_code, min_value_code].join('\n')
+            );
             const content = res['content'];
             const data: IHistogram = [];
             const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
-            const true_minimum = parseFloat(content[1])
+            const true_minimum = parseFloat(content[1]);
 
             Object.keys(json_res).forEach((k, i) => {
                 const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
@@ -487,24 +508,24 @@ export class ProfileModel {
             console.warn('[Error caught] in getTempBinnedData', error);
             return [];
         }
-
     }
 
     /**
      * Get interval range of the temporal column.
      * TODO only getting days right now so need to get months or microseconds
-     * @param dfName 
-     * @param colName 
+     * @param dfName
+     * @param colName
      * @returns Interval
      */
     public async getTempInterval(
         dfName: string,
         colName: string
     ): Promise<Interval> {
-
         try {
             // Code to execute
-            const code = `print((${dfName}["${replaceSpecial(colName)}"].max() - ${dfName}["${replaceSpecial(colName)}"].min()).days)`
+            const code = `print((${dfName}["${replaceSpecial(
+                colName
+            )}"].max() - ${dfName}["${replaceSpecial(colName)}"].min()).days)`;
 
             // execute and parse
             const res = await this.executeCode(code);
@@ -513,15 +534,14 @@ export class ProfileModel {
                 months: 0,
                 days: parseInt(content[0]),
                 micros: 0
-            }
+            };
         } catch (error) {
             console.warn('[Error caught] in getColMeta', error);
             return {
                 months: 0,
                 days: 0,
                 micros: 0
-            }
+            };
         }
-
     }
 }
