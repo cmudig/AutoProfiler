@@ -11,22 +11,30 @@ import type { ProfileModel } from './dataAPI/ProfileModel';
 // ~~~~~~~~~~~ Stores ~~~~~~~~~~~~~~~~
 export const dataFramesAndCols: Writable<IDFColMap> = writable(undefined);
 export const profileModel: Writable<ProfileModel> = writable(undefined);
+export const isLoadingNewData: Writable<boolean> = writable(false);
 
 export const columnProfiles: Readable<IColumnProfileMap> = derived(
     [dataFramesAndCols, profileModel],
 
-    ([$dataFramesAndCols, $profileModel]) => {
+    ([$dataFramesAndCols, $profileModel], set) => {
         if ($dataFramesAndCols && $profileModel) {
-            return fetchColumnPromises($dataFramesAndCols, $profileModel);
+            isLoadingNewData.set(true)
+            let colPromise = fetchColumnPromises($dataFramesAndCols, $profileModel);
+            colPromise.then(result => {
+                set(result)
+                isLoadingNewData.set(false)
+            })
+        } else {
+            set(undefined)
         }
     },
     undefined // default value
 );
 
-function fetchColumnPromises(
+async function fetchColumnPromises(
     dfColMap: IDFColMap,
     model: ProfileModel
-): IColumnProfileMap {
+): Promise<IColumnProfileMap> {
     //, set: (arg0: any) => void) {
     const colProfileMap: IColumnProfileMap = {};
     const alldf_names = Object.keys(dfColMap);
@@ -34,8 +42,14 @@ function fetchColumnPromises(
     // TODO since this is a promise, it reloads every dataframe each time rather than only those that change.
     // (I guess stores update everything with new promises)
     // Maybe there is a way to not use a promise or only make calls when we know the dataframe has changed?
-    alldf_names.forEach(dfName => {
-        colProfileMap[dfName] = getColProfiles(dfName, dfColMap, model);
+
+    const resolved_profiles = await Promise.all(alldf_names.map((dfName: string) => {
+         return getColProfiles(dfName, dfColMap, model)
+        })
+    )
+
+    alldf_names.forEach((dfName, index) => {
+        colProfileMap[dfName] = resolved_profiles[index]
     });
     return colProfileMap;
 }
