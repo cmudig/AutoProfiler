@@ -1,16 +1,19 @@
 # AutoProfile
 
-Profile your Pandas Dataframes! Autoprofile will automatically visualize your Pandas dataframes after every execution, no extra code necessary.
+Profile your Pandas Dataframes! Autoprofiler will automatically visualize your Pandas dataframes after every execution, no extra code necessary.
 
-There's more bugs than features right now so buyer beware!
+Autoprofiler shows you things like:
+- Distribution of each column
+- Sample values
+- Summary statistics
 
 ![screenshot of autoprofile](https://raw.githubusercontent.com/cmudig/AutoProfile/main/examples/profiler_sc.png)
 
-<!-- ## Short Demo
+## Updates profiles as your data updates
 
-Autoprofile reads your current Jupyter notebook and produces profiles for the Pandas Dataframes in your memory along with some summary statistics and a data preview.
+Autoprofiler reads your current Jupyter notebook and produces profiles for the Pandas Dataframes in your memory as they change.
 
-![demo of autoprofile](examples/demo.gif) -->
+![demo of autoprofile](examples/demo.gif)
 
 ## Requirements
 
