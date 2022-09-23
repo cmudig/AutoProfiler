@@ -1,8 +1,14 @@
 <script lang="ts">
     import _ from 'lodash';
     import DFProfile from './DFProfile.svelte';
-    import { columnProfiles, dataFramesAndCols, profileModel } from '../stores';
+    import {
+        columnProfiles,
+        dataFramesAndCols,
+        profileModel,
+        isLoadingNewData
+    } from '../stores';
     import Parquet from './icons/Parquet.svelte';
+    import { Circle } from 'svelte-loading-spinners';
 
     // Locals
     let name: string;
@@ -35,6 +41,16 @@
                     <Parquet size="16px" />
                 </div>
                 <h2 class="inline-block align-middle">DataFrames</h2>
+                {#if $isLoadingNewData}
+                    <div class="inline-block align-middle pl-2">
+                        <Circle
+                            size="1"
+                            color="#FF3E00"
+                            unit="rem"
+                            duration="1s"
+                        />
+                    </div>
+                {/if}
             </div>
 
             <div>
