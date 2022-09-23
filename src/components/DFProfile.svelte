@@ -24,37 +24,27 @@
             </div>
             <p class="inline-block font-bold">{dfName}</p>
 
-            {#await $columnProfiles[dfName]}
-                <div class="inline-block align-middle pl-2">
-                    <!-- <Pulse size="1" color="#FF3E00" unit="rem" duration="1s" /> -->
-                    <Circle size="1" color="#FF3E00" unit="rem" duration="1s" />
-                </div>
-            {:then cp}
-                <p class="inline-block">
-                    {cp.shape?.[0]} x {cp.shape?.[1]}
-                </p>
-            {/await}
+            <p class="inline-block">
+                {$columnProfiles[dfName].shape?.[0]} x 
+                {$columnProfiles[dfName].shape?.[1]}
+            </p>
         </div>
 
         <div slot="body" class="dfprofile-body">
-            {#await $columnProfiles[dfName]}
-                <div />
-            {:then cp}
-                <div bind:clientWidth={profileWidth} class="col-profiles">
-                    {#each cp.profile as column}
-                        <ColumnProfile
-                            example={column.example}
-                            name={column.name}
-                            type={column.type}
-                            summary={column.summary}
-                            nullCount={column.nullCount}
-                            containerWidth={profileWidth}
-                            view={previewView}
-                            totalRows={cp.shape?.[0]}
-                        />
-                    {/each}
-                </div>
-            {/await}
+            <div bind:clientWidth={profileWidth} class="col-profiles">
+                {#each $columnProfiles[dfName].profile as column}
+                    <ColumnProfile
+                        example={column.example}
+                        name={column.name}
+                        type={column.type}
+                        summary={column.summary}
+                        nullCount={column.nullCount}
+                        containerWidth={profileWidth}
+                        view={previewView}
+                        totalRows={$columnProfiles[dfName].shape?.[0]}
+                    />
+                {/each}
+            </div>
         </div>
     </CollapsibleCard>
 </div>

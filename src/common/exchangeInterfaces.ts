@@ -13,7 +13,7 @@ export type IDFColMap = {
 
 // data fetched from kernel for frontend
 export type IColumnProfileMap = {
-    [dfname: string]: Promise<IColumnProfileWrapper>;
+    [dfname: string]: IColumnProfileWrapper;
 };
 
 export type IColumnProfileWrapper = {
