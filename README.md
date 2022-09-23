@@ -7,13 +7,13 @@ Autoprofiler shows you things like:
 - Sample values
 - Summary statistics
 
-![screenshot of autoprofile](https://raw.githubusercontent.com/cmudig/AutoProfile/main/examples/profiler_sc.png)
+![screenshot of autoprofile](https://raw.githubusercontent.com/cmudig/AutoProfile/main/.github/screenshots/profiler_sc.png)
 
 ## Updates profiles as your data updates
 
 Autoprofiler reads your current Jupyter notebook and produces profiles for the Pandas Dataframes in your memory as they change.
 
-![demo of autoprofile](examples/demo.gif)
+![demo of autoprofile](https://raw.githubusercontent.com/cmudig/AutoProfile/main/.github/screenshots/demo.gif)
 
 ## Requirements
 
