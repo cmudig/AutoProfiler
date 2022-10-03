@@ -62,6 +62,6 @@
 
 <style>
     .nameHover {
-        background-color: #f3f4f6;
+        background-color: #f3f4f6; /* bg-gray-100 but have to put in separate class */
     }
 </style>
