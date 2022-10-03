@@ -11,7 +11,10 @@ import {
 } from './components/data-types/pandas-data-types';
 import type { ProfileModel } from './dataAPI/ProfileModel';
 
-// ~~~~~~~~~~~ Stores ~~~~~~~~~~~~~~~~
+// UI stores
+export const currentHoveredCol: Writable<string> = writable(undefined)
+
+// ~~~~~~~~~~~ Backend data Stores ~~~~~~~~~~~~~~~~
 export const dataFramesAndCols: Writable<IDFColMap> = writable(undefined);
 export const profileModel: Writable<ProfileModel> = writable(undefined);
 export const isLoadingNewData: Writable<boolean> = writable(false);

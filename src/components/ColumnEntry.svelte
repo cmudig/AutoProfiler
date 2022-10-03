@@ -1,13 +1,16 @@
 <script>
+    import { currentHoveredCol } from '../stores';
+
     export let active = false;
     export let hideRight = false;
 
     export let left = 8; // "pl-8 pl-10";
     export let right = 4; // pr-2";
 
-    // So another way of handling click is with 
-    // on:click={(event) => { dispatch('select'); }}
+    export let hoverKey;
 
+    // So another way of handling click is with
+    // on:click={(event) => { dispatch('select'); }}
 </script>
 
 <div>
@@ -17,13 +20,21 @@
         flex 
         space-between 
         gap-2
-        hover:bg-gray-100 
         focus:bg-gray-100
         focus:ring-gray-500
         focus:outline-gray-300 flex-1
         justify-between w-full"
         class:bg-gray-50={active}
-        on:click= {() => {active = !active}}
+        class:nameHover={$currentHoveredCol === hoverKey}
+        on:click={() => {
+            active = !active;
+        }}
+        on:mouseenter={() => {
+            $currentHoveredCol = hoverKey;
+        }}
+        on:mouseleave={() => {
+            $currentHoveredCol = undefined;
+        }}
     >
         <div
             class="flex gap-2 grow items-baseline flex-1"
@@ -48,3 +59,9 @@
         <slot name="details" />
     </div>
 </div>
+
+<style>
+    .nameHover {
+        background-color: #f3f4f6;
+    }
+</style>
