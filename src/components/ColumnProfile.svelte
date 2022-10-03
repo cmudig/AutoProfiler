@@ -19,8 +19,12 @@
     import Histogram from './viz/histogram/SmallHistogram.svelte';
     import TimestampHistogram from './viz/histogram/TimestampHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
+    import TimestampDetail from './viz/timestamp/TimestampDetail.svelte';
 
-    import type { ColumnSummary } from '../common/exchangeInterfaces';
+    import type {
+        ColumnSummary,
+        TimeColumnSummary
+    } from '../common/exchangeInterfaces';
 
     // props
     export let name: string;
@@ -182,7 +186,21 @@
                             max={summary.statistics.max}
                         />
                     </div>
-                {:else if TIMESTAMPS.has(type) && summary?.histogram?.length}
+                {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
+                    <div class="pl-{indentLevel === 1 ? 16 : 10}">
+                        <!-- pl-14 pl-10 -->
+                        <TimestampDetail
+                            data={summary?.timeSummary.rollup.results}
+                            xAccessor="ts"
+                            yAccessor="count"
+                            mouseover={true}
+                            height={160}
+                            width={containerWidth -
+                                (indentLevel === 1 ? 20 + 24 + 54 : 32 + 20)}
+                            interval={summary?.timeSummary.interval}
+                        />
+                    </div>
+
                     <div class="pl-{indentLevel === 1 ? 16 : 10}">
                         <!-- pl-14 pl-10 -->
                         <TimestampHistogram
@@ -190,8 +208,7 @@
                             width={containerWidth -
                                 (indentLevel === 1 ? 20 + 24 + 54 : 32 + 20)}
                             data={summary.histogram}
-                            interval={summary.interval}
-                            estimatedSmallestTimeGrain={summary?.estimatedSmallestTimeGrain}
+                            interval={summary?.timeSummary.interval}
                         />
                     </div>
                 {/if}

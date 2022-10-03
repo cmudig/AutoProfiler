@@ -463,7 +463,7 @@ export class ProfileModel {
 
     /**
      *
-     * Get histogram for temporal column
+     * Get histogram for temporal column in unix epoch format (UTC time)
      * @param dfName: the dataframe
      * @param colName: the temporal column
      * @returns Histogram of format  [ { "low": 0, "high": 1, "count": 5, bucket: 0} ]
@@ -471,7 +471,7 @@ export class ProfileModel {
     public async getTempBinnedData(
         dfName: string,
         colName: string,
-        maxbins = 15
+        maxbins = 100
     ): Promise<IHistogram> {
         try {
             const bin_code = `print( (${dfName}["${replaceSpecial(
@@ -479,6 +479,7 @@ export class ProfileModel {
             )}"].astype("int")//1e9).value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(
                 colName
             )}"].nunique()), sort=False).to_json() )`;
+
             const min_value_code = `print((${dfName}["${replaceSpecial(
                 colName
             )}"].astype("int") // 1e9).min())`;

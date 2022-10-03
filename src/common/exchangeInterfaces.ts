@@ -48,14 +48,35 @@ export type ColumnProfileData = {
     example: any;
 };
 
-export type ColumnSummary = {
+export interface ColumnSummary {
     cardinality: number; // num unique
     topK: ValueCount[];
     histogram?: IHistogram;
     statistics?: IQuantMeta;
-    interval?: Interval;
-    estimatedSmallestTimeGrain?: string;
+    timeSummary?: TimeColumnSummary;
 };
+
+// TODO this could be subclass but then need better type guards
+export interface TimeColumnSummary {
+    // estimatedSmallestTimeGrain?: string;
+    interval: Interval;
+    // max: Date;
+    // min: Date;
+    rollup: {
+        results: TimeBin[];
+        spark: TimeBin[];
+        timeRange: {
+            start: Date;
+            end: Date;
+            interval: Interval;
+        }
+    }
+}
+
+export type TimeBin = {
+    count: number;
+    ts: Date;
+}
 
 export type ValueCount = {
     value: any;
@@ -76,6 +97,17 @@ export type Interval = {
     days: number;
     micros: number;
 };
+
+export enum PreviewRollupInterval {
+    ms = "1 millisecond",
+    second = "1 second",
+    minute = "1 minute",
+    hour = "1 hour",
+    day = "1 day",
+    month = "1 month",
+    year = "1 year",
+}
+
 
 // // executor interface for ArqueroExecutor below
 // export interface Executor {
