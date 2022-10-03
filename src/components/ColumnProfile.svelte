@@ -20,7 +20,7 @@
     import TimestampHistogram from './viz/histogram/TimestampHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
 
-    import type {ColumnSummary} from "../common/exchangeInterfaces";
+    import type { ColumnSummary } from '../common/exchangeInterfaces';
 
     // props
     export let name: string;
@@ -56,14 +56,14 @@
         containerWidth > config.compactBreakpoint
             ? formatInteger
             : formatCompactInteger;
-
 </script>
 
 <!-- pl-10 -->
 <ColumnEntry
     left={indentLevel === 1 ? 10 : 4}
     {hideRight}
-    bind:active={active}
+    bind:active
+    hoverKey={name}
 >
     <svelte:fragment slot="icon">
         <DataTypeIcon {type} />
@@ -71,7 +71,9 @@
 
     <svelte:fragment slot="left">
         <div style:width="100%">
-            <div class="column-profile-name text-ellipsis overflow-hidden whitespace-nowrap">
+            <div
+                class="column-profile-name text-ellipsis overflow-hidden whitespace-nowrap"
+            >
                 {name}
             </div>
         </div>
