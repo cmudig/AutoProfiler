@@ -20,9 +20,6 @@
         flex 
         space-between 
         gap-2
-        focus:bg-gray-100
-        focus:ring-gray-500
-        focus:outline-gray-300 flex-1
         justify-between w-full"
         class:bg-gray-50={active}
         class:nameHover={$currentHoveredCol === hoverKey}
