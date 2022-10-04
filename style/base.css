@@ -33,5 +33,6 @@
 }
 
 .autoprofile-logo {
-    background: url('./logo.svg');
+    align-items: center;
+    display: flex;
 }

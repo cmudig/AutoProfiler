@@ -4,15 +4,23 @@ import type { Message } from '@lumino/messaging';
 import type { NotebookAPI } from './dataAPI/jupyter/notebook';
 import { ProfileModel } from './dataAPI/ProfileModel';
 import { ProfileView } from './components/ProfileView';
+import { LabIcon } from '@jupyterlab/ui-components';
+import appIconStr from "../style/logo.svg"
 
 export class ProfilePanel extends StackedPanel {
     constructor() {
         super();
         this.addClass('auto-profile-wrapper');
         this.id = 'auto-profile-app';
-        this.title.caption = 'AutoProfile';
-        this.title.label = 'AutoProfile';
-        this.title.iconClass = 'jp-SideBar-tabIcon autoprofile-logo';
+        this.title.caption = 'Autoprofiler'; // shown on hover
+        this.title.iconClass = 'autoprofile-logo';
+
+        const icon = new LabIcon({
+            name: 'auto-profile-app:app-icon',
+            svgstr: appIconStr,
+        });
+
+        this.title.icon = icon
 
         // MODEL init
         this._profileModel = new ProfileModel(this._sessionContext);
