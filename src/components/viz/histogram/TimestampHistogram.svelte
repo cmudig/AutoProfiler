@@ -14,7 +14,7 @@
     export let interval: Interval;
     export let width;
     export let height = 100;
-    export let estimatedSmallestTimeGrain: string;
+    // export let estimatedSmallestTimeGrain: string;
 
     $: effectiveWidth = Math.max(width - 8, 120);
 

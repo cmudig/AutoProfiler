@@ -6,7 +6,7 @@ import {
     TIMESTAMPS,
     BOOLEANS
 } from '../data-types/pandas-data-types';
-import type { Interval } from '../../common/exchangeInterfaces';
+import { type Interval, PreviewRollupInterval } from '../../common/exchangeInterfaces';
 import { format } from 'd3-format';
 import { timeFormat } from 'd3-time-format';
 
@@ -70,9 +70,8 @@ export function microsToTimestring(microseconds: number) {
 
 export function intervalToTimestring(interval: Interval) {
     const months = interval.months
-        ? `${formatInteger(interval.months)} month${
-              interval.months > 1 ? 's' : ''
-          } `
+        ? `${formatInteger(interval.months)} month${interval.months > 1 ? 's' : ''
+        } `
         : '';
     const days = interval.days
         ? `${formatInteger(interval.days)} day${interval.days > 1 ? 's' : ''} `
@@ -114,3 +113,18 @@ export function formatDataType(value: any, type: string) {
         return value;
     }
 }
+
+/** These will be used in the string */
+export const PreviewRollupIntervalFormatter = {
+    [PreviewRollupInterval.ms]:
+        "millisecond-level" /** showing rows binned by ms */,
+    [PreviewRollupInterval.second]:
+        "second-level" /** showing rows binned by second */,
+    [PreviewRollupInterval.minute]:
+        "minute-level" /** showing rows binned by minute */,
+    [PreviewRollupInterval.hour]: "hourly" /** showing hourly counts */,
+    [PreviewRollupInterval.day]: "daily" /** showing daily counts */,
+    [PreviewRollupInterval.month]: "monthly" /** showing monthly counts */,
+    [PreviewRollupInterval.year]: "yearly" /** showing yearly counts */,
+};
+
