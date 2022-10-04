@@ -4,10 +4,7 @@
      * This component provides summary information about the
      * timestamp profile at the top of the detail plot.
      */
-    import {
-        intervalToTimestring,
-        PreviewRollupIntervalFormatter
-    } from '../../utils/formatters';
+    import { intervalToTimestring } from '../../utils/formatters';
 
     import type { Interval } from '../../../common/exchangeInterfaces';
 
@@ -23,7 +20,7 @@
 >
     <div>
         {#if interval}
-            Range is {intervalToTimestring(interval)}
+            Range is {intervalToTimestring(interval)}.
         {/if}
     </div>
     <div class="text-gray-400">Ctrl + Click + Drag to zoom</div>

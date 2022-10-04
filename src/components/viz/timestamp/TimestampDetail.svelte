@@ -279,11 +279,6 @@
         ($zoomCoords.start.x
             ? $X.invert(Math.max($zoomCoords.start.x, $zoomCoords.stop.x))
             : max([zoomedXStart, zoomedXEnd])) || xExtents[1];
-
-    /**
-     * Use this shiftClickAction to copy the timestamp that is currently moused over.
-     */
-    // const { shiftClickAction } = createShiftClickAction();
 </script>
 
 <div style:max-width="{width}px">
@@ -423,7 +418,7 @@
                     isZoomed = false;
                 }}
             >
-                clear zoom X
+                clear zoom
             </text>
         {/if}
     </svg>
@@ -434,9 +429,3 @@
         <TimestampBound align="right" value={zoomMaxBound} />
     </div>
 </div>
-
-<style>
-    text {
-        user-select: none;
-    }
-</style>

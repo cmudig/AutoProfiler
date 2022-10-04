@@ -200,17 +200,6 @@
                             interval={summary?.timeSummary.interval}
                         />
                     </div>
-
-                    <div class="pl-{indentLevel === 1 ? 16 : 10}">
-                        <!-- pl-14 pl-10 -->
-                        <TimestampHistogram
-                            {type}
-                            width={containerWidth -
-                                (indentLevel === 1 ? 20 + 24 + 54 : 32 + 20)}
-                            data={summary.histogram}
-                            interval={summary?.timeSummary.interval}
-                        />
-                    </div>
                 {/if}
             </div>
         {/if}
