@@ -4,9 +4,6 @@
     export let active = false;
     export let hideRight = false;
 
-    export let left = 8; // "pl-8 pl-10";
-    export let right = 4; // pr-2";
-
     export let hoverKey;
 
     // So another way of handling click is with
@@ -16,7 +13,8 @@
 <div>
     <button
         class="
-        pl-{left} pr-{right}
+        pl-2 
+        pr-2
         flex 
         space-between 
         gap-2

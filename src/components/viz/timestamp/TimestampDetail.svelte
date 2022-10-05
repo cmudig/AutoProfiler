@@ -51,7 +51,6 @@
     export let width = 360;
     export let height = 120;
     export let curve = 'curveLinear';
-    export let mouseover = false;
     export let smooth = true;
 
     export let separate = true;
@@ -281,10 +280,10 @@
             : max([zoomedXStart, zoomedXEnd])) || xExtents[1];
 </script>
 
-<div style:max-width="{width}px">
+<div style:width="100%">
     <TimestampProfileSummary {interval} />
     <svg
-        {width}
+        width="100%"
         {height}
         style:cursor={setCursor($isZooming, $isScrolling)}
         use:scrubAction
@@ -327,8 +326,8 @@
                 isZoomed = true;
             }, 100);
         }}
-        on:mousemove={mouseover ? handleMouseMove : undefined}
-        on:mouseleave={mouseover ? clearMouseMove : undefined}
+        on:mousemove={handleMouseMove}
+        on:mouseleave={clearMouseMove}
         on:contextmenu|preventDefault|stopPropagation
     >
         <defs>

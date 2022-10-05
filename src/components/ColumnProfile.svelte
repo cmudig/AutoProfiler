@@ -35,7 +35,6 @@
     export let example: any; // TODO cast harder
     export let view: string = 'summaries'; // summaries, example
     export let containerWidth: number;
-    export let indentLevel = 1;
     export let hideRight = false;
     // hide the null percentage number
     export let hideNullPercentage = false;
@@ -43,6 +42,7 @@
 
     // locals
     let active = false;
+    let wrapperDivWidth: number;
 
     // let exampleWidth = config.exampleWidth.small // or medium
     // let summaryWidthSize = config.summaryVizWidth.small // or medium
@@ -63,12 +63,7 @@
 </script>
 
 <!-- pl-10 -->
-<ColumnEntry
-    left={indentLevel === 1 ? 10 : 4}
-    {hideRight}
-    bind:active
-    hoverKey={name}
->
+<ColumnEntry {hideRight} bind:active hoverKey={name}>
     <svelte:fragment slot="icon">
         <DataTypeIcon {type} />
     </svelte:fragment>
@@ -157,25 +152,19 @@
         {#if active}
             <div
                 transition:slide|local={{ duration: 200 }}
-                class="pt-3 pb-3  w-full"
+                class="pt-3 pb-3 pl-8 pr-4 w-full"
             >
-                {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.topK}
-                    <div class="pl-{indentLevel === 1 ? 16 : 10} pr-4 w-full">
-                        <!-- pl-16 pl-8 -->
+                <div bind:clientWidth={wrapperDivWidth}>
+                    {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.topK}
                         <TopKSummary
-                            {containerWidth}
+                            containerWidth={wrapperDivWidth}
                             color={DATA_TYPE_COLORS[type].bgClass}
                             {totalRows}
                             topK={summary.topK}
                         />
-                    </div>
-                {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
-                    <div class="pl-{indentLevel === 1 ? 12 : 4}">
-                        <!-- pl-12 pl-5 -->
-                        <!-- FIXME: we have to remove a bit of pad from the right side to make this work -->
+                    {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
                         <NumericHistogram
-                            width={containerWidth -
-                                (indentLevel === 1 ? 20 + 24 + 44 : 32)}
+                            width={wrapperDivWidth}
                             height={65}
                             data={summary.histogram}
                             min={summary.statistics.min}
@@ -185,22 +174,17 @@
                             mean={summary.statistics.mean}
                             max={summary.statistics.max}
                         />
-                    </div>
-                {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
-                    <div class="pl-{indentLevel === 1 ? 16 : 10}">
-                        <!-- pl-14 pl-10 -->
+                    {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
                         <TimestampDetail
                             data={summary?.timeSummary.rollup.results}
                             xAccessor="ts"
                             yAccessor="count"
-                            mouseover={true}
                             height={160}
-                            width={containerWidth -
-                                (indentLevel === 1 ? 20 + 24 + 54 : 32 + 20)}
+                            width={wrapperDivWidth}
                             interval={summary?.timeSummary.interval}
                         />
-                    </div>
-                {/if}
+                    {/if}
+                </div>
             </div>
         {/if}
     </svelte:fragment>
