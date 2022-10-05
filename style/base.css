@@ -14,7 +14,8 @@
 
     /* text-align: center; */
     overflow-y: auto;
-    min-width: 320px;
+    min-width: 350px;
+    width: 400px;
 }
 
 .auto-profile-wrapper {
