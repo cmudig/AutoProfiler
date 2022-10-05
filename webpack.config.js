@@ -5,7 +5,11 @@ const SveltePreprocess = require('svelte-preprocess');
 // Custom webpack rules
 const rules = [
     { test: /\.ts$/, loader: 'ts-loader' },
-    { test: /\.js$/, loader: 'source-map-loader' },
+    {
+        test: /\.js$/,
+        enforce: 'pre',
+        loader: 'source-map-loader',
+    },
     { test: /\.css$/, use: ['style-loader', 'css-loader'] },
     {
         test: /\.svelte$/,
@@ -62,6 +66,7 @@ module.exports = [
             rules: rules
         },
         externals,
-        resolve
+        resolve,
+        ignoreWarnings: [/Failed to parse source map/],
     }
 ];
