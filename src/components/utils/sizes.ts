@@ -6,10 +6,9 @@ export const config = {
     // width of null %
     nullPercentageWidth: 75,
     mediumCutoff: 300,
-    compactBreakpoint: 375,
+    compactBreakpoint: 370,
     largeBreakpoint: 500,
     hideRight: 325,
-    hideNullPercentage: 400,
     summaryVizWidth: { default: 120, large: 240 },
     exampleWidth: { medium: 204, small: 132 }
 };
