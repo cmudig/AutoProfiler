@@ -12,11 +12,9 @@
 
     // Locals
     let name: string;
-    let lang: Promise<string>;
 
     $: if ($dataFramesAndCols && $profileModel) {
         name = $profileModel.name;
-        lang = $profileModel.language;
     }
 </script>
 
@@ -27,11 +25,10 @@
         <!-- <div id="header-icon" /> -->
         <div class="mb-4">
             <p>
-                {name} is a
+                Connected to:
                 <span class="font-semibold">
-                    {#await lang} ? {:then lang} {lang} {/await}
+                    {name}
                 </span>
-                notebook.
             </p>
         </div>
 
