@@ -5,8 +5,7 @@
     import BarAndLabel from './viz//BarAndLabel.svelte';
     import TopKSummary from './viz/TopKSummary.svelte';
     import FormattedDataType from './data-types/FormattedDataType.svelte';
-    import { config } from './utils/sizes';
-    import { percentage } from './utils/sizes';
+    import { config, percentage, getSummarySize } from './utils/sizes';
     import { formatInteger, formatCompactInteger } from './utils/formatters';
     import {
         CATEGORICALS,
@@ -38,7 +37,6 @@
     export let hideRight = false;
     // hide the null percentage number
     export let hideNullPercentage = false;
-    export let compactBreakpoint = config.compactBreakpoint; //
 
     // locals
     let active = false;
@@ -52,14 +50,14 @@
         containerWidth > config.mediumCutoff
             ? config.exampleWidth.medium
             : config.exampleWidth.small;
-    $: summaryWidthSize =
-        config.summaryVizWidth[
-            containerWidth < compactBreakpoint ? 'small' : 'medium'
-        ];
+
+    $: summaryWidthSize = getSummarySize(containerWidth);
+
     $: cardinalityFormatter =
         containerWidth > config.compactBreakpoint
             ? formatInteger
             : formatCompactInteger;
+    $: hideNullPercentage = containerWidth < config.compactBreakpoint;
 </script>
 
 <!-- pl-10 -->
