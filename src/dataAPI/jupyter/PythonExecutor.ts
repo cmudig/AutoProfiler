@@ -189,7 +189,7 @@ export class PythonPandasExecutor {
             const code = '%who_ls'; // python magic command
             const res = await this.executeCode(code);
             const content = res['content'];
-            const data = content[0].replace(/'/g, '"');
+            const data = content.join("").replace(/'/g, '"');
             const names = JSON.parse(data);
             return names;
         } catch (error) {
