@@ -10,19 +10,8 @@ module.exports = {
         project: 'tsconfig.json',
         sourceType: 'module'
     },
-    plugins: ['@typescript-eslint'],
+    plugins: ['@typescript-eslint', 'svelte3'],
     rules: {
-        '@typescript-eslint/naming-convention': [
-            'error',
-            {
-                selector: 'interface',
-                format: ['PascalCase'],
-                custom: {
-                    regex: '^I[A-Z]',
-                    match: true
-                }
-            }
-        ],
         '@typescript-eslint/no-unused-vars': ['warn', { args: 'none' }],
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-namespace': 'off',
@@ -35,5 +24,11 @@ module.exports = {
         curly: ['error', 'all'],
         eqeqeq: 'error',
         'prefer-arrow-callback': 'error'
-    }
+    },
+    overrides: [
+        {
+            files: ['**/*.svelte'],
+            processor: 'svelte3/svelte3'
+        }
+    ]
 };

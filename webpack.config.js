@@ -8,7 +8,7 @@ const rules = [
     {
         test: /\.js$/,
         enforce: 'pre',
-        loader: 'source-map-loader',
+        loader: 'source-map-loader'
     },
     { test: /\.css$/, use: ['style-loader', 'css-loader'] },
     {
@@ -67,6 +67,6 @@ module.exports = [
         },
         externals,
         resolve,
-        ignoreWarnings: [/Failed to parse source map/],
+        ignoreWarnings: [/Failed to parse source map/]
     }
 ];

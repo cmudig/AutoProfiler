@@ -82,19 +82,6 @@
         }
     }
 
-    /* ::selection {
-        background-color: black;
-        color: white;
-    } */
-
-    /* html {
-        @apply bg-gray-400;
-    } */
-
-    /* button {
-        font-family: 'MD IO';
-    } */
-
     .ͼ1 .cm-scroller {
         /* font-family: 'MD IO'; */
         font-size: 13px;

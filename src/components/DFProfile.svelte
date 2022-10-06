@@ -2,7 +2,6 @@
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
     import { CollapsibleCard } from 'svelte-collapsible';
-    import { Circle } from 'svelte-loading-spinners';
 
     import { columnProfiles } from '../stores';
 
@@ -25,7 +24,7 @@
             <p class="inline-block font-bold">{dfName}</p>
 
             <p class="inline-block">
-                {$columnProfiles[dfName].shape?.[0]} x 
+                {$columnProfiles[dfName].shape?.[0]} x
                 {$columnProfiles[dfName].shape?.[1]}
             </p>
         </div>

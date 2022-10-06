@@ -3,9 +3,10 @@
 Profile your Pandas Dataframes! Autoprofiler will automatically visualize your Pandas dataframes after every execution, no extra code necessary.
 
 Autoprofiler shows you things like:
-- Distribution of each column
-- Sample values
-- Summary statistics
+
+-   Distribution of each column
+-   Sample values
+-   Summary statistics
 
 ![screenshot of autoprofile](https://raw.githubusercontent.com/cmudig/AutoProfile/main/.github/screenshots/profiler_sc.png)
 
