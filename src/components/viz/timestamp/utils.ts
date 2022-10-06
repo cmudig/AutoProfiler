@@ -1,7 +1,9 @@
-import { line, area, curveLinear, curveStep } from "d3-shape";
-import type { ScaleLinear, ScaleTime } from "d3-scale";
+import { line, area, curveLinear, curveStep } from 'd3-shape';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 
-export type GraphicScale = ScaleLinear<number, number> | ScaleTime<Date, number>
+export type GraphicScale =
+    | ScaleLinear<number, number>
+    | ScaleTime<Date, number>;
 
 /**
  * Creates a string to be fed into the d attribute of a path,
@@ -19,7 +21,7 @@ export function circlePath(cx: number, cy: number, r: number): string {
 
 const curves = {
     curveLinear,
-    curveStep,
+    curveStep
 };
 
 export function pathDoesNotDropToZero(yAccessor: string) {
@@ -44,7 +46,11 @@ interface LineGeneratorArguments {
     xScale: ScaleLinear<number, number> | ScaleTime<Date, number>;
     yScale: ScaleLinear<number, number> | ScaleTime<Date, number>;
     curve: string;
-    pathDefined?: (datum: object, i: number, arr: ArrayLike<unknown>) => boolean;
+    pathDefined?: (
+        datum: object,
+        i: number,
+        arr: ArrayLike<unknown>
+    ) => boolean;
 }
 
 /**
@@ -55,8 +61,8 @@ interface LineGeneratorArguments {
 export function lineFactory(args: LineGeneratorArguments) {
     return (yAccessor: string) =>
         line()
-            .x((d) => args.xScale(d[args.xAccessor]))
-            .y((d) => args.yScale(d[yAccessor]))
+            .x(d => args.xScale(d[args.xAccessor]))
+            .y(d => args.yScale(d[yAccessor]))
             .curve(curves[args.curve] || curveLinear)
             .defined(args.pathDefined || pathDoesNotDropToZero(yAccessor));
 }
@@ -69,9 +75,9 @@ export function lineFactory(args: LineGeneratorArguments) {
 export function areaFactory(args: LineGeneratorArguments) {
     return (yAccessor: string) =>
         area()
-            .x((d) => ~~args.xScale(d[args.xAccessor]))
+            .x(d => ~~args.xScale(d[args.xAccessor]))
             .y0(~~args.yScale(0))
-            .y1((d) => ~~args.yScale(d[yAccessor]))
+            .y1(d => ~~args.yScale(d[yAccessor]))
             .curve(curves[args.curve] || curveLinear)
             .defined(args.pathDefined || pathDoesNotDropToZero(yAccessor));
 }
@@ -87,12 +93,15 @@ export function getTicks(
     axisLength: number,
     isDate: boolean
 ) {
-    const tickCount = ~~(axisLength / (xOrY === "x" ? 150 : 50));
+    const tickCount = ~~(axisLength / (xOrY === 'x' ? 150 : 50));
     let ticks = scale.ticks(tickCount);
 
     if (ticks.length <= 1) {
-        if (isDate) ticks = scale.domain();
-        else ticks = scale.nice().domain();
+        if (isDate) {
+            ticks = scale.domain();
+        } else {
+            ticks = scale.nice().domain();
+        }
     }
 
     return ticks;

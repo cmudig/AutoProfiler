@@ -5,7 +5,7 @@ import type { NotebookAPI } from './dataAPI/jupyter/notebook';
 import { ProfileModel } from './dataAPI/ProfileModel';
 import { ProfileView } from './components/ProfileView';
 import { LabIcon } from '@jupyterlab/ui-components';
-import appIconStr from "../style/logo.svg"
+import appIconStr from '../style/logo.svg';
 
 export class ProfilePanel extends StackedPanel {
     constructor() {
@@ -17,10 +17,10 @@ export class ProfilePanel extends StackedPanel {
 
         const icon = new LabIcon({
             name: 'auto-profile-app:app-icon',
-            svgstr: appIconStr,
+            svgstr: appIconStr
         });
 
-        this.title.icon = icon
+        this.title.icon = icon;
 
         // MODEL init
         this._profileModel = new ProfileModel(this._sessionContext);

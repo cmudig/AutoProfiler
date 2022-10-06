@@ -14,7 +14,7 @@ import {
 import type { ProfileModel } from './dataAPI/ProfileModel';
 
 // UI stores
-export const currentHoveredCol: Writable<string> = writable(undefined)
+export const currentHoveredCol: Writable<string> = writable(undefined);
 
 // ~~~~~~~~~~~ Backend data Stores ~~~~~~~~~~~~~~~~
 export const dataFramesAndCols: Writable<IDFColMap> = writable(undefined);
@@ -107,20 +107,22 @@ async function getColProfiles(
             const interval = await model.getTempInterval(dfName, col_name);
 
             // get max and min and calculate interval
-            const minDate = chartData[0]?.low ?
-                new Date(chartData[0].low * 1000) :
-                undefined
+            const minDate = chartData[0]?.low
+                ? new Date(chartData[0].low * 1000)
+                : undefined;
 
-            const maxDate = chartData[chartData.length - 1]?.high ?
-                new Date(chartData[chartData.length - 1].high * 1000) :
-                undefined
-
+            const maxDate = chartData[chartData.length - 1]?.high
+                ? new Date(chartData[chartData.length - 1].high * 1000)
+                : undefined;
 
             // Rollup to the right edge of each bin, except for 1st bin
-            const rolledUp: TimeBin[] = chartData.map(d => ({ ts: new Date(d.high * 1000), count: d.count }))
+            const rolledUp: TimeBin[] = chartData.map(d => ({
+                ts: new Date(d.high * 1000),
+                count: d.count
+            }));
 
             if (rolledUp[0]) {
-                rolledUp[0].ts = minDate
+                rolledUp[0].ts = minDate;
             }
 
             const timeSummary: TimeColumnSummary = {
@@ -133,11 +135,10 @@ async function getColProfiles(
                         end: maxDate,
                         interval: interval
                     }
-
                 }
-            }
+            };
 
-            cd.summary.timeSummary = timeSummary
+            cd.summary.timeSummary = timeSummary;
         }
 
         resultData.push(cd);

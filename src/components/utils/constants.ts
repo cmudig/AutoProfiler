@@ -5,7 +5,7 @@ export interface DomainCoordinates {
 
 export const DEFAULT_COORDINATES: DomainCoordinates = {
     x: undefined,
-    y: undefined,
+    y: undefined
 };
 
 export interface PlotConfig {

@@ -16,14 +16,10 @@
     } from './data-types/pandas-data-types';
 
     import Histogram from './viz/histogram/SmallHistogram.svelte';
-    import TimestampHistogram from './viz/histogram/TimestampHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
     import TimestampDetail from './viz/timestamp/TimestampDetail.svelte';
 
-    import type {
-        ColumnSummary,
-        TimeColumnSummary
-    } from '../common/exchangeInterfaces';
+    import type { ColumnSummary } from '../common/exchangeInterfaces';
 
     // props
     export let name: string;

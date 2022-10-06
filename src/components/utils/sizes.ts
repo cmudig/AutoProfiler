@@ -16,8 +16,9 @@ export const config = {
 export const percentage = format('.1%');
 
 export function getSummarySize(containerWidth: number): number {
-    if (containerWidth > config.largeBreakpoint)
-        return config.summaryVizWidth.large
+    if (containerWidth > config.largeBreakpoint) {
+        return config.summaryVizWidth.large;
+    }
 
-    return config.summaryVizWidth.default
+    return config.summaryVizWidth.default;
 }

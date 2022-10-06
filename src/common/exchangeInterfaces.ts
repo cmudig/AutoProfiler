@@ -54,7 +54,7 @@ export interface ColumnSummary {
     histogram?: IHistogram;
     statistics?: IQuantMeta;
     timeSummary?: TimeColumnSummary;
-};
+}
 
 // TODO this could be subclass but then need better type guards
 export interface TimeColumnSummary {
@@ -69,14 +69,14 @@ export interface TimeColumnSummary {
             start: Date;
             end: Date;
             interval: Interval;
-        }
-    }
+        };
+    };
 }
 
 export type TimeBin = {
     count: number;
     ts: Date;
-}
+};
 
 export type ValueCount = {
     value: any;
@@ -99,15 +99,14 @@ export type Interval = {
 };
 
 export enum PreviewRollupInterval {
-    ms = "1 millisecond",
-    second = "1 second",
-    minute = "1 minute",
-    hour = "1 hour",
-    day = "1 day",
-    month = "1 month",
-    year = "1 year",
+    ms = '1 millisecond',
+    second = '1 second',
+    minute = '1 minute',
+    hour = '1 hour',
+    day = '1 day',
+    month = '1 month',
+    year = '1 year'
 }
-
 
 // // executor interface for ArqueroExecutor below
 // export interface Executor {
