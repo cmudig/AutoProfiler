@@ -19,6 +19,7 @@ export type IColumnProfileMap = {
 export type IColumnProfileWrapper = {
     profile: ColumnProfileData[];
     shape: number[];
+    lastUpdatedExCount?: number
 };
 
 export type IQuantChartData = {

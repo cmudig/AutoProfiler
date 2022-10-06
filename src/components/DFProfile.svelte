@@ -17,16 +17,20 @@
 
 <div>
     <CollapsibleCard bind:open={expanded}>
-        <div slot="header" class="dfprofile-header">
-            <div class="inline-block">
-                <ExpanderButton rotated={expanded} />
-            </div>
-            <p class="inline-block font-bold">{dfName}</p>
+        <div slot="header" class="dfprofile-header flex gap-2">
+            <ExpanderButton rotated={expanded} />
 
-            <p class="inline-block">
-                {dataframeProfile?.shape?.[0]} x
-                {dataframeProfile?.shape?.[1]}
+            <p class="font-bold">{dfName}</p>
+            <p class="grow">
+                {dataframeProfile?.shape?.[0]} x {dataframeProfile?.shape?.[1]}
             </p>
+            <div class="flex justify-end">
+                {#if dataframeProfile.lastUpdatedExCount}
+                    <p>
+                        Updated at {dataframeProfile.lastUpdatedExCount}
+                    </p>
+                {/if}
+            </div>
         </div>
 
         <div slot="body" class="dfprofile-body">

@@ -1,4 +1,5 @@
-import type { ICellModel } from '@jupyterlab/cells';
+import type { ICellModel, ICodeCellModel } from '@jupyterlab/cells';
+// import { isCodeCellModel } from '@jupyterlab/cells';
 import { Signal } from '@lumino/signaling';
 
 export default class CellAPI {
@@ -26,6 +27,18 @@ export default class CellAPI {
     // an event emitted when the code/markdown changes
     edited() {
         return this.model.value.changed;
+    }
+
+    getExecutionCount(): number | undefined {
+        // if (isCodeCellModel(this.model)) {
+        //     return this.model.executionCount
+        // }
+
+        if (this.type === "code") {
+            return (this.model as ICodeCellModel).executionCount
+        }
+
+        return undefined
     }
 
     // an event emitted when this cell is run

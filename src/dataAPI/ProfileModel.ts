@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import type { ISessionContext } from '@jupyterlab/apputils';
 import { type Writable, writable, get } from 'svelte/store';
 import type { NotebookAPI } from './jupyter/notebook';
@@ -14,7 +16,6 @@ import {
     NUMERICS,
     TIMESTAMPS
 } from '../components/data-types/pandas-data-types';
-import _ from 'lodash';
 
 export class ProfileModel {
 
@@ -102,6 +103,30 @@ export class ProfileModel {
 
             colPromise.then(result => {
                 const currentColumnProfiles = get(this._columnProfiles)
+                const updatedExCounts = {}
+
+                if (currentColumnProfiles) {
+                    // See if need updated execution counts 
+                    for (const [dfName, currentDfProfile] of Object.entries(currentColumnProfiles)) {
+                        const { lastUpdatedExCount, ...currentShapeAndProfile } = currentDfProfile
+                        const { lastUpdatedExCount: newExCount, ...newShapeAndProfile } = result[dfName]
+
+                        if (_.isEqual(currentShapeAndProfile, newShapeAndProfile)) {
+                            updatedExCounts[dfName] = lastUpdatedExCount
+                        } else {
+                            updatedExCounts[dfName] = this._notebook.mostRecentExecutionCount
+                        }
+                    }
+                }
+
+                // Update execution counts in new state
+                for (const dfName of Object.keys(result)) {
+                    if (dfName in updatedExCounts) {
+                        result[dfName].lastUpdatedExCount = updatedExCounts[dfName]
+                    } else {
+                        result[dfName].lastUpdatedExCount = this._notebook.mostRecentExecutionCount
+                    }
+                }
 
                 // TODO compare these to result and update the execution count if necessary
 
