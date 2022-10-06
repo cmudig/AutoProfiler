@@ -20,7 +20,7 @@
 >
     <div>
         {#if interval}
-            Range is {intervalToTimestring(interval)}.
+            Range is {intervalToTimestring(interval)}
         {/if}
     </div>
     <div class="text-gray-400">Ctrl + Click + Drag to zoom</div>
