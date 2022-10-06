@@ -1,27 +1,48 @@
 <script lang="ts">
+    import { onDestroy } from 'svelte';
     import _ from 'lodash';
+    import type { ProfileModel } from '../dataAPI/ProfileModel';
+    import type { IColumnProfileMap } from '../common/exchangeInterfaces';
+
     import DFProfile from './DFProfile.svelte';
-    import {
-        columnProfiles,
-        dataFramesAndCols,
-        profileModel,
-        isLoadingNewData
-    } from '../stores';
     import Parquet from './icons/Parquet.svelte';
     import { Circle } from 'svelte-loading-spinners';
 
-    // Locals
+    export let profileModel: ProfileModel;
+
+    let isReady: boolean;
+    let isLoading: boolean;
+    let columnProfiles: IColumnProfileMap;
     let name: string;
 
-    $: if ($dataFramesAndCols && $profileModel) {
-        name = $profileModel.name;
-    }
+    const readyUnsub = profileModel.ready.subscribe(val => {
+        isReady = val;
+    });
+
+    const loadingUnsub = profileModel.loading.subscribe(val => {
+        isLoading = val;
+    });
+
+    const cpUnsub = profileModel.columnProfiles.subscribe(val => {
+        columnProfiles = val;
+    });
+
+    const nameUnsub = profileModel.name.subscribe(val => {
+        name = val;
+    });
+
+    onDestroy(() => {
+        readyUnsub();
+        loadingUnsub();
+        cpUnsub();
+        nameUnsub();
+    });
 </script>
 
 <main class="p-4 m-0">
     <h1 class="text-lg">AutoProfile</h1>
 
-    {#if $profileModel.ready}
+    {#if isReady}
         <!-- <div id="header-icon" /> -->
         <div class="mb-4">
             <p>
@@ -32,13 +53,13 @@
             </p>
         </div>
 
-        {#if !_.isEmpty($columnProfiles)}
+        {#if !_.isEmpty(columnProfiles)}
             <div>
                 <div class="inline-block align-middle">
                     <Parquet size="16px" />
                 </div>
                 <h2 class="inline-block align-middle">DataFrames</h2>
-                {#if $isLoadingNewData}
+                {#if isLoading}
                     <div class="inline-block align-middle pl-2">
                         <Circle
                             size="1"
@@ -51,8 +72,11 @@
             </div>
 
             <div>
-                {#each Object.keys($columnProfiles) as dfName}
-                    <DFProfile {dfName} />
+                {#each Object.keys(columnProfiles) as dfName}
+                    <DFProfile
+                        {dfName}
+                        dataframeProfile={columnProfiles[dfName]}
+                    />
                 {/each}
             </div>
         {:else}
