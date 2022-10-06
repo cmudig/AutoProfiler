@@ -29,7 +29,7 @@
   },
   "scripts": {
     "build": "jlpm build:lib && jlpm build:labextension:dev",
-    "build:prod": "jlpm clean && npm install && tsc && webpack --mode=production && jlpm build:labextension",
+    "build:prod": "jlpm clean && npm ci && tsc && webpack --mode=production && jlpm build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc && webpack --mode=development",
@@ -41,7 +41,7 @@
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache && jlpm clean:rest",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
-    "install:extension": "npm install && jlpm build",
+    "install:extension": "npm ci && jlpm build",
     "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
     "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
     "prettier": "jlpm prettier:base --write --list-different",
