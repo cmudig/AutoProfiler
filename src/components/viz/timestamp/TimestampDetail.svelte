@@ -137,7 +137,8 @@
     const {
         coordinates: zoomCoords,
         scrubAction,
-        isScrubbing: isZooming
+        isScrubbing: isZooming,
+        updatePlotBounds: updatePlotBoundsForScrubber
     } = createScrubAction({
         plotLeft: $plotConfig.plotLeft,
         plotRight: $plotConfig.plotRight,
@@ -152,18 +153,35 @@
      * This scroll action creates a scrolling event that will be used in the svg container.
      * The main requirement is this event does not have the shiftKey in use.
      */
-    const { scrubAction: scrollAction, isScrubbing: isScrolling } =
-        createScrubAction({
-            plotLeft: $plotConfig.plotLeft,
-            plotRight: $plotConfig.plotRight,
-            plotTop: $plotConfig.plotTop,
-            plotBottom: $plotConfig.plotBottom,
-            startPredicate: (event: MouseEvent) =>
-                !event.ctrlKey && !event.shiftKey,
-            movePredicate: (event: MouseEvent) =>
-                !event.ctrlKey && !event.shiftKey,
-            moveEventName: 'scrolling'
-        });
+    const {
+        scrubAction: scrollAction,
+        isScrubbing: isScrolling,
+        updatePlotBounds: updatePlotBoundsForScrolling
+    } = createScrubAction({
+        plotLeft: $plotConfig.plotLeft,
+        plotRight: $plotConfig.plotRight,
+        plotTop: $plotConfig.plotTop,
+        plotBottom: $plotConfig.plotBottom,
+        startPredicate: (event: MouseEvent) =>
+            !event.ctrlKey && !event.shiftKey,
+        movePredicate: (event: MouseEvent) => !event.ctrlKey && !event.shiftKey,
+        moveEventName: 'scrolling'
+    });
+
+    /** update these plot bounds for scrolling and scrubbing, assuming they change. */
+    $: updatePlotBoundsForScrubber({
+        plotLeft: $plotConfig.plotLeft,
+        plotRight: $plotConfig.plotRight,
+        plotTop: $plotConfig.plotTop,
+        plotBottom: $plotConfig.plotBottom
+    });
+
+    $: updatePlotBoundsForScrolling({
+        plotLeft: $plotConfig.plotLeft,
+        plotRight: $plotConfig.plotRight,
+        plotTop: $plotConfig.plotTop,
+        plotBottom: $plotConfig.plotBottom
+    });
 
     let isZoomed = false;
 

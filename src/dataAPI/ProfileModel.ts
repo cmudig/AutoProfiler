@@ -1,5 +1,5 @@
 import type { ISessionContext } from '@jupyterlab/apputils';
-import { type Writable, writable } from 'svelte/store';
+import { type Writable, writable, get } from 'svelte/store';
 import type { NotebookAPI } from './jupyter/notebook';
 import { PythonPandasExecutor } from './jupyter/PythonExecutor'
 import type {
@@ -16,9 +16,7 @@ import {
 } from '../components/data-types/pandas-data-types';
 
 export class ProfileModel {
-    // implements Executor
 
-    // private _sessionContext: ISessionContext;
     private _notebook: NotebookAPI;
     private _ready: Writable<boolean> = writable(false);
     private _columnProfiles: Writable<IColumnProfileMap> = writable(undefined)
@@ -95,6 +93,10 @@ export class ProfileModel {
         const colPromise = this.fetchColumnPromises(alldf);
 
         colPromise.then(result => {
+            const currentColumnProfiles = get(this._columnProfiles)
+
+            // TODO compare these to result and update the execution count if necessary
+
             this._columnProfiles.set(result);
             this._loadingNewData.set(false);
         });
@@ -103,13 +105,8 @@ export class ProfileModel {
     // ################################# State updates ############################################
     private async fetchColumnPromises(
         dfColMap: IDFColMap): Promise<IColumnProfileMap> {
-        //, set: (arg0: any) => void) {
         const colProfileMap: IColumnProfileMap = {};
         const alldf_names = Object.keys(dfColMap);
-
-        // TODO since this is a promise, it reloads every dataframe each time rather than only those that change.
-        // (I guess stores update everything with new promises)
-        // Maybe there is a way to not use a promise or only make calls when we know the dataframe has changed?
 
         const resolved_profiles = await Promise.all(
             alldf_names.map((dfName: string) => {
@@ -200,7 +197,6 @@ export class ProfileModel {
             resultData.push(cd);
         }
 
-        // console.log('[getColProfiles] FINISHED getting col profiles', resultData);
         return { profile: resultData, shape: shape };
     }
 
