@@ -1,71 +1,70 @@
 import type { ISessionContext } from '@jupyterlab/apputils';
-import type { KernelMessage } from '@jupyterlab/services';
+import { type Writable, writable } from 'svelte/store';
 import type { NotebookAPI } from './jupyter/notebook';
-
-import { dataFramesAndCols } from '../stores';
-
+import { PythonPandasExecutor } from './jupyter/PythonExecutor'
 import type {
-    IColTypeTuple,
     IDFColMap,
-    IQuantMeta,
-    IColMeta,
-    IHistogram,
-    ValueCount,
-    Interval
+    IColumnProfileMap,
+    ColumnProfileData,
+    IColumnProfileWrapper,
+    TimeColumnSummary,
+    TimeBin
 } from '../common/exchangeInterfaces';
-
-type ExecResult = { content: string[]; exec_count: number };
-
-function replaceSpecial(input_str: string) {
-    /*Format strings when writing code, need to escape double quotes (") 
-    since the code uses same character, single quotes are fine (') */
-
-    const res = input_str
-        .replace(/\\/g, '\\\\') // escape backslashes
-        .replace(/"/g, '\\"'); // escape double quotes
-    return res;
-}
+import {
+    NUMERICS,
+    TIMESTAMPS
+} from '../components/data-types/pandas-data-types';
 
 export class ProfileModel {
     // implements Executor
 
-    private _sessionContext: ISessionContext;
+    // private _sessionContext: ISessionContext;
     private _notebook: NotebookAPI;
-    private _ready = false;
+    private _ready: Writable<boolean> = writable(false);
+    private _columnProfiles: Writable<IColumnProfileMap> = writable(undefined)
+    private _loadingNewData: Writable<boolean> = writable(false);
+    private _executor: PythonPandasExecutor
+    private _name: Writable<string> = writable(undefined)
 
     constructor(session: ISessionContext) {
-        this._sessionContext = session; // starts null
+        this._executor = new PythonPandasExecutor(session)
     }
 
-    get ready(): boolean {
+    get ready(): Writable<boolean> {
         return this._ready;
     }
 
-    get session(): ISessionContext {
-        return this._sessionContext;
+    get loading(): Writable<boolean> {
+        return this._loadingNewData;
     }
 
-    public setSession(new_session: ISessionContext) {
-        this._sessionContext = new_session;
+    get executor(): PythonPandasExecutor {
+        return this._executor
     }
 
     get language(): Promise<string> | undefined {
-        return this.session?.session?.kernel?.info?.then(infoReply => {
+        return this.executor.session?.session?.kernel?.info?.then(infoReply => {
             return infoReply.language_info.name;
         });
     }
 
-    get name(): string {
-        return this.session?.name;
+    get name(): Writable<string> {
+        return this._name
+    }
+
+    get columnProfiles(): Writable<IColumnProfileMap> {
+        return this._columnProfiles
     }
 
     public async connectNotebook(notebook: NotebookAPI) {
         console.log('Connecting notebook to ProfilePanel');
         this._notebook = notebook;
-        this.setSession(notebook.panel.sessionContext);
+        this.executor.setSession(notebook.panel.sessionContext);
         this.resetData();
 
-        await this.session.ready;
+        await this.executor.session.ready;
+
+        this._name.set(this.executor.session.name)
         // have to do this as arrow function or else this doesnt work
         this._notebook.changed.connect((sender, value) => {
             // when cell is run, update data
@@ -74,475 +73,135 @@ export class ProfileModel {
             }
         });
         this.listenForRestart();
-        this._ready = true;
+        this._ready.set(true);
         this.updateRootData();
     }
 
     public async listenForRestart() {
-        this.session.session?.kernel.statusChanged.connect((_, status) => {
+        this.executor.session.session?.kernel.statusChanged.connect((_, status) => {
             if (status.endsWith('restarting')) {
-                // DO something
-                // console.log('[AutoProfile] resetting data on kernel restart.');
                 this.resetData();
             }
         });
     }
 
     public resetData() {
-        dataFramesAndCols.set(undefined);
+        this._columnProfiles.set(undefined);
     }
 
     public async updateRootData() {
-        const alldf = await this.getAllDataFrames();
-        dataFramesAndCols.set(alldf);
+        this._loadingNewData.set(true)
+        const alldf = await this.executor.getAllDataFrames();
+        const colPromise = this.fetchColumnPromises(alldf);
+
+        colPromise.then(result => {
+            this._columnProfiles.set(result);
+            this._loadingNewData.set(false);
+        });
     }
 
-    // #############################################################################
-    // Code execution helpers
+    // ################################# State updates ############################################
+    private async fetchColumnPromises(
+        dfColMap: IDFColMap): Promise<IColumnProfileMap> {
+        //, set: (arg0: any) => void) {
+        const colProfileMap: IColumnProfileMap = {};
+        const alldf_names = Object.keys(dfColMap);
 
-    private sendCodeToKernel(
-        code: string,
-        onReply?: (type: string, content: any) => void,
-        onDone?: (arg_0?: string) => void
-    ) {
-        // await this.ready
-        const future = this.session.session?.kernel?.requestExecute({
-            code,
-            stop_on_error: true,
-            store_history: false // prevents incrementing execution count for extension code
-        });
+        // TODO since this is a promise, it reloads every dataframe each time rather than only those that change.
+        // (I guess stores update everything with new promises)
+        // Maybe there is a way to not use a promise or only make calls when we know the dataframe has changed?
 
-        // this is the output of the execution, may return things multiple times as code runs
-        future.onIOPub = (msg: KernelMessage.IIOPubMessage) => {
-            const msg_type = msg.header.msg_type;
-
-            if (
-                msg_type === 'execute_result' ||
-                msg_type === 'display_data' ||
-                msg_type === 'update_display_data' ||
-                msg_type === 'stream'
-            ) {
-                if (onReply) {
-                    onReply(msg_type + '', msg.content);
-                }
-            }
-        };
-
-        // when execution is done
-        future.done.then(
-            reply => {
-                if (onDone) {
-                    onDone(reply.content.status);
-                }
-                // reply.content.execution_count // time this code was run
-            },
-            error => {
-                console.warn('Code run failed: ', error);
-                if (onDone) {
-                    onDone();
-                }
-            }
+        const resolved_profiles = await Promise.all(
+            alldf_names.map((dfName: string) => {
+                return this.getColProfiles(dfName, dfColMap);
+            })
         );
-    }
 
-    private async executeCode(code: string): Promise<ExecResult> {
-        // await this.ready;
-
-        return new Promise<ExecResult>(resolve => {
-            const response: ExecResult = {
-                content: [],
-                exec_count: null
-            };
-            const contentMatrix: string[][] = [];
-
-            const onReply = (type: string, content: any) => {
-                if (
-                    type === 'execute_result' ||
-                    type === 'display_data' ||
-                    type === 'update_display_data'
-                ) {
-                    const cont: string[] =
-                        content.data['text/plain'].split('\n');
-                    response.exec_count = content.execution_count; // does not exist on message for streams
-                    contentMatrix.push(cont);
-                } else if (type === 'stream') {
-                    const cont: string[] = content.text.split('\n');
-                    contentMatrix.push(cont);
-                }
-            };
-
-            const onDone = (status: string) => {
-                let flat_array = Array.prototype.concat(...contentMatrix);
-
-                /* prevent empty strings that happen from extra returns at end of print(), 
-                    this causes big issues if onReply() returns multiple times and the order 
-                    of code results gets thrown off. If future code intentionally prints blank
-                    lines this will cause other issues. */
-                flat_array = flat_array.filter(item => item !== '');
-                response['content'] = flat_array;
-                // console.log(`[executeCode] ${code} finished with status [${status}]. Response: `, response)
-                resolve(response);
-            };
-
-            this.sendCodeToKernel(code, onReply, onDone);
+        alldf_names.forEach((dfName, index) => {
+            colProfileMap[dfName] = resolved_profiles[index];
         });
+        return colProfileMap;
     }
 
-    // #############################################################################
-    // python data functions
+    private async getColProfiles(
+        dfName: string,
+        dfColMap: IDFColMap
+    ): Promise<IColumnProfileWrapper> {
+        const shape = await this.executor.getShape(dfName);
+        const colMetaInfoArr = dfColMap[dfName].columns;
+        const resultData: ColumnProfileData[] = [];
 
-    /**
-     * Gets all python variables, checks which ones are pandas dataframes, then returns these dataframe names
-     * and their columns along with the object id
-     * @returns
-     */
+        for (let j = 0; j < colMetaInfoArr.length; j++) {
+            const ci = colMetaInfoArr[j];
+            const col_name = ci.col_name;
+            const col_type = ci.col_type;
 
-    public async getAllDataFrames(): Promise<IDFColMap> {
-        await this.ready;
-        try {
-            const var_names = await this.getVariableNames();
+            // model calls
+            const rowVC = await this.executor.getValueCounts(dfName, col_name);
+            const colMd = await this.executor.getColMeta(dfName, col_name);
 
-            if (var_names) {
-                const isDF = await this.getDFVars(var_names);
-                const vars_DF = var_names.filter(
-                    (d, idx) => isDF[idx] === 'True'
-                );
+            const cd: ColumnProfileData = {
+                name: col_name,
+                type: col_type,
+                summary: {
+                    cardinality: colMd.numUnique,
+                    topK: rowVC
+                },
+                nullCount: colMd.nullCount,
+                example: rowVC[0]?.value
+            };
 
-                if (vars_DF) {
-                    // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
-                    const dfColMap: IDFColMap = {};
-                    const python_ids = await this.getObjectIds(vars_DF);
+            if (NUMERICS.has(col_type)) {
+                const chartData = await this.executor.getQuantBinnedData(dfName, col_name);
+                const statistics = await this.executor.getQuantMeta(dfName, col_name);
 
-                    for (let index = 0; index < vars_DF.length; index++) {
-                        const dfName = vars_DF[index];
-                        const columns = await this.getColumns(dfName);
+                cd.summary.statistics = statistics;
+                cd.summary.histogram = chartData;
+            } else if (TIMESTAMPS.has(col_type)) {
+                const chartData = await this.executor.getTempBinnedData(dfName, col_name);
+                cd.summary.histogram = chartData;
+                const interval = await this.executor.getTempInterval(dfName, col_name);
 
-                        // columns is array of strings
-                        const columnTuples: IColTypeTuple[] = columns.reduce(
-                            (totalArr, current_txt) => {
-                                if (current_txt !== 'dtype: object') {
-                                    const parts = current_txt.split(/\s+/);
+                // get max and min and calculate interval
+                const minDate = chartData[0]?.low
+                    ? new Date(chartData[0].low * 1000)
+                    : undefined;
 
-                                    const _name = parts.slice(0, -1)?.join(' ');
-                                    const _type = parts[parts.length - 1];
+                const maxDate = chartData[chartData.length - 1]?.high
+                    ? new Date(chartData[chartData.length - 1].high * 1000)
+                    : undefined;
 
-                                    if (_name && _type) {
-                                        totalArr.push({
-                                            col_name: _name,
-                                            col_type: _type
-                                        });
-                                    }
-                                }
-                                return totalArr;
-                            },
-                            []
-                        );
+                // Rollup to the right edge of each bin, except for 1st bin
+                const rolledUp: TimeBin[] = chartData.map(d => ({
+                    ts: new Date(d.high * 1000),
+                    count: d.count
+                }));
 
-                        dfColMap[dfName] = {
-                            columns: columnTuples,
-                            python_id: python_ids[index]
-                        };
-                    }
-                    return dfColMap;
+                if (rolledUp[0]) {
+                    rolledUp[0].ts = minDate;
                 }
+
+                const timeSummary: TimeColumnSummary = {
+                    interval,
+                    rollup: {
+                        results: rolledUp,
+                        spark: rolledUp,
+                        timeRange: {
+                            start: minDate,
+                            end: maxDate,
+                            interval: interval
+                        }
+                    }
+                };
+
+                cd.summary.timeSummary = timeSummary;
             }
-        } catch (error) {
-            console.warn('[Error caught] in getAllDataFrames', error);
-            return undefined;
+
+            resultData.push(cd);
         }
+
+        // console.log('[getColProfiles] FINISHED getting col profiles', resultData);
+        return { profile: resultData, shape: shape };
     }
 
-    public async getVariableNames(): Promise<string[]> {
-        try {
-            const code = '%who_ls'; // python magic command
-            const res = await this.executeCode(code);
-            const content = res['content'];
-            const data = content[0].replace(/'/g, '"');
-            const names = JSON.parse(data);
-            return names;
-        } catch (error) {
-            console.warn('[Error caught] in getVariableNames', error);
-            return [];
-        }
-    }
-
-    private async getDFVars(varNames: string[]): Promise<string[]> {
-        /*
-        Returns array of "True" or "False" if that variable is a pandas dataframe
-        */
-        try {
-            const code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
-            varNames.forEach(name =>
-                code_lines.push(`print(type(${name}) == pd.DataFrame)`)
-            );
-            const res = await this.executeCode(code_lines.join('\n'));
-            const content = res['content'];
-            return content;
-        } catch (error) {
-            console.warn('[Error caught] in getDFVars', error);
-            return [];
-        }
-    }
-
-    private async getObjectIds(varNames: string[]): Promise<string[]> {
-        /*
-        Returns array of python object ids for varNames. Used to see if id has changed and update interface.
-        */
-        try {
-            const code_lines = [];
-            varNames.forEach(name => code_lines.push(`print(id(${name}))`));
-            const res = await this.executeCode(code_lines.join('\n'));
-            const content = res['content'];
-            return content;
-        } catch (error) {
-            console.warn('[Error caught] in getObjectIds', error);
-            return [];
-        }
-    }
-
-    private async getColumns(varName: string): Promise<string[]> {
-        /*
-        varNames is array of variables that are pd.DataFrame
-        Returns array of "True" or "False" if that variable is a pandas dataframe
-        */
-        try {
-            const code = `print(${varName}.dtypes)`;
-            const res = await this.executeCode(code);
-            const content = res['content'];
-            return content;
-        } catch (error) {
-            console.warn('[Error caught] in getColumns', error);
-            return [];
-        }
-    }
-
-    public async getShape(dfName: string): Promise<number[]> {
-        /*
-        returns tuple array [length, width]
-        */
-        try {
-            const code = `print(${dfName}.shape)`; // returns '(3, 2)' so need to parse
-            const res = await this.executeCode(code);
-            const content = res['content'];
-            const shapeString = content[0];
-            return shapeString
-                .substring(1, shapeString.length - 1)
-                .split(',')
-                .map(x => parseFloat(x));
-        } catch (error) {
-            console.warn('[Error caught] in getShape', error);
-            return [undefined, undefined];
-        }
-    }
-
-    public async getQuantMeta(
-        dfName: string,
-        colName: string
-    ): Promise<IQuantMeta> {
-        try {
-            const code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].describe().to_json())`;
-            const res = await this.executeCode(code);
-            const content = res['content']; // might be null
-            const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
-
-            return {
-                min: parseFloat(json_res['min']),
-                q25: parseFloat(json_res['25%']),
-                q50: parseFloat(json_res['50%']),
-                q75: parseFloat(json_res['75%']),
-                max: parseFloat(json_res['max']),
-                mean: parseFloat(json_res['mean'])
-            };
-        } catch (error) {
-            console.warn('[Error caught] in getQuantMeta', error);
-            return {
-                min: undefined,
-                q25: undefined,
-                q50: undefined,
-                q75: undefined,
-                max: undefined,
-                mean: undefined
-            };
-        }
-    }
-
-    public async getColMeta(
-        dfName: string,
-        colName: string
-    ): Promise<IColMeta> {
-        try {
-            // Code to execute
-            const numUnique_code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].nunique())`;
-            const numNull_code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].isna().sum())`;
-            // execute and parse
-            const code_lines = [numUnique_code, numNull_code];
-            const res = await this.executeCode(code_lines.join('\n'));
-            const content = res['content'];
-            return {
-                numUnique: parseInt(content[0]),
-                nullCount: parseInt(content[1])
-            };
-        } catch (error) {
-            console.warn('[Error caught] in getColMeta', error);
-            return {
-                numUnique: undefined,
-                nullCount: undefined
-            };
-        }
-    }
-
-    public async getValueCounts(
-        dfName: string,
-        colName: string,
-        n = 10
-    ): Promise<ValueCount[]> {
-        /*
-         *   Returns data for VL spec to plot nominal data. In form of array of shape
-         *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
-         */
-        try {
-            const code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].value_counts().iloc[:${n}].to_json())`;
-            const res = await this.executeCode(code);
-            const data: ValueCount[] = [];
-            const content = res['content']; // might be null
-            const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
-            Object.keys(json_res).forEach(k => {
-                data.push({ value: k, count: json_res[k] });
-            });
-            return data;
-        } catch (error) {
-            console.warn('[Error caught] in getValueCounts', error);
-            return [];
-        }
-    }
-
-    public async getQuantBinnedData(
-        dfName: string,
-        colName: string,
-        maxbins = 10
-    ): Promise<IHistogram> {
-        /*
-         *   Returns data for VL spec to plot quant data. In form of array of shape
-         *   [ { "bin_0": 0, "bin_1": 1, "count": 5 }, ]
-         */
-        try {
-            const code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(
-                colName
-            )}"].nunique()), sort=False).to_json())`;
-            const res = await this.executeCode(code);
-            const content = res['content'];
-            const data: IHistogram = [];
-            const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
-
-            Object.keys(json_res).forEach((k, i) => {
-                const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
-                const [low, high] = cleank.split(',');
-                data.push({
-                    low: parseFloat(low),
-                    high: parseFloat(high),
-                    count: json_res[k],
-                    bucket: i
-                });
-            });
-            return data;
-        } catch (error) {
-            console.warn('[Error caught] in getQuantBinnedData', error);
-            return [];
-        }
-    }
-
-    /**
-     *
-     * Get histogram for temporal column in unix epoch format (UTC time)
-     * @param dfName: the dataframe
-     * @param colName: the temporal column
-     * @returns Histogram of format  [ { "low": 0, "high": 1, "count": 5, bucket: 0} ]
-     */
-    public async getTempBinnedData(
-        dfName: string,
-        colName: string,
-        maxbins = 100
-    ): Promise<IHistogram> {
-        try {
-            const bin_code = `print( (${dfName}["${replaceSpecial(
-                colName
-            )}"].astype("int")//1e9).value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(
-                colName
-            )}"].nunique()), sort=False).to_json() )`;
-
-            const min_value_code = `print((${dfName}["${replaceSpecial(
-                colName
-            )}"].astype("int") // 1e9).min())`;
-
-            const res = await this.executeCode(
-                [bin_code, min_value_code].join('\n')
-            );
-            const content = res['content'];
-            const data: IHistogram = [];
-            const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
-            const true_minimum = parseFloat(content[1]);
-
-            Object.keys(json_res).forEach((k, i) => {
-                const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
-                const [low, high] = cleank.split(',');
-
-                data.push({
-                    // Pandas extends the minimum bin an arbitrary number below the col's minimum so we shift the lowest bin boundary to the actual minimum
-                    low: i === 0 ? true_minimum : parseFloat(low),
-                    high: parseFloat(high),
-                    count: json_res[k],
-                    bucket: i
-                });
-            });
-            return data;
-        } catch (error) {
-            console.warn('[Error caught] in getTempBinnedData', error);
-            return [];
-        }
-    }
-
-    /**
-     * Get interval range of the temporal column.
-     * TODO only getting days right now so need to get months or microseconds
-     * @param dfName
-     * @param colName
-     * @returns Interval
-     */
-    public async getTempInterval(
-        dfName: string,
-        colName: string
-    ): Promise<Interval> {
-        try {
-            // Code to execute
-            const code = `print((${dfName}["${replaceSpecial(
-                colName
-            )}"].max() - ${dfName}["${replaceSpecial(colName)}"].min()).days)`;
-
-            // execute and parse
-            const res = await this.executeCode(code);
-            const content = res['content'];
-            return {
-                months: 0,
-                days: parseInt(content[0]),
-                micros: 0
-            };
-        } catch (error) {
-            console.warn('[Error caught] in getColMeta', error);
-            return {
-                months: 0,
-                days: 0,
-                micros: 0
-            };
-        }
-    }
 }
