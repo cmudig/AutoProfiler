@@ -256,7 +256,7 @@ export class PythonPandasExecutor {
             const code = `print(${dfName}.shape)`; // returns '(3, 2)' so need to parse
             const res = await this.executeCode(code);
             const content = res['content'];
-            const shapeString = content[0];
+            const shapeString = content.join("");
             return shapeString
                 .substring(1, shapeString.length - 1)
                 .split(',')
@@ -277,7 +277,7 @@ export class PythonPandasExecutor {
             )}"].describe().to_json())`;
             const res = await this.executeCode(code);
             const content = res['content']; // might be null
-            const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            const json_res = JSON.parse(content?.join("").replace(/'/g, '')); // remove single quotes bc not JSON parseable
 
             return {
                 min: parseFloat(json_res['min']),
@@ -345,7 +345,7 @@ export class PythonPandasExecutor {
             const res = await this.executeCode(code);
             const data: ValueCount[] = [];
             const content = res['content']; // might be null
-            const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            const json_res = JSON.parse(content?.join("").replace(/'/g, '')); // remove single quotes bc not JSON parseable
             Object.keys(json_res).forEach(k => {
                 data.push({ value: k, count: json_res[k] });
             });
@@ -374,7 +374,7 @@ export class PythonPandasExecutor {
             const res = await this.executeCode(code);
             const content = res['content'];
             const data: IHistogram = [];
-            const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            const json_res = JSON.parse(content.join().replace(/'/g, '')); // remove single quotes bc not JSON parseable
 
             Object.keys(json_res).forEach((k, i) => {
                 const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
@@ -465,7 +465,7 @@ export class PythonPandasExecutor {
             const content = res['content'];
             return {
                 months: 0,
-                days: parseInt(content[0]),
+                days: parseInt(content.join("")),
                 micros: 0
             };
         } catch (error) {
