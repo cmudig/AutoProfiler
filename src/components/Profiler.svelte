@@ -52,7 +52,10 @@
 
             <div>
                 {#each Object.keys($columnProfiles) as dfName}
-                    <DFProfile {dfName} />
+                    <DFProfile
+                        {dfName}
+                        dataframeProfile={$columnProfiles[dfName]}
+                    />
                 {/each}
             </div>
         {:else}

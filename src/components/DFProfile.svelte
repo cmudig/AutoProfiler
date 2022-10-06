@@ -1,11 +1,11 @@
 <script lang="ts">
+    import { CollapsibleCard } from 'svelte-collapsible';
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
-    import { CollapsibleCard } from 'svelte-collapsible';
-
-    import { columnProfiles } from '../stores';
+    import type { IColumnProfileWrapper } from '../common/exchangeInterfaces';
 
     export let dfName: string;
+    export let dataframeProfile: IColumnProfileWrapper;
 
     // locals
     let previewView = 'summaries';
@@ -24,14 +24,14 @@
             <p class="inline-block font-bold">{dfName}</p>
 
             <p class="inline-block">
-                {$columnProfiles[dfName].shape?.[0]} x
-                {$columnProfiles[dfName].shape?.[1]}
+                {dataframeProfile?.shape?.[0]} x
+                {dataframeProfile?.shape?.[1]}
             </p>
         </div>
 
         <div slot="body" class="dfprofile-body">
             <div bind:clientWidth={profileWidth} class="col-profiles">
-                {#each $columnProfiles[dfName].profile as column}
+                {#each dataframeProfile?.profile as column}
                     <ColumnProfile
                         example={column.example}
                         name={column.name}
@@ -40,7 +40,7 @@
                         nullCount={column.nullCount}
                         containerWidth={profileWidth}
                         view={previewView}
-                        totalRows={$columnProfiles[dfName].shape?.[0]}
+                        totalRows={dataframeProfile?.shape?.[0]}
                     />
                 {/each}
             </div>
