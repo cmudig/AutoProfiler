@@ -78,6 +78,7 @@
             class:hidden={view !== 'summaries'}
         >
             <div class="flex items-center" style:width="{summaryWidthSize}px">
+                <!-- Distribution preview -->
                 <!-- check to see if the summary has cardinality. Otherwise do not show these values.-->
                 {#if totalRows}
                     {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.cardinality}
@@ -114,11 +115,12 @@
                 style:width="{config.nullPercentageWidth}px"
                 class:hidden={hideNullPercentage}
             >
+                <!-- Number of nulls -->
                 {#if totalRows !== 0 && totalRows !== undefined && nullCount !== undefined}
                     <BarAndLabel
                         title={name}
                         showBackground={nullCount !== 0}
-                        color={DATA_TYPE_COLORS[type].bgClass}
+                        color={'numNullsColor'}
                         value={nullCount / totalRows || 0}
                     >
                         <span class:text-gray-300={nullCount === 0}
