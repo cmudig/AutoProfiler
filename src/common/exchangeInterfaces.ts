@@ -19,6 +19,7 @@ export type IColumnProfileMap = {
 export type IColumnProfileWrapper = {
     profile: ColumnProfileData[];
     shape: number[];
+    python_id: string;
     lastUpdatedExCount?: number
 };
 

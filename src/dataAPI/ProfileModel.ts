@@ -160,6 +160,7 @@ export class ProfileModel {
     ): Promise<IColumnProfileWrapper> {
         const shape = await this.executor.getShape(dfName);
         const colMetaInfoArr = dfColMap[dfName].columns;
+        const python_id = dfColMap[dfName].python_id;
         const resultData: ColumnProfileData[] = [];
 
         for (let j = 0; j < colMetaInfoArr.length; j++) {
@@ -235,7 +236,7 @@ export class ProfileModel {
             resultData.push(cd);
         }
 
-        return { profile: resultData, shape: shape };
+        return { profile: resultData, shape: shape, python_id };
     }
 
 }
