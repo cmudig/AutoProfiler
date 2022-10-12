@@ -14,6 +14,7 @@ import {
     NUMERICS,
     TIMESTAMPS
 } from '../components/data-types/pandas-data-types';
+import _ from 'lodash';
 
 export class ProfileModel {
 
@@ -90,16 +91,20 @@ export class ProfileModel {
     public async updateRootData() {
         this._loadingNewData.set(true)
         const alldf = await this.executor.getAllDataFrames();
-        const colPromise = this.fetchColumnPromises(alldf);
 
-        colPromise.then(result => {
-            const currentColumnProfiles = get(this._columnProfiles)
+        // only update if we have detected dataframes
+        if (!_.isEmpty(alldf)) {
+            const colPromise = this.fetchColumnPromises(alldf);
 
-            // TODO compare these to result and update the execution count if necessary
+            colPromise.then(result => {
+                const currentColumnProfiles = get(this._columnProfiles)
 
-            this._columnProfiles.set(result);
-            this._loadingNewData.set(false);
-        });
+                // TODO compare these to result and update the execution count if necessary
+
+                this._columnProfiles.set(result);
+                this._loadingNewData.set(false);
+            });
+        }
     }
 
     // ################################# State updates ############################################
