@@ -153,51 +153,55 @@ export class ProfileModel {
                 example: rowVC[0]?.value
             };
 
-            if (NUMERICS.has(col_type)) {
-                const chartData = await this.executor.getQuantBinnedData(dfName, col_name);
-                const statistics = await this.executor.getQuantMeta(dfName, col_name);
+            // need at least 1 row to calculate these
+            if (shape[0] > 0) {
+                if (NUMERICS.has(col_type)) {
+                    const chartData = await this.executor.getQuantBinnedData(dfName, col_name);
+                    const statistics = await this.executor.getQuantMeta(dfName, col_name);
 
-                cd.summary.statistics = statistics;
-                cd.summary.histogram = chartData;
-            } else if (TIMESTAMPS.has(col_type)) {
-                const chartData = await this.executor.getTempBinnedData(dfName, col_name);
-                cd.summary.histogram = chartData;
-                const interval = await this.executor.getTempInterval(dfName, col_name);
+                    cd.summary.statistics = statistics;
+                    cd.summary.histogram = chartData;
+                } else if (TIMESTAMPS.has(col_type)) {
+                    const chartData = await this.executor.getTempBinnedData(dfName, col_name);
+                    cd.summary.histogram = chartData;
+                    const interval = await this.executor.getTempInterval(dfName, col_name);
 
-                // get max and min and calculate interval
-                const minDate = chartData[0]?.low
-                    ? new Date(chartData[0].low * 1000)
-                    : undefined;
+                    // get max and min and calculate interval
+                    const minDate = chartData[0]?.low
+                        ? new Date(chartData[0].low * 1000)
+                        : undefined;
 
-                const maxDate = chartData[chartData.length - 1]?.high
-                    ? new Date(chartData[chartData.length - 1].high * 1000)
-                    : undefined;
+                    const maxDate = chartData[chartData.length - 1]?.high
+                        ? new Date(chartData[chartData.length - 1].high * 1000)
+                        : undefined;
 
-                // Rollup to the right edge of each bin, except for 1st bin
-                const rolledUp: TimeBin[] = chartData.map(d => ({
-                    ts: new Date(d.high * 1000),
-                    count: d.count
-                }));
+                    // Rollup to the right edge of each bin, except for 1st bin
+                    const rolledUp: TimeBin[] = chartData.map(d => ({
+                        ts: new Date(d.high * 1000),
+                        count: d.count
+                    }));
 
-                if (rolledUp[0]) {
-                    rolledUp[0].ts = minDate;
-                }
-
-                const timeSummary: TimeColumnSummary = {
-                    interval,
-                    rollup: {
-                        results: rolledUp,
-                        spark: rolledUp,
-                        timeRange: {
-                            start: minDate,
-                            end: maxDate,
-                            interval: interval
-                        }
+                    if (rolledUp[0]) {
+                        rolledUp[0].ts = minDate;
                     }
-                };
 
-                cd.summary.timeSummary = timeSummary;
+                    const timeSummary: TimeColumnSummary = {
+                        interval,
+                        rollup: {
+                            results: rolledUp,
+                            spark: rolledUp,
+                            timeRange: {
+                                start: minDate,
+                                end: maxDate,
+                                interval: interval
+                            }
+                        }
+                    };
+
+                    cd.summary.timeSummary = timeSummary;
+                }
             }
+
 
             resultData.push(cd);
         }
