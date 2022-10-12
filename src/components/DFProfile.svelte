@@ -3,6 +3,8 @@
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
     import type { IColumnProfileWrapper } from '../common/exchangeInterfaces';
+    import Tooltip from './tooltip/Tooltip.svelte';
+    import TooltipContent from './tooltip/TooltipContent.svelte';
 
     export let dfName: string;
     export let dataframeProfile: IColumnProfileWrapper;
@@ -26,9 +28,16 @@
             </p>
             <div class="flex justify-end">
                 {#if dataframeProfile.lastUpdatedExCount}
-                    <p>
-                        Updated at {dataframeProfile.lastUpdatedExCount}
-                    </p>
+                    <Tooltip location="top" distance={8}>
+                        <span class="font-mono bold text-gray-500">
+                            [{dataframeProfile.lastUpdatedExCount}]
+                        </span>
+                        <TooltipContent slot="tooltip-content">
+                            Last updated in cell <span class="font-mono bold">
+                                [{dataframeProfile.lastUpdatedExCount}]
+                            </span>
+                        </TooltipContent>
+                    </Tooltip>
                 {/if}
             </div>
         </div>
