@@ -1,6 +1,8 @@
 # AutoProfile
 
-Profile your Pandas Dataframes! Autoprofiler will automatically visualize your Pandas dataframes after every execution, no extra code necessary.
+[![PyPi](https://img.shields.io/pypi/v/digautoprofile.svg)](https://pypi.org/project/digautoprofile/)
+
+Profile your [Pandas](https://pandas.pydata.org) Dataframes! Autoprofiler will automatically visualize your Pandas dataframes after every execution, no extra code necessary.
 
 Autoprofiler shows you things like:
 
@@ -24,7 +26,7 @@ Autoprofiler reads your current Jupyter notebook and produces profiles for the P
 ## Install
 
 ```bash
-pip install digautoprofile
+pip install -U digautoprofile
 ```
 
 For development install instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
