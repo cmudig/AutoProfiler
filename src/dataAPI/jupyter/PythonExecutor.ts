@@ -147,28 +147,7 @@ export class PythonPandasExecutor {
 
                     for (let index = 0; index < vars_DF.length; index++) {
                         const dfName = vars_DF[index];
-                        const columns = await this.getColumns(dfName);
-
-                        // columns is array of strings
-                        const columnTuples: IColTypeTuple[] = columns.reduce(
-                            (totalArr, current_txt) => {
-                                if (current_txt !== 'dtype: object') {
-                                    const parts = current_txt.split(/\s+/);
-
-                                    const _name = parts.slice(0, -1)?.join(' ');
-                                    const _type = parts[parts.length - 1];
-
-                                    if (_name && _type) {
-                                        totalArr.push({
-                                            col_name: _name,
-                                            col_type: _type
-                                        });
-                                    }
-                                }
-                                return totalArr;
-                            },
-                            []
-                        );
+                        const columnTuples = await this.getColumns(dfName);
 
                         dfColMap[dfName] = {
                             columns: columnTuples,
@@ -232,16 +211,24 @@ export class PythonPandasExecutor {
         }
     }
 
-    private async getColumns(varName: string): Promise<string[]> {
+    private async getColumns(varName: string): Promise<IColTypeTuple[]> {
         /*
         varNames is array of variables that are pd.DataFrame
         Returns array of "True" or "False" if that variable is a pandas dataframe
         */
         try {
-            const code = `print(${varName}.dtypes)`;
+            const code = `print(${varName}.dtypes.to_json(default_handler=str))`;
             const res = await this.executeCode(code);
-            const content = res['content'];
-            return content;
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content?.join(""));
+
+            const columnsWithTypes: IColTypeTuple[] = []
+
+            for (const [key, value] of Object.entries(json_res)) {
+                columnsWithTypes.push({ "col_name": key, "col_type": (value as string) })
+            }
+
+            return columnsWithTypes
         } catch (error) {
             console.warn('[Error caught] in getColumns', error);
             return [];
