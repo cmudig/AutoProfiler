@@ -33,7 +33,6 @@
 </script>
 
 <div
-    title={type}
     class="
     {color}
     grid place-items-center rounded"

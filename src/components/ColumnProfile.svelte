@@ -91,7 +91,6 @@
                 {#if totalRows}
                     {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.cardinality}
                         <BarAndLabel
-                            title={name}
                             color={DATA_TYPE_COLORS[type].bgClass}
                             value={summary?.cardinality / totalRows}
                         >
@@ -127,7 +126,6 @@
                 {#if totalRows !== 0 && totalRows !== undefined && nullCount !== undefined}
                     <Tooltip location="right" alignment="center" distance={8}>
                         <BarAndLabel
-                            title={name}
                             showBackground={nullCount !== 0}
                             color={'numNullsColor'}
                             value={nullCount / totalRows || 0}
