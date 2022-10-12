@@ -13,6 +13,7 @@
      * The graph will contain an unsmoothed series (showing noise * abnormalities) by default, and
      * a smoothed series (showing the trend) if the time series merits it.
      */
+    import _ from 'lodash';
     import { onMount, setContext } from 'svelte';
     import { guidGenerator } from '../../utils/guid';
     import { spring } from 'svelte/motion';
@@ -299,7 +300,13 @@
 </script>
 
 <div style:width="100%">
-    <TimestampProfileSummary {interval} />
+    <TimestampProfileSummary
+        {interval}
+        numZoomedRows={zoomedRows}
+        numTotalRows={~~data.reduce((a, b) => a + b[yAccessor], 0)}
+        zoomed={!_.isUndefined($zoomCoords.start.x) ||
+            !_.isUndefined(zoomedXStart)}
+    />
     <svg
         width="100%"
         {height}
