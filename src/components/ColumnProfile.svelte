@@ -14,6 +14,8 @@
         DATA_TYPE_COLORS,
         BOOLEANS
     } from './data-types/pandas-data-types';
+    import Tooltip from './tooltip/Tooltip.svelte';
+    import TooltipContent from './tooltip/TooltipContent.svelte';
 
     import Histogram from './viz/histogram/SmallHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
@@ -59,7 +61,13 @@
 <!-- pl-10 -->
 <ColumnEntry {hideRight} bind:active hoverKey={name}>
     <svelte:fragment slot="icon">
-        <DataTypeIcon {type} />
+        <Tooltip location="left" distance={16}>
+            <DataTypeIcon {type} />
+
+            <TooltipContent slot="tooltip-content">
+                {type}
+            </TooltipContent>
+        </Tooltip>
     </svelte:fragment>
 
     <svelte:fragment slot="left">
@@ -117,16 +125,29 @@
             >
                 <!-- Number of nulls -->
                 {#if totalRows !== 0 && totalRows !== undefined && nullCount !== undefined}
-                    <BarAndLabel
-                        title={name}
-                        showBackground={nullCount !== 0}
-                        color={'numNullsColor'}
-                        value={nullCount / totalRows || 0}
-                    >
-                        <span class:text-gray-300={nullCount === 0}
-                            >∅ {percentage(nullCount / totalRows)}</span
+                    <Tooltip location="right" alignment="center" distance={8}>
+                        <BarAndLabel
+                            title={name}
+                            showBackground={nullCount !== 0}
+                            color={'numNullsColor'}
+                            value={nullCount / totalRows || 0}
                         >
-                    </BarAndLabel>
+                            <span class:text-gray-300={nullCount === 0}
+                                >∅ {percentage(nullCount / totalRows)}</span
+                            >
+                        </BarAndLabel>
+                        <TooltipContent slot="tooltip-content">
+                            <svelte:fragment slot="title">
+                                what percentage of values are null?
+                            </svelte:fragment>
+                            {#if nullCount > 0}
+                                {percentage(nullCount / totalRows)} of the values
+                                are null
+                            {:else}
+                                no null values in this column
+                            {/if}
+                        </TooltipContent>
+                    </Tooltip>
                 {/if}
             </div>
         </div>
