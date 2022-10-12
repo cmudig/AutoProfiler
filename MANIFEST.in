@@ -18,6 +18,7 @@ prune binder
 
 # extra rules to make match vc
 graft examples
+prune .vscode
 
 # Patterns to exclude from any directory
 global-exclude *~
