@@ -346,7 +346,7 @@ export class PythonPandasExecutor {
     public async getQuantBinnedData(
         dfName: string,
         colName: string,
-        maxbins = 10
+        maxbins = 20
     ): Promise<IHistogram> {
         /*
          *   Returns data for VL spec to plot quant data. In form of array of shape
