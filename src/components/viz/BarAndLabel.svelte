@@ -36,4 +36,8 @@
         mix-blend-mode: multiply;
         pointer-events: none;
     }
+
+    .numNullsColor {
+        background-color: #e5e7eb;
+    }
 </style>
