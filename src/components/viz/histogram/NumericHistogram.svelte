@@ -25,7 +25,6 @@
     let histogramID = guidGenerator();
 
     $: effectiveWidth = Math.max(width - 8, 120);
-    $: console.log('Numeric effective width: ', effectiveWidth);
 
     // function transformValue(value, valueType) {
     //     if (valueType === 'mean') {
