@@ -172,34 +172,38 @@
                 class="pt-3 pb-3 pl-8 pr-4 w-full"
             >
                 <div bind:clientWidth={wrapperDivWidth}>
-                    {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.topK}
-                        <TopKSummary
-                            containerWidth={wrapperDivWidth}
-                            color={DATA_TYPE_COLORS[type].bgClass}
-                            {totalRows}
-                            topK={summary.topK}
-                        />
-                    {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
-                        <NumericHistogram
-                            width={wrapperDivWidth}
-                            height={65}
-                            data={summary.histogram}
-                            min={summary.statistics.min}
-                            qlow={summary.statistics.q25}
-                            median={summary.statistics.q50}
-                            qhigh={summary.statistics.q75}
-                            mean={summary.statistics.mean}
-                            max={summary.statistics.max}
-                        />
-                    {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
-                        <TimestampDetail
-                            data={summary?.timeSummary.rollup.results}
-                            xAccessor="ts"
-                            yAccessor="count"
-                            height={160}
-                            width={wrapperDivWidth}
-                            interval={summary?.timeSummary.interval}
-                        />
+                    {#if totalRows !== 0 && nullCount !== totalRows}
+                        {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.topK}
+                            <TopKSummary
+                                containerWidth={wrapperDivWidth}
+                                color={DATA_TYPE_COLORS[type].bgClass}
+                                {totalRows}
+                                topK={summary.topK}
+                            />
+                        {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
+                            <NumericHistogram
+                                width={wrapperDivWidth}
+                                height={65}
+                                data={summary.histogram}
+                                min={summary.statistics.min}
+                                qlow={summary.statistics.q25}
+                                median={summary.statistics.q50}
+                                qhigh={summary.statistics.q75}
+                                mean={summary.statistics.mean}
+                                max={summary.statistics.max}
+                            />
+                        {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
+                            <TimestampDetail
+                                data={summary?.timeSummary.rollup.results}
+                                xAccessor="ts"
+                                yAccessor="count"
+                                height={160}
+                                width={wrapperDivWidth}
+                                interval={summary?.timeSummary.interval}
+                            />
+                        {/if}
+                    {:else}
+                        <p>No values to show for this column</p>
                     {/if}
                 </div>
             </div>

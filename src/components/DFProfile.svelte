@@ -31,18 +31,22 @@
 
         <div slot="body" class="dfprofile-body">
             <div bind:clientWidth={profileWidth} class="col-profiles">
-                {#each dataframeProfile?.profile as column}
-                    <ColumnProfile
-                        example={column.example}
-                        name={column.name}
-                        type={column.type}
-                        summary={column.summary}
-                        nullCount={column.nullCount}
-                        containerWidth={profileWidth}
-                        view={previewView}
-                        totalRows={dataframeProfile?.shape?.[0]}
-                    />
-                {/each}
+                {#if dataframeProfile?.shape?.[1] > 0}
+                    {#each dataframeProfile?.profile as column}
+                        <ColumnProfile
+                            example={column.example}
+                            name={column.name}
+                            type={column.type}
+                            summary={column.summary}
+                            nullCount={column.nullCount}
+                            containerWidth={profileWidth}
+                            view={previewView}
+                            totalRows={dataframeProfile?.shape?.[0]}
+                        />
+                    {/each}
+                {:else}
+                    <p class="pl-8">No columns!</p>
+                {/if}
             </div>
         </div>
     </CollapsibleCard>
