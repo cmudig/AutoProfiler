@@ -70,6 +70,10 @@ export class ProfileModel {
             if (value === 'cell run') {
                 this.updateRootData();
             }
+
+            if (value == "name") {
+                this.name.set(this._notebook.name)
+            }
         });
         this.listenForRestart();
         this._ready.set(true);
