@@ -156,6 +156,7 @@
                             {totalRows}
                             topK={summary.topK}
                         />
+                        <p>{summary.textfact.description}</p>
                     {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
                         <NumericHistogram
                             width={wrapperDivWidth}
@@ -168,6 +169,7 @@
                             mean={summary.statistics.mean}
                             max={summary.statistics.max}
                         />
+                        <p>{summary.textfact.description}</p>
                     {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
                         <TimestampDetail
                             data={summary?.timeSummary.rollup.results}
