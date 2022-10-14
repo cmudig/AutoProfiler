@@ -7,7 +7,9 @@ import type {
     IColMeta,
     IHistogram,
     ValueCount,
-    Interval
+    Interval,
+    ICatMeta,
+    TextFact
 } from '../../common/exchangeInterfaces';
 
 type ExecResult = { content: string[]; exec_count: number };
@@ -264,6 +266,87 @@ export class PythonPandasExecutor {
         } catch (error) {
             console.warn('[Error caught] in getShape', error);
             return [undefined, undefined];
+        }
+    }
+
+    public async textFormat(
+        dfName: string,
+        colName: string,
+        type:string,
+    ): Promise<TextFact> {
+        try {
+            if (type == "N") {
+                const describe_code = `print(${dfName}["${replaceSpecial(
+                    colName
+                )}"].describe().to_json())`;
+                const res = await this.executeCode(describe_code);
+                const content = res['content']; // might be null
+                const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
+                const min = parseFloat(json_res['min'])
+                const q25 = parseFloat(json_res['25%'])
+                const q50 = parseFloat(json_res['50%'])
+                const q75 = parseFloat(json_res['75%'])
+                const max = parseFloat(json_res['max'])
+                const mean= parseFloat(json_res['mean'])
+                return {
+                    name: colName,
+                    description: colName+ " has a minimum of "+(min.toString()) + " and maximum of " + 
+                    (max.toString()) + " with a median of " + q50.toString() +". It has a mean of " + mean.toString() + ".",
+                    extra: undefined
+                };
+            } else if (type == "C") {
+                const info = this.getCatMeta(dfName,colName);
+                const count = (await info).count
+                const unique= (await info).unique
+                const top = (await info).top
+                const freq = (await info).freq
+                const percent = (freq/count)*100
+                return {
+                    name: colName,
+                    description: colName+ " has "+(count.toString()) + " entries with " + (unique.toString()) + " unique categories. " 
+                    + (top.toString()) + " is the top category with " +  freq.toString() + " entries out of " + count.toString() + 
+                   " ("+percent.toString()+"%).",
+                   extra: undefined
+                }
+            }
+        } catch (error) {
+            console.warn('[Error caught] in Text Fact', error);
+            return {
+                name: undefined,
+                description: undefined,
+                extra: undefined
+            };
+        }
+
+    }
+    
+
+    public async getCatMeta(
+        dfName: string,
+        colName: string
+    ): Promise<ICatMeta> {
+        try {
+            const code = `print(${dfName}["${replaceSpecial(
+                colName
+            )}"].describe().to_json())`;
+            const res = await this.executeCode(code);
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            console.log(json_res)
+            return {
+                count: parseInt(json_res['count']),
+                unique: parseInt(json_res['unique']),
+                top: (json_res['top']),
+                freq: parseInt(json_res['freq']),
+            };
+        } catch (error) {
+            console.warn('[Error caught] in getCatMeta', error);
+            return {
+                count: undefined,
+                unique: undefined,
+                top: undefined,
+                freq: undefined,
+            };
         }
     }
 
