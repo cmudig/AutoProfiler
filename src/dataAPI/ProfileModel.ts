@@ -151,9 +151,13 @@ export class ProfileModel {
             if (NUMERICS.has(col_type)) {
                 const chartData = await this.executor.getQuantBinnedData(dfName, col_name);
                 const statistics = await this.executor.getQuantMeta(dfName, col_name);
+                const fact = await this.executor.textFormat(dfName, col_name,"N");
+
 
                 cd.summary.statistics = statistics;
                 cd.summary.histogram = chartData;
+                cd.summary.textfact = fact;
+                //console.log(cd.summary.textfact.description)
             } else if (TIMESTAMPS.has(col_type)) {
                 const chartData = await this.executor.getTempBinnedData(dfName, col_name);
                 cd.summary.histogram = chartData;
@@ -192,6 +196,10 @@ export class ProfileModel {
                 };
 
                 cd.summary.timeSummary = timeSummary;
+            } else {
+                const fact = await this.executor.textFormat(dfName, col_name,"C");
+                cd.summary.textfact = fact;
+                //console.log(fact.description)
             }
 
             resultData.push(cd);
