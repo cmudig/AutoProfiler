@@ -24,6 +24,7 @@ export class ProfileModel {
     private _loadingNewData: Writable<boolean> = writable(false);
     private _executor: PythonPandasExecutor
     private _name: Writable<string> = writable(undefined)
+    private _varsInCurrentCell: Writable<string[]> = writable([])
 
     constructor(session: ISessionContext) {
         this._executor = new PythonPandasExecutor(session)
@@ -55,6 +56,11 @@ export class ProfileModel {
         return this._columnProfiles
     }
 
+    get variablesInCurrentCell(): Writable<string[]> {
+        return this._varsInCurrentCell
+    }
+
+
     public async connectNotebook(notebook: NotebookAPI) {
         console.log('Connecting notebook to ProfilePanel');
         this._notebook = notebook;
@@ -73,6 +79,10 @@ export class ProfileModel {
 
             if (value == "name") {
                 this.name.set(this._notebook.name)
+            }
+
+            if (value == "activeCell") {
+                this.handleCellSelect()
             }
         });
         this.listenForRestart();
@@ -109,6 +119,20 @@ export class ProfileModel {
                 this._loadingNewData.set(false);
             });
         }
+    }
+
+    private async handleCellSelect() {
+        const cellCode = this._notebook.activeCell.text
+        const variablesInCell = await this._executor.getVariableNamesInPythonStr(cellCode)
+
+        // determine which ones are actual dataframes
+        const profiles = get(this.columnProfiles)
+        if (profiles) {
+            const dfNames = Object.keys(profiles)
+            const dfNamesInSelection = variablesInCell.filter(value => dfNames.includes(value));
+            this.variablesInCurrentCell.set(dfNamesInSelection)
+        }
+
     }
 
     // ################################# State updates ############################################

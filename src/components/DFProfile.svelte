@@ -6,6 +6,7 @@
 
     export let dfName: string;
     export let dataframeProfile: IColumnProfileWrapper;
+    export let isInFocus = false;
 
     // locals
     let previewView = 'summaries';
@@ -17,16 +18,18 @@
 
 <div>
     <CollapsibleCard bind:open={expanded}>
-        <div slot="header" class="dfprofile-header">
-            <div class="inline-block">
-                <ExpanderButton rotated={expanded} />
-            </div>
-            <p class="inline-block font-bold">{dfName}</p>
+        <div slot="header" class="dfprofile-header flex gap-1 items-center">
+            <ExpanderButton rotated={expanded} />
 
-            <p class="inline-block">
-                {dataframeProfile?.shape?.[0]} x
-                {dataframeProfile?.shape?.[1]}
+            <p class="font-bold">{dfName}</p>
+
+            <p class="grow">
+                {dataframeProfile?.shape?.[0]} x {dataframeProfile?.shape?.[1]}
             </p>
+
+            {#if isInFocus}
+                <div class="focusIndicator justify-end" />
+            {/if}
         </div>
 
         <div slot="body" class="dfprofile-body">
@@ -64,5 +67,12 @@
 
     .dfprofile-body {
         display: flex;
+    }
+
+    .focusIndicator {
+        height: 10px;
+        width: 10px;
+        background-color: #1976d2;
+        border-radius: 2px;
     }
 </style>

@@ -464,4 +464,30 @@ export class PythonPandasExecutor {
             };
         }
     }
+
+    public async getVariableNamesInPythonStr(codeString: string): Promise<string[]> {
+        try {
+            const formattedCode = codeString.replace(/"/g, '\\"');
+            const codeLines = [
+                "import tokenize, io",
+                `print(set([ t.string for t in tokenize.generate_tokens(io.StringIO("${formattedCode}").readline) if t.type == 1]))`
+            ]
+
+            const code = codeLines.join("\n")
+
+            const res = await this.executeCode(code)
+            let content = res["content"].join("")
+            content = content.replace(/'/g, '"') // replace single quotes
+            content = content.replace('{', '[')
+            content = content.replace('}', ']')
+
+            const vars = JSON.parse(content)
+
+            return vars
+
+        } catch (error) {
+            return []
+        }
+
+    }
 }
