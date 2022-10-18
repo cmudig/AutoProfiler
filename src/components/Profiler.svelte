@@ -14,6 +14,7 @@
     let isLoading: boolean;
     let columnProfiles: IColumnProfileMap;
     let name: string;
+    let varsInCurrentCell: string[];
 
     const readyUnsub = profileModel.ready.subscribe(val => {
         isReady = val;
@@ -31,11 +32,18 @@
         name = val;
     });
 
+    const varsInCellUnsub = profileModel.variablesInCurrentCell.subscribe(
+        val => {
+            varsInCurrentCell = val;
+        }
+    );
+
     onDestroy(() => {
         readyUnsub();
         loadingUnsub();
         cpUnsub();
         nameUnsub();
+        varsInCellUnsub();
     });
 </script>
 
@@ -75,6 +83,7 @@
                 {#each Object.keys(columnProfiles) as dfName}
                     <DFProfile
                         {dfName}
+                        isInFocus={varsInCurrentCell.includes(dfName)}
                         dataframeProfile={columnProfiles[dfName]}
                     />
                 {/each}
