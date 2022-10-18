@@ -470,7 +470,7 @@ export class PythonPandasExecutor {
             const formattedCode = codeString.replace(/"/g, '\\"');
             const codeLines = [
                 "import tokenize, io",
-                `print(set([ t.string for t in tokenize.generate_tokens(io.StringIO("${formattedCode}").readline) if t.type == 1]))`
+                `print(set([ t.string for t in tokenize.generate_tokens(io.StringIO("""${formattedCode}""").readline) if t.type == 1]))`
             ]
 
             const code = codeLines.join("\n")
