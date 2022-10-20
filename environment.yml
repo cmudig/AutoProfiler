@@ -1,0 +1,8 @@
+name: autoprofiler-env
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - pip
+  - pip:
+    - digautoprofile
