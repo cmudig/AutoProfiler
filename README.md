@@ -1,6 +1,7 @@
 # AutoProfile
 
 [![PyPi](https://img.shields.io/pypi/v/digautoprofile.svg)](https://pypi.org/project/digautoprofile/)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfile/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb)
 
 Profile your [Pandas](https://pandas.pydata.org) Dataframes! Autoprofiler will automatically visualize your Pandas dataframes after every execution, no extra code necessary.
 
@@ -10,9 +11,18 @@ Autoprofiler shows you things like:
 -   Sample values
 -   Summary statistics
 
-![screenshot of autoprofile](https://raw.githubusercontent.com/cmudig/AutoProfile/main/.github/screenshots/profiler_sc.png)
+## Install
+
+To instally locally use pip:
+```bash
+pip install -U digautoprofile
+```
+
+Or you can try out a hosted notebook with `digautoprofile` pre-insalled on binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfile/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb)
+
 
 ## Updates profiles as your data updates
+![screenshot of autoprofile](https://raw.githubusercontent.com/cmudig/AutoProfile/main/.github/screenshots/profiler_sc.png)
 
 Autoprofiler reads your current Jupyter notebook and produces profiles for the Pandas Dataframes in your memory as they change.
 
@@ -23,11 +33,6 @@ Autoprofiler reads your current Jupyter notebook and produces profiles for the P
 -   JupyterLab >= 3.0
 -   Pandas
 
-## Install
-
-```bash
-pip install -U digautoprofile
-```
 
 For development install instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
