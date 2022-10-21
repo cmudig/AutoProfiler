@@ -18,7 +18,7 @@ To instally locally use pip:
 pip install -U digautoprofile
 ```
 
-Or you can try out a hosted notebook with `digautoprofile` pre-insalled on binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfile/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb)
+Or you can try out a hosted notebook with `digautoprofile` pre-installed on binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfile/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb)
 
 
 ## Updates profiles as your data updates
