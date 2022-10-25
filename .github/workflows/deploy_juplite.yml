@@ -39,7 +39,7 @@ jobs:
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{steps.deployment.outputs.page_url}}/notebook
 
     runs-on: ubuntu-latest
     steps:
