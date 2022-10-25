@@ -395,13 +395,13 @@ export class PythonPandasExecutor {
         try {
             const bin_code = `print( (${dfName}["${replaceSpecial(
                 colName
-            )}"].astype("int")//1e9).value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(
+            )}"].astype("int64")//1e9).value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(
                 colName
             )}"].nunique()), sort=False).to_json() )`;
 
             const min_value_code = `print((${dfName}["${replaceSpecial(
                 colName
-            )}"].astype("int") // 1e9).min())`;
+            )}"].astype("int64") // 1e9).min())`;
 
             const res = await this.executeCode(
                 [bin_code, min_value_code].join('\n')
