@@ -13,13 +13,13 @@ HERE = Path(__file__).parent.resolve()
 # Get the package info from package.json
 pkg_json = json.loads((HERE / "package.json").read_bytes())
 
-# with open((HERE / "requirements.txt")) as fp:
-#     install_requires = fp.read()
+with open((HERE / "requirements.txt")) as fp:
+    install_requires = fp.read()
 
-install_requires = [
-    "jupyterlab>=3.3.3",
-    "pandas>=1.4.2"
-]
+# install_requires = [
+#     "jupyterlab>=3.3.3",
+#     "pandas>=1.4.2"
+# ]
 
 # The name of the project
 name = "digautoprofile"
