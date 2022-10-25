@@ -24,11 +24,11 @@ jobs:
           python -m pip install -r requirements.txt
       - name: Build the JupyterLite site
         run: |
-          jupyter lite build --contents content --output-dir dist
+          jupyter lite build --contents examples --output-dir jlExamplesDist
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./dist
+          path: ./jlExamplesDist
 
   deploy:
     needs: build
