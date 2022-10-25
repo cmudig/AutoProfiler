@@ -10,6 +10,7 @@ Autoprofiler shows you things like:
 -   Distribution of each column
 -   Sample values
 -   Summary statistics
+-   And more!
 
 ## Install
 
