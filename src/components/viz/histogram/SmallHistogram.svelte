@@ -1,14 +1,8 @@
 <script lang="ts">
     import HistogramBase from './HistogramBase.svelte';
+    import type { IHistogram } from '../../../common/exchangeInterfaces';
 
-    interface HistogramBin {
-        bucket: number;
-        low: number;
-        high: number;
-        count: number;
-    }
-
-    export let data: HistogramBin[];
+    export let data: IHistogram;
     export let width = 60;
     export let height = 19;
     export let fillColor = 'hsl(340, 70%, 70%)';

@@ -14,12 +14,12 @@
 
     /* text-align: center; */
     overflow-y: auto;
-    min-width: 350px;
+    min-width: 400px;
     width: 450px;
 }
 
 .auto-profile-wrapper {
-    min-width: 320px;
+    min-width: 400px;
 }
 
 #header-icon {

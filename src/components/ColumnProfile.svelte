@@ -193,7 +193,7 @@
                         {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
                             <TimestampDetail
                                 data={summary?.timeSummary.rollup.results}
-                                xAccessor="ts"
+                                xAccessor="ts_end"
                                 yAccessor="count"
                                 height={160}
                                 width={wrapperDivWidth}

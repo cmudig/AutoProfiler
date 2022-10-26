@@ -5,8 +5,10 @@
         datePortion,
         formatInteger,
         removeTimezoneOffset,
-        timePortion
+        timePortion,
+        standardTimestampFormat
     } from '../../utils/formatters';
+    import type { TimeBin } from '../../../common/exchangeInterfaces';
     import { getContext } from 'svelte';
 
     import type { Writable } from 'svelte/store';
@@ -23,10 +25,11 @@
         'rill:data-graphic:plot-config'
     );
 
-    export let point;
+    export let point: TimeBin;
     export let xAccessor: string;
     export let yAccessor: string;
-    $: xLabel = removeTimezoneOffset(point[xAccessor]);
+    $: xStartLabel = removeTimezoneOffset(point.ts_start);
+    $: xEndLabel = removeTimezoneOffset(point.ts_end);
 </script>
 
 <g>
@@ -56,19 +59,13 @@
             class="fill-gray-500"
             use:outline
         >
-            {datePortion(xLabel)}
+            {standardTimestampFormat(xStartLabel)} - {standardTimestampFormat(
+                xEndLabel
+            )}
         </text>
         <text
             x={$config.plotLeft}
             y={$config.fontSize * 2 + $config.textGap}
-            class="fill-gray-500"
-            use:outline
-        >
-            {timePortion(xLabel)}
-        </text>
-        <text
-            x={$config.plotLeft}
-            y={$config.fontSize * 3 + $config.textGap * 2}
             class="fill-gray-500"
             use:outline
         >
