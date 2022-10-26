@@ -33,11 +33,6 @@
     import TimestampBound from './TimestampBound.svelte';
     import TimestampProfileSummary from './TimestampProfileSummary.svelte';
 
-    // import Tooltip from '../../../tooltip/Tooltip.svelte';
-    // import TimestampTooltipContent from './TimestampTooltipContent.svelte';
-
-    // import { createShiftClickAction } from '../../../../util/shift-click-action';
-    // import notifications from '../../../notifications';
     import TimestampMouseoverAnnotation from './TimestampMouseoverAnnotation.svelte';
     import TimestampPaths from './TimestampPaths.svelte';
 
@@ -46,8 +41,8 @@
 
     const id = guidGenerator();
 
+    // data is assumed to be sorted
     export let data: TimeBin[];
-    // export let spark: TimeBin[];
 
     export let width = 360;
     export let height = 120;
@@ -189,8 +184,9 @@
     let zoomedXStart: Date;
     let zoomedXEnd: Date;
     // establish basis values
-    let xExtents = extent(data, d => d[xAccessor]);
-    $: xExtents = extent(data, d => d[xAccessor]);
+    let xExtents = [data[0]?.ts_start, data[data.length - 1]?.ts_end];
+    // $: xExtents = extent(data, d => d[xAccessor]);
+    $: xExtents = [data[0]?.ts_start, data[data.length - 1]?.ts_end];
 
     const xMin = createExtremumResolutionStore(xExtents[0], {
         duration: 300,
@@ -427,7 +423,7 @@
             <text
                 font-size={fontSize}
                 x={$plotConfig.plotRight}
-                y={fontSize}
+                y={$plotConfig.fontSize * 2 + $plotConfig.textGap}
                 text-anchor="end"
                 style:font-style="italic"
                 style:user-select="none"

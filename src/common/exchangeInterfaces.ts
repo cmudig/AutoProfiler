@@ -75,7 +75,8 @@ export interface TimeColumnSummary {
 
 export type TimeBin = {
     count: number;
-    ts: Date;
+    ts_start: Date;
+    ts_end: Date;
 };
 
 export type ValueCount = {

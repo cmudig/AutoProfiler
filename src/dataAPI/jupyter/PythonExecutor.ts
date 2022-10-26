@@ -7,7 +7,8 @@ import type {
     IColMeta,
     IHistogram,
     ValueCount,
-    Interval
+    Interval,
+    TimeBin
 } from '../../common/exchangeInterfaces';
 
 type ExecResult = { content: string[]; exec_count: number };
@@ -390,8 +391,8 @@ export class PythonPandasExecutor {
     public async getTempBinnedData(
         dfName: string,
         colName: string,
-        maxbins = 100
-    ): Promise<IHistogram> {
+        maxbins = 200
+    ): Promise<{ timebin: TimeBin[], histogram: IHistogram }> {
         try {
             const bin_code = `print( (${dfName}["${replaceSpecial(
                 colName
@@ -407,7 +408,8 @@ export class PythonPandasExecutor {
                 [bin_code, min_value_code].join('\n')
             );
             const content = res['content'];
-            const data: IHistogram = [];
+            const timebinData: TimeBin[] = [];
+            const histogram: IHistogram = []
             const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
             const true_minimum = parseFloat(content[1]);
 
@@ -415,18 +417,34 @@ export class PythonPandasExecutor {
                 const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
                 const [low, high] = cleank.split(',');
 
-                data.push({
+                const lowNum = parseFloat(low)
+                const highNum = parseFloat(high)
+
+                const lowDate = new Date(lowNum * 1000)
+                const highDate = new Date(highNum * 1000)
+
+                // for time detail chart
+                timebinData.push({
                     // Pandas extends the minimum bin an arbitrary number below the col's minimum so we shift the lowest bin boundary to the actual minimum
-                    low: i === 0 ? true_minimum : parseFloat(low),
-                    high: parseFloat(high),
+                    ts_start: i === 0 ? new Date(true_minimum * 1000) : lowDate,
+                    ts_end: highDate,
                     count: json_res[k],
-                    bucket: i
                 });
+
+                // for histogram preview
+                histogram.push(
+                    {
+                        low: i === 0 ? true_minimum : lowNum,
+                        high: highNum,
+                        count: json_res[k],
+                        bucket: i
+                    }
+                )
             });
-            return data;
+            return { timebin: timebinData, histogram: histogram };
         } catch (error) {
             console.warn('[Error caught] in getTempBinnedData', error);
-            return [];
+            return { timebin: [], histogram: [] };
         }
     }
 
