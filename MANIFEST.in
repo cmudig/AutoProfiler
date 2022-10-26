@@ -7,6 +7,8 @@ include install.json
 include ts*.json
 include yarn.lock
 include requirements.txt
+include jupyterlite-requirements.txt
+include environment.yml
 
 graft digautoprofile/labextension
 
@@ -20,8 +22,6 @@ prune binder
 # extra rules to make match vc
 graft examples
 prune .vscode
-prune jupyterlite-requirements.txt
-prune environment.yml
 
 # Patterns to exclude from any directory
 global-exclude *~
