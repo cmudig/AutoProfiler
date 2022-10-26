@@ -422,14 +422,12 @@ export class PythonPandasExecutor {
 
                 const lowDate = new Date(lowNum * 1000)
                 const highDate = new Date(highNum * 1000)
-                const midpointDate = new Date((lowDate.getTime() + highDate.getTime()) / 2)
 
                 // for time detail chart
                 timebinData.push({
                     // Pandas extends the minimum bin an arbitrary number below the col's minimum so we shift the lowest bin boundary to the actual minimum
                     ts_start: i === 0 ? new Date(true_minimum * 1000) : lowDate,
                     ts_end: highDate,
-                    ts_midpoint: midpointDate,
                     count: json_res[k],
                 });
 
