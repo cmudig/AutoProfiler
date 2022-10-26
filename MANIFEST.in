@@ -6,6 +6,9 @@ include package.json
 include install.json
 include ts*.json
 include yarn.lock
+include requirements.txt
+include jupyterlite-requirements.txt
+include environment.yml
 
 graft digautoprofile/labextension
 
