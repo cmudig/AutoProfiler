@@ -1,8 +1,8 @@
 # AutoProfiler
 
-[![PyPi](https://img.shields.io/pypi/v/digautoprofile.svg)](https://pypi.org/project/digautoprofile/)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfile/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb)
-[![Lite](https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg)](http://dig.cmu.edu/AutoProfile)
+[![PyPi](https://img.shields.io/pypi/v/digautoprofiler.svg)](https://pypi.org/project/digautoprofiler/)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfiler/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb)
+[![Lite](https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg)](http://dig.cmu.edu/AutoProfiler)
 
 Profile your [Pandas](https://pandas.pydata.org) Dataframes! Autoprofiler will automatically visualize your Pandas dataframes after every execution, no extra code necessary.
 
@@ -14,17 +14,17 @@ Autoprofiler allows you to spend less time specifying charts and more time inter
 
 
 ## Updates profiles as your data updates
-![screenshot of autoprofile](https://raw.githubusercontent.com/cmudig/AutoProfile/main/.github/screenshots/profiler_sc.png)
+![screenshot of Autoprofiler](https://raw.githubusercontent.com/cmudig/AutoProfiler/main/.github/screenshots/profiler_sc.png)
 
 Autoprofiler reads your current Jupyter notebook and produces profiles for the Pandas Dataframes in your memory as they change.
 
-![demo of autoprofile](https://raw.githubusercontent.com/cmudig/AutoProfile/main/.github/screenshots/demo.gif)
+![demo of Autoprofiler](https://raw.githubusercontent.com/cmudig/AutoProfiler/main/.github/screenshots/demo.gif)
 
 ## Install
 
 To instally locally use pip and then open a jupyter notebook and the extension will be running.
 ```bash
-pip install -U digautoprofile
+pip install -U digautoprofiler
 ```
 
 ## Try it out
@@ -33,7 +33,7 @@ To try out Autoprofiler in a hosted notebook, use one of the options below
 
 |Jupyter Lite|Binder|
 |:---:|:---:|
-|[![Lite](https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg)](http://dig.cmu.edu/AutoProfile) | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfile/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb) |
+|[![Lite](https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg)](http://dig.cmu.edu/AutoProfiler) | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfiler/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb) |
 
 ## Requirements
 

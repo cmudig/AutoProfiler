@@ -48,7 +48,7 @@
 </script>
 
 <main class="p-4 m-0">
-    <h1 class="text-lg">AutoProfile</h1>
+    <h1 class="text-lg">AutoProfiler</h1>
 
     {#if isReady}
         <!-- <div id="header-icon" /> -->

@@ -1,5 +1,5 @@
 """
-digautoprofile setup
+digautoprofiler setup
 """
 import json
 import sys
@@ -22,7 +22,7 @@ with open((HERE / "requirements.txt")) as fp:
 # ]
 
 # The name of the project
-name = "digautoprofile"
+name = "digautoprofiler"
 
 lab_path = (HERE / pkg_json["jupyterlab"]["outputDir"])
 

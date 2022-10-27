@@ -25,7 +25,7 @@ jobs:
         jlpm
         python -m pip install .
 
-        jupyter labextension list 2>&1 | grep -ie "AutoProfile.*OK"
+        jupyter labextension list 2>&1 | grep -ie "AutoProfiler.*OK"
         python -m jupyterlab.browser_check
 
         check-manifest -v
@@ -33,7 +33,7 @@ jobs:
         pip install build
         python -m build --sdist
         cp dist/*.tar.gz myextension.tar.gz
-        pip uninstall -y "digautoprofile" jupyterlab
+        pip uninstall -y "digautoprofiler" jupyterlab
         rm -rf myextension
 
     - uses: actions/upload-artifact@v2
@@ -64,5 +64,5 @@ jobs:
         sudo rm -rf $(which node)
         pip install myextension.tar.gz
         pip install jupyterlab
-        jupyter labextension list 2>&1 | grep -ie "AutoProfile.*OK"
+        jupyter labextension list 2>&1 | grep -ie "AutoProfiler.*OK"
         python -m jupyterlab.browser_check --no-chrome-test

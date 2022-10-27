@@ -8,7 +8,7 @@ The `jlpm` command is JupyterLab's pinned version of
 
 ```bash
 # Clone the repo to your local environment
-# Change directory to the AutoProfile directory
+# Change directory to the AutoProfiler directory
 # Install package in development mode
 pip install -e .
 # Link your development version of the extension with JupyterLab
@@ -41,9 +41,9 @@ jupyter lab build --minimize=False
 ### Development uninstall
 
 ```bash
-pip uninstall digautoprofile
+pip uninstall digautoprofiler
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `digautoprofile` within that folder.
+folder is located. Then you can remove the symlink named `digautoprofiler` within that folder.

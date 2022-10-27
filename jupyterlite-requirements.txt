@@ -1,2 +1,2 @@
 jupyterlite>=0.1.0b13
-digautoprofile
+digautoprofiler

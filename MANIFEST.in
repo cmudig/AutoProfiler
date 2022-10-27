@@ -10,7 +10,7 @@ include requirements.txt
 include jupyterlite-requirements.txt
 include environment.yml
 
-graft digautoprofile/labextension
+graft digautoprofiler/labextension
 
 # Javascript files
 graft src

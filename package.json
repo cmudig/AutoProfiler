@@ -1,5 +1,5 @@
 {
-  "name": "digautoprofile",
+  "name": "digautoprofiler",
   "version": "0.1.8",
   "description": "Automatically profile your pandas dataframes in jupyter lab.",
   "keywords": [
@@ -7,9 +7,9 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/cmudig/AutoProfile",
+  "homepage": "https://github.com/cmudig/AutoProfiler",
   "bugs": {
-    "url": "https://github.com/cmudig/AutoProfile/issues"
+    "url": "https://github.com/cmudig/AutoProfiler/issues"
   },
   "license": "BSD-3-Clause",
   "author": {
@@ -25,7 +25,7 @@
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cmudig/AutoProfile.git"
+    "url": "https://github.com/cmudig/AutoProfiler.git"
   },
   "scripts": {
     "build": "jlpm build:lib && jlpm build:labextension:dev",
@@ -36,8 +36,8 @@
     "clean": "jlpm clean:lib clean:labextension",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-    "clean:labextension": "rimraf digautoprofile/labextension",
-    "clean:rest": "rimraf digautoprofile.egg-info node_modules dist",
+    "clean:labextension": "rimraf digautoprofiler/labextension",
+    "clean:rest": "rimraf digautoprofiler.egg-info node_modules dist",
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache && jlpm clean:rest",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
@@ -113,7 +113,7 @@
   },
   "jupyterlab": {
     "extension": true,
-    "outputDir": "digautoprofile/labextension",
+    "outputDir": "digautoprofiler/labextension",
     "sharedPackages": {
       "@jupyter-widgets/base": {
         "bundled": false,

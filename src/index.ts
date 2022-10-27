@@ -7,10 +7,10 @@ import { NotebookAPI } from './dataAPI/jupyter/notebook';
 import { ProfilePanel } from './ProfilePanel';
 
 /**
- * Initialization data for the AutoProfile extension.
+ * Initialization data for the AutoProfiler extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-    id: 'AutoProfile:plugin',
+    id: 'AutoProfiler:plugin',
     autoStart: true,
     activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
         const panel: ProfilePanel = new ProfilePanel();
