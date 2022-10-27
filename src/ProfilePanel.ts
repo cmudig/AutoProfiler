@@ -12,7 +12,7 @@ export class ProfilePanel extends StackedPanel {
         super();
         this.addClass('auto-profile-wrapper');
         this.id = 'auto-profile-app';
-        this.title.caption = 'Autoprofile'; // shown on hover
+        this.title.caption = 'Autoprofiler'; // shown on hover
         this.title.iconClass = 'autoprofile-logo';
 
         const icon = new LabIcon({
