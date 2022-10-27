@@ -1,8 +1,16 @@
-# AutoProfiler
+<p align="center"><a href="#"><img width=60% alt="" src="https://raw.githubusercontent.com/cmudig/AutoProfiler/main/.github/screenshots/Autoprofiler_social_tag.png"></a></p>
 
-[![PyPi](https://img.shields.io/pypi/v/digautoprofiler.svg)](https://pypi.org/project/digautoprofiler/)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfiler/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb)
-[![Lite](https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg)](http://dig.cmu.edu/AutoProfiler)
+<p align="center">
+    <a href="https://pypi.org/project/digautoprofiler/">
+        <img alt="PyPi" src="https://img.shields.io/pypi/v/digautoprofiler.svg" align="center">
+    </a>
+     <a href="https://mybinder.org/v2/gh/cmudig/AutoProfiler/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb">
+        <img alt="Binder" src="https://mybinder.org/badge_logo.svg" align="center">
+    </a>
+     <a href="http://dig.cmu.edu/AutoProfiler">
+        <img alt="Lite" src="https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg" align="center">
+    </a>
+</p>
 
 Profile your [Pandas](https://pandas.pydata.org) Dataframes! Autoprofiler will automatically visualize your Pandas dataframes after every execution, no extra code necessary.
 
