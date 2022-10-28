@@ -111,13 +111,11 @@ export class ProfileModel {
             const colPromise = this.fetchColumnPromises(alldf);
 
             colPromise.then(result => {
-                const currentColumnProfiles = get(this._columnProfiles)
-
-                // TODO compare these to result and update the execution count if necessary
-
                 this._columnProfiles.set(result);
                 this._loadingNewData.set(false);
             });
+        } else {
+            this._loadingNewData.set(false);
         }
     }
 

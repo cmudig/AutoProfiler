@@ -170,10 +170,12 @@ export class PythonPandasExecutor {
             const res = await this.executeCode(code);
             const content = res['content'];
             const data = content.join("").replace(/'/g, '"');
-            const names = JSON.parse(data);
-            return names;
+            if (data) {
+                const names = JSON.parse(data);
+                return names;
+            }
+            return []
         } catch (error) {
-            console.warn('[Error caught] in getVariableNames', error);
             return [];
         }
     }
