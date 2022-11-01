@@ -20,11 +20,13 @@
     import Histogram from './viz/histogram/SmallHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
     import TimestampDetail from './viz/timestamp/TimestampDetail.svelte';
+    import ExportChartButton from './export-chart/ExportChartButton.svelte';
 
     import type { ColumnSummary } from '../common/exchangeInterfaces';
 
     // props
-    export let name: string;
+    export let dfName: string;
+    export let colName: string;
     export let type: string;
     export let summary: ColumnSummary;
     export let totalRows: number;
@@ -59,7 +61,7 @@
 </script>
 
 <!-- pl-10 -->
-<ColumnEntry {hideRight} bind:active hoverKey={name}>
+<ColumnEntry {hideRight} bind:active hoverKey={colName}>
     <svelte:fragment slot="icon">
         <Tooltip location="left" distance={16}>
             <DataTypeIcon {type} />
@@ -75,7 +77,7 @@
             <div
                 class="column-profile-name text-ellipsis overflow-hidden whitespace-nowrap"
             >
-                {name}
+                {colName}
             </div>
         </div>
     </svelte:fragment>
@@ -178,6 +180,11 @@
                                 {totalRows}
                                 topK={summary.topK}
                             />
+                            <ExportChartButton
+                                chartType={'cat'}
+                                {dfName}
+                                {colName}
+                            />
                         {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
                             <NumericHistogram
                                 width={wrapperDivWidth}
@@ -190,6 +197,11 @@
                                 mean={summary.statistics.mean}
                                 max={summary.statistics.max}
                             />
+                            <ExportChartButton
+                                chartType={'quant'}
+                                {dfName}
+                                {colName}
+                            />
                         {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
                             <TimestampDetail
                                 data={summary?.timeSummary.rollup.results}
@@ -198,6 +210,11 @@
                                 height={160}
                                 width={wrapperDivWidth}
                                 interval={summary?.timeSummary.interval}
+                            />
+                            <ExportChartButton
+                                chartType={'temporal'}
+                                {dfName}
+                                {colName}
                             />
                         {/if}
                     {:else}

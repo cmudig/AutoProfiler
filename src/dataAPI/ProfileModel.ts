@@ -60,6 +60,9 @@ export class ProfileModel {
         return this._varsInCurrentCell
     }
 
+    get notebook(): NotebookAPI {
+        return this._notebook
+    }
 
     public async connectNotebook(notebook: NotebookAPI) {
         console.log('Connecting notebook to ProfilePanel');
