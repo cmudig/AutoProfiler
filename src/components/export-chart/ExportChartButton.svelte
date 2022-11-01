@@ -39,7 +39,7 @@
         </button>
 
         <TooltipContent slot="tooltip-content">
-            Export chart to code.
+            Export chart to code
         </TooltipContent>
     </Tooltip>
 </div>
