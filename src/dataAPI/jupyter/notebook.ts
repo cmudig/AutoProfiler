@@ -91,8 +91,6 @@ export class NotebookAPI {
             index += 1
         }
 
-        console.log("Adding cell to index: ", index)
-
         this.notebook.model.cells.insert(index, cell);
     }
 
