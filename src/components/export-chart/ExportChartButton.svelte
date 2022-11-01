@@ -10,13 +10,14 @@
     export let chartType: 'quant' | 'cat' | 'temporal';
     export let dfName: string;
     export let colName: string;
+    export let exportOptions: { numBins?: number } = undefined;
 
     const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
     function addVisCode() {
         let text: string;
         if (chartType == 'quant') {
-            text = QUANT_CHART(dfName, colName);
+            text = QUANT_CHART(dfName, colName, exportOptions?.numBins);
         } else if (chartType == 'cat') {
             text = CAT_CHART(dfName, colName);
         } else {

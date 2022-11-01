@@ -201,6 +201,9 @@
                                 chartType={'quant'}
                                 {dfName}
                                 {colName}
+                                exportOptions={{
+                                    numBins: summary.histogram.length
+                                }}
                             />
                         {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
                             <TimestampDetail
