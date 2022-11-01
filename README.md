@@ -43,11 +43,7 @@ To try out Autoprofiler in a hosted notebook, use one of the options below
 |:---:|:---:|
 |[![Lite](https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg)](http://dig.cmu.edu/AutoProfiler) | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfiler/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb) |
 
-## Requirements
-
--   JupyterLab >= 3.0
--   Pandas
-
+## Development Install
 
 For development install instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -55,4 +51,8 @@ If you're having install issues, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## Acknowledgements
 
-Big thanks to the Rill Data team! Much of our profiler UI code is from [Rill Developer](https://github.com/rilldata/rill-developer).
+Big thanks to the Rill Data team! Much of our profiler UI code is adapted from [Rill Developer](https://github.com/rilldata/rill-developer).
+
+## Let us know what you think! 📢
+
+We would love to hear your feedback on how you are using AutoProfiler! Please fill out [this form](https://forms.gle/V3ejpXxMcQXqYJG48) or email Will at [willepp@cmu.edu](mailto:willepp@cmu.edu).
