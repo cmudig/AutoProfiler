@@ -2,6 +2,7 @@ import { NotebookPanel, Notebook, NotebookActions } from '@jupyterlab/notebook';
 import { PromiseDelegate } from '@lumino/coreutils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { Signal, type ISignal } from '@lumino/signaling';
+import _ from 'lodash';
 
 import CellAPI from './cell';
 // import KernelAPI from './kernel'
@@ -74,7 +75,7 @@ export class NotebookAPI {
         return this.cells.find(c => c.model.id === active.model.id);
     }
 
-    public addCell(kind: 'code' | 'markdown', text: string, index: number) {
+    public addCell(kind: 'code' | 'markdown', text: string, index?: number) {
         let cell;
         if (kind === 'code') {
             cell = this.notebook.model.contentFactory.createCodeCell({});
@@ -82,6 +83,14 @@ export class NotebookAPI {
             cell = this.notebook.model.contentFactory.createMarkdownCell({});
         }
         cell.value.text = text;
+
+        // if no index provided, insert at current position
+        if (_.isUndefined(index)) {
+            const active = this.notebook.activeCell;
+            index = this.cells.findIndex(c => c.model.id === active.model.id);
+            index += 1
+        }
+
         this.notebook.model.cells.insert(index, cell);
     }
 

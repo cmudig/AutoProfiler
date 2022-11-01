@@ -38,7 +38,8 @@
                     {#each dataframeProfile?.profile as column}
                         <ColumnProfile
                             example={column.example}
-                            name={column.name}
+                            {dfName}
+                            colName={column.name}
                             type={column.type}
                             summary={column.summary}
                             nullCount={column.nullCount}

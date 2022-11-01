@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy } from 'svelte';
+    import { onDestroy, setContext } from 'svelte';
     import _ from 'lodash';
     import type { ProfileModel } from '../dataAPI/ProfileModel';
     import type { IColumnProfileMap } from '../common/exchangeInterfaces';
@@ -9,6 +9,7 @@
     import { Circle } from 'svelte-loading-spinners';
 
     export let profileModel: ProfileModel;
+    setContext('autoprofiler:profileModel', profileModel);
 
     let isReady: boolean;
     let isLoading: boolean;
