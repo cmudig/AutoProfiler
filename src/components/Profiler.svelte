@@ -114,6 +114,11 @@
         h4 {
             @apply font-semibold;
         }
+
+        /* Override default from base since clashes with jupyter */
+        input {
+            color: black;
+        }
     }
 
     .ͼ1 .cm-scroller {
