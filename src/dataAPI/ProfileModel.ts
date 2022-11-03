@@ -184,6 +184,8 @@ export class ProfileModel {
 
             // need at least 1 row to calculate these
             if (shape[0] > 0) {
+                const fact = await this.executor.getTextFact(dfName, col_name,col_type);
+                cd.summary.textfact = fact;
                 if (NUMERICS.has(col_type)) {
                     const chartData = await this.executor.getQuantBinnedData(dfName, col_name);
                     const statistics = await this.executor.getQuantMeta(dfName, col_name);
@@ -193,6 +195,7 @@ export class ProfileModel {
                 } else if (TIMESTAMPS.has(col_type)) {
                     const { timebin, histogram } = await this.executor.getTempBinnedData(dfName, col_name);
                     const interval = await this.executor.getTempInterval(dfName, col_name);
+
 
                     cd.summary.histogram = histogram;
 
