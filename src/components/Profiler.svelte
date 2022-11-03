@@ -81,7 +81,7 @@
             </div>
 
             <div>
-                {#each Object.keys(columnProfiles) as dfName}
+                {#each Object.keys(columnProfiles) as dfName (dfName)}
                     <DFProfile
                         {dfName}
                         isInFocus={varsInCurrentCell.includes(dfName)}

@@ -35,7 +35,7 @@
         <div slot="body" class="dfprofile-body">
             <div bind:clientWidth={profileWidth} class="col-profiles">
                 {#if dataframeProfile?.shape?.[1] > 0}
-                    {#each dataframeProfile?.profile as column}
+                    {#each dataframeProfile?.profile as column (column.name)}
                         <ColumnProfile
                             example={column.example}
                             {dfName}
