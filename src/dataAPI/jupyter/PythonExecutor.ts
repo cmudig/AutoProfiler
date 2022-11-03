@@ -4,12 +4,15 @@ import type {
     IColTypeTuple,
     IDFColMap,
     IQuantMeta,
+    ICatMeta,
+    TextFact,
     IColMeta,
     IHistogram,
     ValueCount,
     Interval,
     TimeBin
 } from '../../common/exchangeInterfaces';
+import { CATEGORICALS, NUMERICS } from '../../components/data-types/pandas-data-types';
 
 type ExecResult = { content: string[]; exec_count: number };
 
@@ -254,6 +257,112 @@ export class PythonPandasExecutor {
         } catch (error) {
             console.warn('[Error caught] in getShape', error);
             return [undefined, undefined];
+        }
+    }
+
+    public async getTextFact(
+        dfName: string,
+        colName: string,
+        type:string,
+    ): Promise<TextFact> {
+        try {
+            if (NUMERICS.has(type)) {
+                const describe_code = `print(${dfName}["${replaceSpecial(
+                    colName
+                )}"].describe().to_json())`;
+                const res = await this.executeCode(describe_code);
+                const content = res['content']; // might be null
+                const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
+                var x = parseFloat(json_res['min'])
+                const min = (await this.numFormat(parseFloat(json_res['min'])))
+                const q50 = (await this.numFormat(parseFloat(json_res['50%'])))
+                const max = (await this.numFormat(parseFloat(json_res['max'])))
+                const mean= (await this.numFormat(parseFloat(json_res['mean'])))
+                return {
+                    name: colName,
+                    description: colName+ " has a minimum of "+ min + " and maximum of " + max + " with a median of " + q50 +". It has a mean of " + mean + ".",
+                };
+            } else {
+                const info = await this.getCatMeta(dfName,colName);
+                const count = info.count
+                const unique= info.unique
+                const top = info.top
+                const freq = info.freq
+                const percent = (await this.numFormat((freq/count)*100))
+                var curr_des
+                if (CATEGORICALS.has(type)){
+                    if (count == unique) {
+                        curr_des = "All " + count + " entries of " + colName+ " have unique labels."
+                    } else {
+                        curr_des = colName+ " has "+count + " entries with " + unique + " unique categories. " 
+                        + top + " is the top category with " +  freq + " entries out of " + count + 
+                    " ("+percent+"%)."
+                    }
+                } else {
+                    const result = await this.getTempInterval(dfName,colName)
+                    var range = result.days/365
+                    var unit = " years"
+                    if (range < 1) {
+                        range = result.days
+                        unit = " days"
+                    }
+                    const report = (await this.numFormat(range)) + unit
+                    if (count == unique) {
+                        curr_des = "All " + count + " entries of " + colName+ " have different timestamps. The range of the dataset is approximately "+report
+                    }
+                    else {
+                        curr_des = "All " + count + " entries with a timestamp have "+ unique + " unique timestamps. The range of the dataset is approximately "+report
+                    }
+                }
+                return {
+                    name: colName,
+                    description: curr_des
+                }
+            }
+        } catch (error) {
+            console.warn('[Error caught] in Text Fact', error);
+            return {
+                name: undefined,
+                description: undefined,
+            };
+        }
+
+    }
+    
+    private async numFormat(num){
+        if (num < 1){
+            return num.toPrecision(2)
+        } else {
+            return num.toFixed(2)
+        }
+    }
+
+    private async getCatMeta(
+        dfName: string,
+        colName: string
+    ): Promise<ICatMeta> {
+        try {
+            const code = `print(${dfName}["${replaceSpecial(
+                colName
+            )}"].describe().to_json())`;
+            const res = await this.executeCode(code);
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content[0]?.replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            console.log(json_res)
+            return {
+                count: parseInt(json_res['count']),
+                unique: parseInt(json_res['unique']),
+                top: (json_res['top']),
+                freq: parseInt(json_res['freq']),
+            };
+        } catch (error) {
+            console.warn('[Error caught] in getCatMeta', error);
+            return {
+                count: undefined,
+                unique: undefined,
+                top: undefined,
+                freq: undefined,
+            };
         }
     }
 
