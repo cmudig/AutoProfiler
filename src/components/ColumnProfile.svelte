@@ -63,7 +63,7 @@
 <!-- pl-10 -->
 <ColumnEntry {hideRight} bind:active hoverKey={colName}>
     <svelte:fragment slot="icon">
-        <Tooltip location="left" distance={16}>
+        <Tooltip>
             <DataTypeIcon {type} />
 
             <TooltipContent slot="tooltip-content">
@@ -77,7 +77,12 @@
             <div
                 class="column-profile-name text-ellipsis overflow-hidden whitespace-nowrap"
             >
-                {colName}
+        <Tooltip>
+            <p>{colName}</p>
+            <TooltipContent slot="tooltip-content">
+                {summary.textfact.description}
+            </TooltipContent>
+        </Tooltip>
             </div>
         </div>
     </svelte:fragment>
@@ -205,6 +210,7 @@
                                     numBins: summary.histogram.length
                                 }}
                             />
+                            
                         {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
                             <TimestampDetail
                                 data={summary?.timeSummary.rollup.results}
