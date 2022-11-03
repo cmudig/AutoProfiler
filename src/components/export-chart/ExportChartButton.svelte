@@ -10,7 +10,10 @@
     export let chartType: 'quant' | 'cat' | 'temporal';
     export let dfName: string;
     export let colName: string;
-    export let exportOptions: { numBins?: number } = undefined;
+    export let exportOptions: {
+        numBins?: number;
+        shouldDisableMaxRows?: boolean;
+    } = undefined;
 
     const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
@@ -21,7 +24,11 @@
         } else if (chartType == 'cat') {
             text = CAT_CHART(dfName, colName);
         } else {
-            text = TEMPORAL_CHART(dfName, colName);
+            text = TEMPORAL_CHART(
+                dfName,
+                colName,
+                exportOptions?.shouldDisableMaxRows
+            );
         }
 
         profileModel.notebook.addCell('code', text);

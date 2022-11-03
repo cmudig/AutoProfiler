@@ -218,6 +218,9 @@
                                 chartType={'temporal'}
                                 {dfName}
                                 {colName}
+                                exportOptions={{
+                                    shouldDisableMaxRows: totalRows > 5000
+                                }}
                             />
                         {/if}
                     {:else}
