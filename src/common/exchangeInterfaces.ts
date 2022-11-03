@@ -26,6 +26,18 @@ export type IQuantChartData = {
     bin_size: number;
 };
 
+export type ICatMeta = {
+    count: number;
+    unique: number;
+    top: string;
+    freq: number;
+};
+
+export type TextFact = {
+    name: string
+    description: string
+}
+
 export type IQuantMeta = {
     min: number;
     q25: number;
@@ -54,6 +66,7 @@ export interface ColumnSummary {
     histogram?: IHistogram;
     statistics?: IQuantMeta;
     timeSummary?: TimeColumnSummary;
+    textfact?: TextFact;
 }
 
 // TODO this could be subclass but then need better type guards
