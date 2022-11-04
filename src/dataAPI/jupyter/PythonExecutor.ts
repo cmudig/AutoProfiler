@@ -291,12 +291,14 @@ export class PythonPandasExecutor {
                 const percent = (await this.numFormat((freq/count)*100))
                 var curr_des
                 if (CATEGORICALS.has(type)){
+                    const numUnique_code = `print(sum(${dfName}["${replaceSpecial(colName)}"].value_counts()>${n}))`;
+                    const ret = await this.executeCode(numUnique_code);
+                    const val = ret['content'][0]
                     if (count == unique) {
                         curr_des = "All " + count + " entries of " + colName+ " have unique labels."
                     } else {
-                        curr_des = colName+ " has "+count + " entries with " + unique + " unique categories. " 
-                        + top + " is the top category with " +  freq + " entries out of " + count + 
-                    " ("+percent+"%)."
+                        curr_des = colName+ " has "+count + " entries with " + unique + " unique categories and " + val + " categories that appear more than once. " 
+                        + top + " is the top category with " +  freq + " entries out of " + count + " ("+percent+"%). "
                     }
                 } else {
                     const result = await this.getTempInterval(dfName,colName)
