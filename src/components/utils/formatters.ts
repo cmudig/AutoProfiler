@@ -18,6 +18,31 @@ const msPad = format('03d');
 export const formatInteger = format(',');
 const formatRate = format('.1f');
 
+export function formatNumeric(type: string, value) {
+    if (INTEGERS.has(type)) {
+        return formatInt(value);
+    } else if (FLOATS.has(type)) {
+        return formatFloat(value);
+    }
+
+    return value
+}
+
+
+function formatInt(v) {
+    return format('d')(v)
+}
+
+function formatFloat(v) {
+    if (Math.abs(v) >= 1) {
+        // return parseFloat(value.toFixed(1));
+        return v.toFixed(1);
+    }
+
+    // 2 significant digits
+    return format('.2r')(v);
+}
+
 /**
  * changes precision depending on the
  */
@@ -73,9 +98,8 @@ export function microsToTimestring(microseconds: number) {
 
 export function intervalToTimestring(interval: Interval) {
     const months = interval.months
-        ? `${formatInteger(interval.months)} month${
-              interval.months > 1 ? 's' : ''
-          } `
+        ? `${formatInteger(interval.months)} month${interval.months > 1 ? 's' : ''
+        } `
         : '';
     const days = interval.days
         ? `${formatInteger(interval.days)} day${interval.days > 1 ? 's' : ''} `

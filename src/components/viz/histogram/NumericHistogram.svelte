@@ -1,5 +1,6 @@
 <script lang="ts">
     import { fly } from 'svelte/transition';
+    import { formatNumeric } from '../../utils/formatters';
     import { guidGenerator } from '../../utils/guid';
     import HistogramBase from './HistogramBase.svelte';
     import { NUMERIC_TOKENS } from '../../data-types/pandas-data-types';
@@ -12,6 +13,7 @@
     let right = 4;
     let top = 24;
 
+    export let type: string;
     export let min: number;
     export let qlow: number;
     export let median: number;
@@ -19,26 +21,25 @@
     export let mean: number;
     export let max: number;
 
+    function formatDisplay(dtype: string, label, value) {
+        try {
+            // force float display for mean with decimals
+            if (label === 'mean' && value - Math.trunc(value) > 0) {
+                return formatNumeric('float', value);
+            }
+
+            return formatNumeric(dtype, value);
+        } catch (e) {
+            return value;
+        }
+    }
+
     export let anchorBuffer = 8;
     export let labelOffset = 16;
 
     let histogramID = guidGenerator();
 
     $: effectiveWidth = Math.max(width - 8, 120);
-
-    // function transformValue(value, valueType) {
-    //     if (valueType === 'mean') {
-    //         return Math.round(value *10000) / 10000;
-    //     } return  value;
-    // }
-
-    function transformValue(value) {
-        try {
-            return value.toFixed(2);
-        } catch (e) {
-            return undefined;
-        }
-    }
 
     let fontSize = 12;
     let buffer = 4;
@@ -125,7 +126,8 @@
                     y={yi}
                     font-size="11"
                     fill="hsl(217,1%,40%)"
-                    text-anchor={anchor}>{transformValue(value)}</text
+                    text-anchor={anchor}
+                    >{formatDisplay(type, label, value)}</text
                 >
                 <circle
                     in:fly={{ duration: 500, y: -5 }}

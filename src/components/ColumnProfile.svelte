@@ -187,6 +187,7 @@
                             />
                         {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
                             <NumericHistogram
+                                {type}
                                 width={wrapperDivWidth}
                                 height={65}
                                 data={summary.histogram}
