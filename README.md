@@ -26,7 +26,8 @@ Autoprofiler allows you to spend less time specifying charts and more time inter
 
 Autoprofiler reads your current Jupyter notebook and produces profiles for the Pandas Dataframes in your memory as they change.
 
-![demo of Autoprofiler](https://raw.githubusercontent.com/cmudig/AutoProfiler/main/.github/screenshots/demo.gif)
+https://user-images.githubusercontent.com/13400543/199877605-ba50f9c8-87e5-46c9-8207-1c6496bb3b18.mov
+
 
 ## Install
 
