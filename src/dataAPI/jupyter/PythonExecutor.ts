@@ -264,6 +264,7 @@ export class PythonPandasExecutor {
         dfName: string,
         colName: string,
         type:string,
+        n=1
     ): Promise<TextFact> {
         try {
             if (NUMERICS.has(type)) {
