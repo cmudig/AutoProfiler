@@ -8,7 +8,7 @@ export const QUANT_CHART = (
     col_name: string,
     numbins = 8
 ) => `${VIS_EXPORTS} 
-binned_series = ${df_name}["${col_name}"].value_counts(bins=${numbins})
+binned_series = ${df_name}["${col_name}"].value_counts(bins=${numbins}, sort=False)
 
 chart_data_binned = pd.DataFrame({
     "leftbin": binned_series.index.left, 
