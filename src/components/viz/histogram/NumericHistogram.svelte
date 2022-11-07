@@ -11,7 +11,7 @@
 
     let left = 60;
     let right = 4;
-    let top = 24;
+    let top = 0;
 
     export let type: string;
     export let min: number;
@@ -56,7 +56,7 @@
     {right}
     width={effectiveWidth}
     height={height + 6 * (fontSize + buffer + anchorBuffer) + anchorBuffer}
-    bottom={anchorBuffer * 2 + 6 * (fontSize + buffer + anchorBuffer / 2)}
+    bottom={6 * (fontSize + buffer + anchorBuffer / 2)}
 >
     <svelte:fragment let:x let:y let:buffer>
         <filter id="outline-{histogramID}">
