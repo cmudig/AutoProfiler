@@ -6,6 +6,7 @@
 
     import DFProfile from './DFProfile.svelte';
     import Parquet from './icons/Parquet.svelte';
+    import AlertIcon from './icons/AlertIcon.svelte';
     import { Circle } from 'svelte-loading-spinners';
 
     export let profileModel: ProfileModel;
@@ -48,7 +49,7 @@
     });
 </script>
 
-<main class="p-4 m-0">
+<main class="p-4 m-0 flex flex-col h-full">
     <h1 class="text-lg">AutoProfiler</h1>
 
     {#if isReady}
@@ -99,6 +100,22 @@
     {:else}
         <p>No notebook connection or executions yet.</p>
     {/if}
+
+    <div class="mt-auto pt-4 w-full">
+        <div>
+            <span class="text-gray-500 footerItem">
+                <AlertIcon size="14px" />
+            </span>
+            <span class="footerItem"> We want your input! Fill out our </span>
+            <a
+                class="feedbackLink footerItem"
+                href="https://forms.gle/V3ejpXxMcQXqYJG48"
+                target="_blank"
+            >
+                feedback form.
+            </a>
+        </div>
+    </div>
 </main>
 
 <style global lang="postcss">
@@ -222,5 +239,15 @@
     .ͼ2 .cm-gutters {
         background-color: transparent;
         border-right: none;
+    }
+
+    .feedbackLink {
+        @apply font-semibold;
+        color: #616161;
+    }
+
+    .footerItem {
+        @apply inline-block;
+        @apply align-middle;
     }
 </style>
