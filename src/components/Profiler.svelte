@@ -106,13 +106,21 @@
             <span class="text-gray-500 footerItem">
                 <AlertIcon size="14px" />
             </span>
-            <span class="footerItem"> We want your input! Fill out our </span>
+            <span class="footerItem"> We want your </span>
             <a
                 class="feedbackLink footerItem"
                 href="https://forms.gle/V3ejpXxMcQXqYJG48"
                 target="_blank"
             >
-                feedback form.
+                feedback
+            </a>
+            <span class="footerItem"> or </span>
+            <a
+                class="feedbackLink footerItem"
+                href="https://github.com/cmudig/AutoProfiler/issues"
+                target="_blank"
+            >
+                create an issue!
             </a>
         </div>
     </div>
