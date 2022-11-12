@@ -124,6 +124,17 @@ export class PythonPandasExecutor {
         });
     }
 
+    /**
+     * If using the python package digautoprofiler, then it needs to be imported every time 
+     * so this appends the import and then executes the code
+     * @param code the code string
+     */
+    private executePythonAP(code: string): Promise<ExecResult> {
+        const importCode = 'import digautoprofiler\n'
+
+        return this.executeCode(importCode + code)
+    }
+
     // ############################# Python kernel functions ################################################
 
     /**
@@ -180,10 +191,12 @@ export class PythonPandasExecutor {
         }
     }
 
+    /**
+     * NOTE: this function cannot be put in digautoprofiler python because evaluting the variable names 
+     * does not work from a separate module 
+     * @returns array of "True" or "False" if that variable is a pandas dataframe
+     */
     private async getDFVars(varNames: string[]): Promise<string[]> {
-        /*
-        Returns array of "True" or "False" if that variable is a pandas dataframe
-        */
         try {
             const code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
             varNames.forEach(name =>
@@ -198,10 +211,13 @@ export class PythonPandasExecutor {
         }
     }
 
+    /**
+     * Used to see if id has changed and update interface.
+     * NOTE: this function cannot be put in digautoprofiler python because evaluting the variable names 
+     * does not work from a separate module 
+     * @returns array of python object ids for varNames
+     */
     private async getObjectIds(varNames: string[]): Promise<string[]> {
-        /*
-        Returns array of python object ids for varNames. Used to see if id has changed and update interface.
-        */
         try {
             const code_lines = [];
             varNames.forEach(name => code_lines.push(`print(id(${name}))`));
@@ -214,14 +230,13 @@ export class PythonPandasExecutor {
         }
     }
 
-    private async getColumns(varName: string): Promise<IColTypeTuple[]> {
+    private async getColumns(dfName: string): Promise<IColTypeTuple[]> {
         /*
-        varNames is array of variables that are pd.DataFrame
+        dfName is variable that is pd.DataFrame
         Returns array of "True" or "False" if that variable is a pandas dataframe
         */
         try {
-            const code = `print(${varName}.dtypes.to_json(default_handler=str))`;
-            const res = await this.executeCode(code);
+            const res = await this.executePythonAP(`digautoprofiler.getColumns(${dfName})`);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join(""));
 
@@ -243,8 +258,7 @@ export class PythonPandasExecutor {
         returns tuple array [length, width]
         */
         try {
-            const code = `print(${dfName}.shape)`; // returns '(3, 2)' so need to parse
-            const res = await this.executeCode(code);
+            const res = await this.executePythonAP(`digautoprofiler.getShape(${dfName})`);
             const content = res['content'];
             const shapeString = content.join("");
             return shapeString
@@ -262,10 +276,7 @@ export class PythonPandasExecutor {
         colName: string
     ): Promise<IQuantMeta> {
         try {
-            const code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].describe().to_json())`;
-            const res = await this.executeCode(code);
+            const res = await this.executePythonAP(`digautoprofiler.getQuantMeta(${dfName}, "${replaceSpecial(colName)}")`);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join("").replace(/'/g, '')); // remove single quotes bc not JSON parseable
 
@@ -295,16 +306,7 @@ export class PythonPandasExecutor {
         colName: string
     ): Promise<IColMeta> {
         try {
-            // Code to execute
-            const numUnique_code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].nunique())`;
-            const numNull_code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].isna().sum())`;
-            // execute and parse
-            const code_lines = [numUnique_code, numNull_code];
-            const res = await this.executeCode(code_lines.join('\n'));
+            const res = await this.executePythonAP(`digautoprofiler.getColMeta(${dfName}, "${replaceSpecial(colName)}")`);
             const content = res['content'];
             return {
                 numUnique: parseInt(content[0]),
@@ -324,15 +326,8 @@ export class PythonPandasExecutor {
         colName: string,
         n = 10
     ): Promise<ValueCount[]> {
-        /*
-         *   Returns data for VL spec to plot nominal data. In form of array of shape
-         *   [ { [colName]: 0, "count": 5 }, { [colName]: 1, "count": 15 } ]
-         */
         try {
-            const code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].value_counts().iloc[:${n}].to_json())`;
-            const res = await this.executeCode(code);
+            const res = await this.executePythonAP(`digautoprofiler.getValueCounts(${dfName}, "${replaceSpecial(colName)}", ${n})`);
             const data: ValueCount[] = [];
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join("").replace(/'/g, '')); // remove single quotes bc not JSON parseable
@@ -351,17 +346,8 @@ export class PythonPandasExecutor {
         colName: string,
         maxbins = 20
     ): Promise<IHistogram> {
-        /*
-         *   Returns data for VL spec to plot quant data. In form of array of shape
-         *   [ { "bin_0": 0, "bin_1": 1, "count": 5 }, ]
-         */
         try {
-            const code = `print(${dfName}["${replaceSpecial(
-                colName
-            )}"].value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(
-                colName
-            )}"].nunique()), sort=False).to_json())`;
-            const res = await this.executeCode(code);
+            const res = await this.executePythonAP(`digautoprofiler.getQuantBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins})`);
             const content = res['content'];
             const data: IHistogram = [];
             const json_res = JSON.parse(content.join().replace(/'/g, '')); // remove single quotes bc not JSON parseable
@@ -383,32 +369,13 @@ export class PythonPandasExecutor {
         }
     }
 
-    /**
-     *
-     * Get histogram for temporal column in unix epoch format (UTC time)
-     * @param dfName: the dataframe
-     * @param colName: the temporal column
-     * @returns Histogram of format  [ { "low": 0, "high": 1, "count": 5, bucket: 0} ]
-     */
     public async getTempBinnedData(
         dfName: string,
         colName: string,
         maxbins = 200
     ): Promise<{ timebin: TimeBin[], histogram: IHistogram }> {
         try {
-            const bin_code = `print( (${dfName}["${replaceSpecial(
-                colName
-            )}"].astype("int64")//1e9).value_counts(bins=min(${maxbins}, ${dfName}["${replaceSpecial(
-                colName
-            )}"].nunique()), sort=False).to_json() )`;
-
-            const min_value_code = `print((${dfName}["${replaceSpecial(
-                colName
-            )}"].astype("int64") // 1e9).min())`;
-
-            const res = await this.executeCode(
-                [bin_code, min_value_code].join('\n')
-            );
+            const res = await this.executePythonAP(`digautoprofiler.getTempBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins})`);
             const content = res['content'];
             const timebinData: TimeBin[] = [];
             const histogram: IHistogram = []
@@ -462,13 +429,7 @@ export class PythonPandasExecutor {
         colName: string
     ): Promise<Interval> {
         try {
-            // Code to execute
-            const code = `print((${dfName}["${replaceSpecial(
-                colName
-            )}"].max() - ${dfName}["${replaceSpecial(colName)}"].min()).days)`;
-
-            // execute and parse
-            const res = await this.executeCode(code);
+            const res = await this.executePythonAP(`digautoprofiler.getTempInterval(${dfName}, "${replaceSpecial(colName)}")`);
             const content = res['content'];
             return {
                 months: 0,
@@ -488,14 +449,7 @@ export class PythonPandasExecutor {
     public async getVariableNamesInPythonStr(codeString: string): Promise<string[]> {
         try {
             const formattedCode = codeString.replace(/"/g, '\\"');
-            const codeLines = [
-                "import tokenize, io",
-                `print(set([ t.string for t in tokenize.generate_tokens(io.StringIO("""${formattedCode}""").readline) if t.type == 1]))`
-            ]
-
-            const code = codeLines.join("\n")
-
-            const res = await this.executeCode(code)
+            const res = await this.executePythonAP(`digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`)
             let content = res["content"].join("")
             content = content.replace(/'/g, '"') // replace single quotes
             content = content.replace('{', '[')
