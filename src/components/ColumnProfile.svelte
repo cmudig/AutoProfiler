@@ -42,10 +42,6 @@
     let active = false;
     let wrapperDivWidth: number;
 
-    // let exampleWidth = config.exampleWidth.small // or medium
-    // let summaryWidthSize = config.summaryVizWidth.small // or medium
-    // let cardinalityFormatter = formatInteger // or formatCompactInteger
-
     $: exampleWidth =
         containerWidth > config.mediumCutoff
             ? config.exampleWidth.medium

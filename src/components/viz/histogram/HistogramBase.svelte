@@ -1,10 +1,8 @@
 <script lang="ts">
     import { tweened } from 'svelte/motion';
-    // import { fly, fade } from "svelte/transition";
     import { cubicOut as easing } from 'svelte/easing';
     import { scaleLinear } from 'd3-scale';
     import { format } from 'd3-format';
-    // FIXME: move util to $lib or add a $util
     import { guidGenerator } from '../../utils/guid';
     import type { IHistogram } from '../../../common/exchangeInterfaces';
 
@@ -15,8 +13,6 @@
     export let fillColor: string; //'hsl(340, 70%, 70%)';
     export let baselineStrokeColor: string;
     export let dataType = 'int';
-
-    // s
     export let separate = true;
     $: separateQuantity = separate ? 0.25 : 0;
 
@@ -30,8 +26,6 @@
 
     // dots and labels
     export let vizOffset = 0;
-
-    // what do we have here? min, q25, q50, mean, q75, max
 
     const tw = tweened(0, { duration: time, easing });
 

@@ -7,8 +7,6 @@
     export let height = 19;
     export let fillColor = 'hsl(340, 70%, 70%)';
     export let baselineStrokeColor: string;
-
-    // scales
 </script>
 
 <HistogramBase

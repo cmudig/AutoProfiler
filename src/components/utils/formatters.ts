@@ -35,7 +35,6 @@ function formatInt(v) {
 
 function formatFloat(v) {
     if (Math.abs(v) >= 1) {
-        // return parseFloat(value.toFixed(1));
         return v.toFixed(1);
     }
 
@@ -62,8 +61,6 @@ export function formatBigNumberPercentage(v) {
 export function removeTimezoneOffset(dt) {
     return new Date(dt.getTime() + dt.getTimezoneOffset() * 60000);
 }
-
-//export const formatPercentage = format('.2%');
 
 export const standardTimestampFormat = (v, type = 'TIMESTAMP') => {
     let fmt = timeFormat('%b %d, %Y %I:%M:%S');

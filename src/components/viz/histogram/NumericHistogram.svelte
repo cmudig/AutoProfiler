@@ -7,7 +7,7 @@
     export let data;
     export let width = 100;
     export let height = 100;
-    export let color = NUMERIC_TOKENS.vizFillClass; //;
+    export let color = NUMERIC_TOKENS.vizFillClass;
 
     let left = 60;
     let right = 4;

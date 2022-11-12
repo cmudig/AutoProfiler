@@ -27,9 +27,6 @@ export class NotebookAPI {
         });
     }
 
-    /*
-     * Here are some events that you can signal to other parts of your app
-     */
 
     // ready is a Promise that resolves once the notebook is done loading
     get ready(): Promise<void> {
@@ -40,11 +37,6 @@ export class NotebookAPI {
     get changed(): ISignal<NotebookAPI, string> {
         return this._changed;
     }
-
-    /*
-     * Here are a bunch of utility functions to get useful information about
-     * the user's current notebook
-     */
 
     get notebook(): Notebook {
         return this.panel.content;
@@ -94,10 +86,7 @@ export class NotebookAPI {
         this.notebook.model.cells.insert(index, cell);
     }
 
-    /*
-     * Various notebook level events you can listen to
-     */
-
+    // Various notebook level events you can listen to
     private listenToCells() {
         this.loadCells();
 

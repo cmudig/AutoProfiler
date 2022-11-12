@@ -99,8 +99,6 @@
     $: plotData = splitOn(data, splitOnNull);
 
     $: hoveredPoint = getPoint(hoveredDate);
-
-    //$: whichTimeRange =
 </script>
 
 {#if xAxis}
@@ -112,7 +110,6 @@
                     ? secondaryFmt(xTick)
                     : formattedTick}</text
             >
-            <!-- <text x={X(xTick)} y={18}>{xTick.getMonth() + ' ' + xTick.getDay()}</text> -->
         {/each}
     </svg>
 {/if}

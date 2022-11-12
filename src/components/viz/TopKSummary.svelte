@@ -5,9 +5,8 @@
 
     import type { ValueCount } from '../../common/exchangeInterfaces';
 
-    // export let displaySize: string = 'md';
     export let totalRows: number;
-    export let topK: ValueCount[]; // FIXME
+    export let topK: ValueCount[];
     export let color: string;
     export let containerWidth: number;
 
@@ -18,8 +17,6 @@
         smallestPercentage < 0.01 ? format('0.2%') : format('0.1%');
 
     $: formatCount = format(',');
-
-    // time to create a single way to get the width of an element.
 </script>
 
 <div class="w-full">
