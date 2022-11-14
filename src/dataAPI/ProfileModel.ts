@@ -109,8 +109,6 @@ export class ProfileModel {
         this._loadingNewData.set(true)
         const alldf = await this.executor.getAllDataFrames();
 
-        console.log("All df are: ", alldf)
-
         // only update if we have detected dataframes
         if (!_.isEmpty(alldf)) {
             const colPromise = this.fetchColumnPromises(alldf);
