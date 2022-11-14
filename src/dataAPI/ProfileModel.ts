@@ -188,6 +188,11 @@ export class ProfileModel {
                     const chartData = await this.executor.getQuantBinnedData(dfName, col_name);
                     const statistics = await this.executor.getQuantMeta(dfName, col_name);
 
+                    // replace min on far bin with true minimum since pandas puts the left bin edge lower
+                    if (!_.isUndefined(chartData[0])) {
+                        chartData[0].low = statistics.min
+                    }
+
                     cd.summary.statistics = statistics;
                     cd.summary.histogram = chartData;
                 } else if (TIMESTAMPS.has(col_type)) {
