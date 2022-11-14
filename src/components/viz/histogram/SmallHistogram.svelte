@@ -19,6 +19,7 @@
     right={0}
     buffer={0}
     {fillColor}
+    hoverColor={fillColor}
     {baselineStrokeColor}
     separate={false}
 />

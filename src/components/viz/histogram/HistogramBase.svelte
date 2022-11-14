@@ -4,6 +4,7 @@
     import { scaleLinear } from 'd3-scale';
     import { format } from 'd3-format';
     import { bisector } from 'd3-array';
+    import _ from 'lodash';
     import { guidGenerator } from '../../utils/guid';
     import type {
         IHistogram,
@@ -16,6 +17,7 @@
     export let height = 19;
     export let time = 1000;
     export let fillColor: string; //'hsl(340, 70%, 70%)';
+    export let hoverColor: string;
     export let baselineStrokeColor: string;
     export let dataType = 'int';
     export let separate = true;
@@ -51,22 +53,12 @@
         .domain([0, maxY])
         .range([height - buffer - bottom, top + buffer]);
 
+    $: console.log('Y(0) is', Y(0));
+
     $: tw.set(1);
 
-    $: tweeningFunction =
-        dataType === 'int' ? (v: number) => ~~v : (v: number) => v;
-
-    let formatter: Function;
-    $: formatter = dataType === 'int' ? format('') : format('.2d');
     $: $lowValue = data[0].low;
     $: $highValue = data.slice(-1)[0].high;
-
-    function transformValue(value, valueType) {
-        if (valueType === 'mean') {
-            return Math.round(value * 10000) / 10000;
-        }
-        return value;
-    }
 
     let histogramID = guidGenerator();
 
@@ -74,29 +66,36 @@
 
     let tooltipX = 0;
     let tooltipY = 0;
-    let tooltipValue: IHistogramBin = undefined;
+    let tooltipIdx: number = undefined;
+    $: tooltipValue = data[tooltipIdx];
 
     function handleMousemove(event: MouseEvent) {
         let nearestIdx = bisect(data, X.invert(event.offsetX));
         let np = data[nearestIdx];
-        if (np && event.offsetX > xScaleMin && event.offsetX < xScaleMax) {
-            // place in middle
-            // tooltipX =
-            //     X(np.low) +
-            //     separateQuantity +
-            //     (X(np.high) - X(np.low) - separateQuantity * 2) / 2;
-
+        if (
+            np &&
+            event.offsetX > xScaleMin &&
+            event.offsetX < xScaleMax &&
+            event.offsetY < Y(0)
+        ) {
             tooltipX = event.offsetX;
             tooltipY = Y(0) * (1 - $tw) + Y(np.count) * $tw;
-            tooltipValue = np;
+            // tooltipValue = np;
+            tooltipIdx = nearestIdx;
         } else {
-            tooltipValue = undefined;
+            // tooltipValue = undefined;
+            tooltipIdx = undefined;
         }
     }
 
     function clearMouseMove() {
-        tooltipValue = undefined;
+        tooltipIdx = undefined;
     }
+
+    // utils for position
+    // const getX = (plow: number) => X(plow) + separateQuantity;
+    // const getWidth = (phigh: number, plow: number) =>
+    //     X(phigh) - X(plow) + 2 * separateQuantity;
 </script>
 
 <svg
@@ -107,13 +106,30 @@
 >
     <!-- histogram -->
     <g shape-rendering="crispEdges">
-        {#each data as { low, high, count }, i}
+        {#if showTooltip && !_.isUndefined(tooltipValue)}
+            <rect
+                x={X(tooltipValue.low) + separateQuantity}
+                width={X(tooltipValue.high) -
+                    X(tooltipValue.low) -
+                    separateQuantity * 2}
+                y={Y(maxY)}
+                height={height - 2 * buffer - bottom - top}
+                class={'fill-gray-100'}
+            />
+        {/if}
+        {#each data as { low, high, count, bucket }, i}
             {@const x = X(low) + separateQuantity}
             {@const width = X(high) - X(low) - separateQuantity * 2}
             {@const y = Y(0) * (1 - $tw) + Y(count) * $tw}
             {@const height = Math.min(Y(0), Y(0) * $tw - Y(count) * $tw)}
 
-            <rect {x} {width} {y} {height} class={fillColor} />
+            <rect
+                {x}
+                {width}
+                {y}
+                {height}
+                class={tooltipIdx === bucket ? hoverColor : fillColor}
+            />
         {/each}
         <line
             x1={left + vizOffset}
@@ -128,12 +144,19 @@
             {dataType}
             textX={left + vizOffset}
             textY={10}
-            lineX={tooltipX}
-            lineY1={top + buffer}
-            lineY2={height - buffer - bottom}
-            circleY={tooltipY}
             value={tooltipValue}
         />
     {/if}
     <slot x={X} y={Y} {buffer} />
 </svg>
+
+<style>
+    /* fill-red-200 */
+    .barHover {
+        fill: #fecaca;
+    }
+
+    .backgroundBar {
+        fill: hsla(217, 5%, 90%, 0.25);
+    }
+</style>

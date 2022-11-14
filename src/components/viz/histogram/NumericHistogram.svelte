@@ -52,6 +52,7 @@
     bind:buffer
     {top}
     fillColor={NUMERIC_TOKENS.vizFillClass}
+    hoverColor={'fill-red-400'}
     baselineStrokeColor={NUMERIC_TOKENS.vizStrokeClass}
     {data}
     {left}

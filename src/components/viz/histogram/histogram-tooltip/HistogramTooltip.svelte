@@ -6,10 +6,6 @@
     export let dataType = 'float';
     export let textX = 0;
     export let textY = 0;
-    export let lineX = 0;
-    export let lineY1 = 0;
-    export let lineY2 = 0;
-    export let circleY = 0;
     export let value: IHistogramBin;
 
     let fontSize = 12;
@@ -18,15 +14,6 @@
 
 {#if !_.isUndefined(value)}
     <g>
-        <line
-            x1={lineX}
-            x2={lineX}
-            y1={lineY1}
-            y2={lineY2}
-            stroke="rgb(100,100,100)"
-        />
-        <circle cx={lineX} cy={circleY} r={3} fill={'rgb(100,100,100)'} />
-
         <text
             x={textX}
             y={textY}
@@ -39,14 +26,5 @@
                 value.high
             )}{']'}: {value.count} row{#if value.count !== 1}s{/if}
         </text>
-        <!-- <text
-            x={textX}
-            y={textY + fontSize + textGap}
-            font-size={fontSize}
-            class="fill-gray-500"
-            text-anchor="left"
-        >
-            {value.count} row{#if value.count !== 1}s{/if}
-        </text> -->
     </g>
 {/if}
