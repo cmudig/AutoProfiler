@@ -128,7 +128,7 @@
     $: $plotConfig.textGap = textGap;
 
     /**
-     * The scrub action creates a scrubbing event that enables the user to
+     * The scrub action creates a scrubbing event that enables the user to drag with ctrl + drag and then zoom
      */
     const {
         coordinates: zoomCoords,
