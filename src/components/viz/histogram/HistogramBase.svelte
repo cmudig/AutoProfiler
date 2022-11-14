@@ -3,8 +3,13 @@
     import { cubicOut as easing } from 'svelte/easing';
     import { scaleLinear } from 'd3-scale';
     import { format } from 'd3-format';
+    import { bisector } from 'd3-array';
     import { guidGenerator } from '../../utils/guid';
-    import type { IHistogram } from '../../../common/exchangeInterfaces';
+    import type {
+        IHistogram,
+        IHistogramBin
+    } from '../../../common/exchangeInterfaces';
+    import HistogramTooltip from './HistogramTooltip.svelte';
 
     export let data: IHistogram;
     export let width = 60;
@@ -16,13 +21,15 @@
     export let separate = true;
     $: separateQuantity = separate ? 0.25 : 0;
 
+    export let showTooltip = false;
+
     // rowsize for table
     export let left = 60;
     export let right = 56;
     export let top = 0;
     export let bottom = 22;
-
     export let buffer = 4;
+    let tooltipBuffer = 4;
 
     // dots and labels
     export let vizOffset = 0;
@@ -62,9 +69,41 @@
     }
 
     let histogramID = guidGenerator();
+
+    var bisect = bisector(d => d.high).left;
+
+    let tooltipX = 0;
+    let tooltipY = 0;
+    let tooltipValue: number = undefined;
+
+    function handleMousemove(event: MouseEvent) {
+        let nearestIdx = bisect(data, X.invert(event.offsetX));
+        let np = data[nearestIdx];
+        if (np) {
+            // place in middle
+            tooltipX =
+                X(np.low) +
+                separateQuantity +
+                (X(np.high) - X(np.low) - separateQuantity * 2) / 2;
+
+            tooltipY = Y(0) * (1 - $tw) + Y(np.count) * $tw - tooltipBuffer;
+            tooltipValue = np.count;
+        } else {
+            tooltipValue = undefined;
+        }
+    }
+
+    function clearMouseMove() {
+        tooltipValue = undefined;
+    }
 </script>
 
-<svg {width} {height}>
+<svg
+    {width}
+    {height}
+    on:mousemove={handleMousemove}
+    on:mouseleave={clearMouseMove}
+>
     <!-- histogram -->
     <g shape-rendering="crispEdges">
         {#each data as { low, high, count }, i}
@@ -83,5 +122,8 @@
             class={baselineStrokeColor}
         />
     </g>
+    {#if showTooltip}
+        <HistogramTooltip x={tooltipX} y={tooltipY} value={tooltipValue} />
+    {/if}
     <slot x={X} y={Y} {buffer} />
 </svg>
