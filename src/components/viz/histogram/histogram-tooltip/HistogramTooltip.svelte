@@ -13,7 +13,7 @@
     export let value: IHistogramBin;
 
     let fontSize = 12;
-    let textGap = 4;
+    // let textGap = 4;
 </script>
 
 {#if !_.isUndefined(value)}
@@ -37,9 +37,9 @@
             {'('}{formatNumeric(dataType, value.low)}, {formatNumeric(
                 dataType,
                 value.high
-            )}{']'}
+            )}{']'}: {value.count} row{#if value.count !== 1}s{/if}
         </text>
-        <text
+        <!-- <text
             x={textX}
             y={textY + fontSize + textGap}
             font-size={fontSize}
@@ -47,6 +47,6 @@
             text-anchor="left"
         >
             {value.count} row{#if value.count !== 1}s{/if}
-        </text>
+        </text> -->
     </g>
 {/if}

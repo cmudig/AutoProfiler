@@ -11,7 +11,7 @@
 
     let left = 60;
     let right = 4;
-    let top = 28;
+    let top = 14;
 
     export let type: string;
     export let min: number;
