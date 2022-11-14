@@ -47,12 +47,11 @@
 
 <HistogramBase
     showTooltip={true}
-    dataType={type}
     separate={width > 300}
     bind:buffer
     {top}
     fillColor={NUMERIC_TOKENS.vizFillClass}
-    hoverColor={'fill-red-400'}
+    hoverColor={NUMERIC_TOKENS.vizHoverClass}
     baselineStrokeColor={NUMERIC_TOKENS.vizStrokeClass}
     {data}
     {left}

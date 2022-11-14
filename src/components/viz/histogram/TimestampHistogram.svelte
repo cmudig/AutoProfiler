@@ -34,7 +34,6 @@
 <HistogramBase
     separate={width > 300}
     fillColor={TIMESTAMP_TOKENS.vizFillClass}
-    hoverColor={TIMESTAMP_TOKENS.vizFillClass}
     baselineStrokeColor={TIMESTAMP_TOKENS.vizStrokeClass}
     {data}
     left={0}

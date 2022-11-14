@@ -2,14 +2,9 @@
     import { tweened } from 'svelte/motion';
     import { cubicOut as easing } from 'svelte/easing';
     import { scaleLinear } from 'd3-scale';
-    import { format } from 'd3-format';
     import { bisector } from 'd3-array';
     import _ from 'lodash';
-    import { guidGenerator } from '../../utils/guid';
-    import type {
-        IHistogram,
-        IHistogramBin
-    } from '../../../common/exchangeInterfaces';
+    import type { IHistogram } from '../../../common/exchangeInterfaces';
     import HistogramTooltip from './histogram-tooltip/HistogramTooltip.svelte';
 
     export let data: IHistogram;
@@ -17,12 +12,10 @@
     export let height = 19;
     export let time = 1000;
     export let fillColor: string; //'hsl(340, 70%, 70%)';
-    export let hoverColor: string;
+    export let hoverColor: string = fillColor;
     export let baselineStrokeColor: string;
-    export let dataType = 'int';
     export let separate = true;
     $: separateQuantity = separate ? 0.25 : 0;
-
     export let showTooltip = false;
 
     // rowsize for table
@@ -31,7 +24,6 @@
     export let top = 0;
     export let bottom = 22;
     export let buffer = 4;
-    let tooltipBuffer = 4;
 
     // dots and labels
     export let vizOffset = 0;
@@ -53,37 +45,28 @@
         .domain([0, maxY])
         .range([height - buffer - bottom, top + buffer]);
 
-    $: console.log('Y(0) is', Y(0));
-
     $: tw.set(1);
 
     $: $lowValue = data[0].low;
     $: $highValue = data.slice(-1)[0].high;
 
-    let histogramID = guidGenerator();
-
     var bisect = bisector(d => d.high).left;
 
-    let tooltipX = 0;
-    let tooltipY = 0;
     let tooltipIdx: number = undefined;
     $: tooltipValue = data[tooltipIdx];
 
     function handleMousemove(event: MouseEvent) {
         let nearestIdx = bisect(data, X.invert(event.offsetX));
         let np = data[nearestIdx];
+        // only show tooltip when mouse x and y are in plot area
         if (
             np &&
             event.offsetX > xScaleMin &&
             event.offsetX < xScaleMax &&
             event.offsetY < Y(0)
         ) {
-            tooltipX = event.offsetX;
-            tooltipY = Y(0) * (1 - $tw) + Y(np.count) * $tw;
-            // tooltipValue = np;
             tooltipIdx = nearestIdx;
         } else {
-            // tooltipValue = undefined;
             tooltipIdx = undefined;
         }
     }
@@ -141,22 +124,11 @@
     </g>
     {#if showTooltip}
         <HistogramTooltip
-            {dataType}
             textX={left + vizOffset}
             textY={10}
             value={tooltipValue}
+            leftBinInclusive={tooltipIdx === 0}
         />
     {/if}
     <slot x={X} y={Y} {buffer} />
 </svg>
-
-<style>
-    /* fill-red-200 */
-    .barHover {
-        fill: #fecaca;
-    }
-
-    .backgroundBar {
-        fill: hsla(217, 5%, 90%, 0.25);
-    }
-</style>

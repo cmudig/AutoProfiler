@@ -1,15 +1,15 @@
 <script lang="ts">
     import _ from 'lodash';
     import type { IHistogramBin } from '../../../../common/exchangeInterfaces';
-    import { formatNumeric } from '../../../utils/formatters';
+    import { formatFloat } from '../../../utils/formatters';
+    // Pandas histogram bins are always floats so can format accordingly
 
-    export let dataType = 'float';
     export let textX = 0;
     export let textY = 0;
     export let value: IHistogramBin;
+    export let leftBinInclusive = false;
 
     let fontSize = 12;
-    // let textGap = 4;
 </script>
 
 {#if !_.isUndefined(value)}
@@ -21,10 +21,10 @@
             class="fill-gray-500"
             text-anchor="left"
         >
-            {'('}{formatNumeric(dataType, value.low)}, {formatNumeric(
-                dataType,
+            {leftBinInclusive ? '[' : '('}{formatFloat(value.low)}, {formatFloat(
                 value.high
-            )}{']'}: {value.count} row{#if value.count !== 1}s{/if}
+            )}{']'}: {value.count}
+            row{#if value.count !== 1}s{/if}
         </text>
     </g>
 {/if}

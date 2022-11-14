@@ -44,6 +44,7 @@ interface IColorTokens {
     bgClass: string;
     vizFillClass: string;
     vizStrokeClass: string;
+    vizHoverClass?: string;
 }
 
 export const CATEGORICAL_TOKENS: IColorTokens = {
@@ -57,7 +58,8 @@ export const NUMERIC_TOKENS: IColorTokens = {
     textClass: 'text-red-800',
     bgClass: 'bg-red-200',
     vizFillClass: 'fill-red-300',
-    vizStrokeClass: 'stroke-red-300'
+    vizStrokeClass: 'stroke-red-300',
+    vizHoverClass: 'fill-red-400'
 };
 
 export const TIMESTAMP_TOKENS: IColorTokens = {

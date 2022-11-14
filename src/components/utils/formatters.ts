@@ -29,11 +29,11 @@ export function formatNumeric(type: string, value) {
 }
 
 
-function formatInt(v) {
+export function formatInt(v) {
     return format('d')(v)
 }
 
-function formatFloat(v) {
+export function formatFloat(v) {
     if (Math.abs(v) >= 1) {
         return v.toFixed(1);
     }
