@@ -11,7 +11,7 @@
 
     let left = 60;
     let right = 4;
-    let top = 8;
+    let top = 28;
 
     export let type: string;
     export let min: number;
@@ -47,6 +47,7 @@
 
 <HistogramBase
     showTooltip={true}
+    dataType={type}
     separate={width > 300}
     bind:buffer
     {top}

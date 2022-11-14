@@ -9,7 +9,7 @@
         IHistogram,
         IHistogramBin
     } from '../../../common/exchangeInterfaces';
-    import HistogramTooltip from './HistogramTooltip.svelte';
+    import HistogramTooltip from './histogram-tooltip/HistogramTooltip.svelte';
 
     export let data: IHistogram;
     export let width = 60;
@@ -41,9 +41,9 @@
 
     $: minX = Math.min(...data.map(d => d.low));
     $: maxX = Math.max(...data.map(d => d.high));
-    $: X = scaleLinear()
-        .domain([minX, maxX])
-        .range([left + vizOffset, width - right - vizOffset]);
+    $: xScaleMin = left + vizOffset;
+    $: xScaleMax = width - right - vizOffset;
+    $: X = scaleLinear().domain([minX, maxX]).range([xScaleMin, xScaleMax]);
 
     $: yVals = data.map(d => d.count);
     $: maxY = Math.max(...yVals);
@@ -74,20 +74,21 @@
 
     let tooltipX = 0;
     let tooltipY = 0;
-    let tooltipValue: number = undefined;
+    let tooltipValue: IHistogramBin = undefined;
 
     function handleMousemove(event: MouseEvent) {
         let nearestIdx = bisect(data, X.invert(event.offsetX));
         let np = data[nearestIdx];
-        if (np) {
+        if (np && event.offsetX > xScaleMin && event.offsetX < xScaleMax) {
             // place in middle
-            tooltipX =
-                X(np.low) +
-                separateQuantity +
-                (X(np.high) - X(np.low) - separateQuantity * 2) / 2;
+            // tooltipX =
+            //     X(np.low) +
+            //     separateQuantity +
+            //     (X(np.high) - X(np.low) - separateQuantity * 2) / 2;
 
-            tooltipY = Y(0) * (1 - $tw) + Y(np.count) * $tw - tooltipBuffer;
-            tooltipValue = np.count;
+            tooltipX = event.offsetX;
+            tooltipY = Y(0) * (1 - $tw) + Y(np.count) * $tw;
+            tooltipValue = np;
         } else {
             tooltipValue = undefined;
         }
@@ -123,7 +124,16 @@
         />
     </g>
     {#if showTooltip}
-        <HistogramTooltip x={tooltipX} y={tooltipY} value={tooltipValue} />
+        <HistogramTooltip
+            {dataType}
+            textX={left + vizOffset}
+            textY={10}
+            lineX={tooltipX}
+            lineY1={top + buffer}
+            lineY2={height - buffer - bottom}
+            circleY={tooltipY}
+            value={tooltipValue}
+        />
     {/if}
     <slot x={X} y={Y} {buffer} />
 </svg>
