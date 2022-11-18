@@ -177,7 +177,7 @@ export class PythonPandasExecutor {
 
     public async getVariableNames(): Promise<string[]> {
         try {
-            const code = '%who_ls'; // python magic command
+            const code = 'print(dir())'
             const res = await this.executeCode(code);
             const content = res['content'];
             const data = content.join("").replace(/'/g, '"');
