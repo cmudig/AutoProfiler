@@ -4,11 +4,10 @@ import type { NotebookAPI } from './jupyter/notebook';
 import { PythonPandasExecutor } from './jupyter/PythonExecutor'
 import type {
     IDFColMap,
-    IColumnProfileMap,
+    IDFProfileWStateMap,
     ColumnProfileData,
-    IColumnProfileWrapper,
-    TimeColumnSummary,
-    TimeBin
+    IDFProfileWState,
+    TimeColumnSummary
 } from '../common/exchangeInterfaces';
 import {
     NUMERICS,
@@ -20,7 +19,7 @@ export class ProfileModel {
 
     private _notebook: NotebookAPI;
     private _ready: Writable<boolean> = writable(false);
-    private _columnProfiles: Writable<IColumnProfileMap> = writable(undefined)
+    private _columnProfiles: Writable<IDFProfileWStateMap> = writable(undefined)
     private _loadingNewData: Writable<boolean> = writable(false);
     private _executor: PythonPandasExecutor
     private _name: Writable<string> = writable(undefined)
@@ -52,7 +51,7 @@ export class ProfileModel {
         return this._name
     }
 
-    get columnProfiles(): Writable<IColumnProfileMap> {
+    get columnProfiles(): Writable<IDFProfileWStateMap | undefined> {
         return this._columnProfiles
     }
 
@@ -114,7 +113,30 @@ export class ProfileModel {
             const colPromise = this.fetchColumnPromises(alldf);
 
             colPromise.then(result => {
-                this._columnProfiles.set(result);
+
+                this._columnProfiles.update((currentProfiles: IDFProfileWStateMap) => {
+
+                    if (!_.isUndefined(currentProfiles)) {
+                        for (const [dfName, currentDfProfile] of Object.entries(currentProfiles)) {
+                            const { lastUpdatedTime, isPinned, ...currentShapeAndProfile } = currentDfProfile
+
+                            // check if in result, otherwise was deleted
+                            if (dfName in result) {
+                                const { lastUpdatedTime: tTime, isPinned: tPinned, ...newShapeAndProfile } = result[dfName]
+
+                                // copy over state
+                                result[dfName].lastUpdatedTime = lastUpdatedTime
+                                result[dfName].isPinned = isPinned
+
+                                if (!_.isEqual(currentShapeAndProfile, newShapeAndProfile)) {
+                                    result[dfName].lastUpdatedTime = Date.now()
+                                }
+                            }
+                        }
+                    }
+
+                    return result
+                });
                 this._loadingNewData.set(false);
             });
         } else {
@@ -138,8 +160,8 @@ export class ProfileModel {
 
     // ################################# State updates ############################################
     private async fetchColumnPromises(
-        dfColMap: IDFColMap): Promise<IColumnProfileMap> {
-        const colProfileMap: IColumnProfileMap = {};
+        dfColMap: IDFColMap): Promise<IDFProfileWStateMap> {
+        const colProfileMap: IDFProfileWStateMap = {};
         const alldf_names = Object.keys(dfColMap);
 
         const resolved_profiles = await Promise.all(
@@ -157,7 +179,7 @@ export class ProfileModel {
     private async getColProfiles(
         dfName: string,
         dfColMap: IDFColMap
-    ): Promise<IColumnProfileWrapper> {
+    ): Promise<IDFProfileWState> {
         const shape = await this.executor.getShape(dfName);
         const colMetaInfoArr = dfColMap[dfName].columns;
         const resultData: ColumnProfileData[] = [];
@@ -222,7 +244,7 @@ export class ProfileModel {
             resultData.push(cd);
         }
 
-        return { profile: resultData, shape: shape };
+        return { profile: resultData, shape, dfName, lastUpdatedTime: Date.now(), isPinned: false };
     }
 
 }

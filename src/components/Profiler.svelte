@@ -2,7 +2,8 @@
     import { onDestroy, setContext } from 'svelte';
     import _ from 'lodash';
     import type { ProfileModel } from '../dataAPI/ProfileModel';
-    import type { IColumnProfileMap } from '../common/exchangeInterfaces';
+    import type { IDFProfileWState } from '../common/exchangeInterfaces';
+    import { sortDFArr } from './utils/sort-utils';
 
     import DFProfile from './DFProfile.svelte';
     import Parquet from './icons/Parquet.svelte';
@@ -14,7 +15,7 @@
 
     let isReady: boolean;
     let isLoading: boolean;
-    let columnProfiles: IColumnProfileMap;
+    let colProfileArr: IDFProfileWState[] = [];
     let name: string;
     let varsInCurrentCell: string[];
 
@@ -27,7 +28,9 @@
     });
 
     const cpUnsub = profileModel.columnProfiles.subscribe(val => {
-        columnProfiles = val;
+        if (!_.isEmpty(val)) {
+            colProfileArr = Object.values(val);
+        }
     });
 
     const nameUnsub = profileModel.name.subscribe(val => {
@@ -47,6 +50,24 @@
         nameUnsub();
         varsInCellUnsub();
     });
+
+    let sortOptions = [
+        { prop: 'dfName', displayName: 'Name' },
+        { prop: 'lastUpdatedTime', displayName: 'Last Updated' }
+    ];
+    let selectedSortOption = 'lastUpdatedTime';
+
+    function handlePin(event) {
+        profileModel.columnProfiles.update(oldVal => {
+            let match = oldVal[event.detail.dfName];
+            if (match) {
+                match.isPinned = !match.isPinned;
+            }
+            return oldVal;
+        });
+    }
+
+    $: sortedArr = sortDFArr(colProfileArr, selectedSortOption);
 </script>
 
 <main class="p-4 m-0 flex flex-col h-full">
@@ -63,30 +84,45 @@
             </p>
         </div>
 
-        {#if !_.isEmpty(columnProfiles)}
-            <div>
-                <div class="inline-block align-middle">
-                    <Parquet size="16px" />
+        {#if !_.isEmpty(colProfileArr)}
+            <div class="flex gap-1 items-center">
+                <Parquet size="16px" />
+                <h2 class="text-base">DataFrames</h2>
+                <div class="grow">
+                    {#if isLoading}
+                        <div class="pl-2">
+                            <Circle
+                                size="1"
+                                color="#FF3E00"
+                                unit="rem"
+                                duration="1s"
+                            />
+                        </div>
+                    {/if}
                 </div>
-                <h2 class="inline-block align-middle">DataFrames</h2>
-                {#if isLoading}
-                    <div class="inline-block align-middle pl-2">
-                        <Circle
-                            size="1"
-                            color="#FF3E00"
-                            unit="rem"
-                            duration="1s"
-                        />
-                    </div>
-                {/if}
+
+                <div class="justify-end">
+                    Sort by:
+
+                    <select
+                        class="rounded border border-6 bg-gray-100 hover:border-gray-300"
+                        bind:value={selectedSortOption}
+                    >
+                        {#each sortOptions as opt}
+                            <option value={opt.prop}>{opt.displayName}</option>
+                        {/each}
+                    </select>
+                </div>
             </div>
 
             <div>
-                {#each Object.keys(columnProfiles) as dfName (dfName)}
+                {#each sortedArr as profile (profile.dfName)}
                     <DFProfile
-                        {dfName}
-                        isInFocus={varsInCurrentCell.includes(dfName)}
-                        dataframeProfile={columnProfiles[dfName]}
+                        dfName={profile.dfName}
+                        isInFocus={varsInCurrentCell.includes(profile.dfName)}
+                        dataframeProfile={profile}
+                        isPinned={profile.isPinned}
+                        on:message={handlePin}
                     />
                 {/each}
             </div>
