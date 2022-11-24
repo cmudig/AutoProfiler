@@ -10,7 +10,7 @@
     style:height="16px"
     style:grid-column="left-control"
     class="
-    hover:bg-gray-300
+    hover:bg-gray-100
     transition-tranform 
     text-gray-500
     duration-100

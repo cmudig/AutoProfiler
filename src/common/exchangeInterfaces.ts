@@ -12,14 +12,23 @@ export type IDFColMap = {
 };
 
 // data fetched from kernel for frontend
-export type IColumnProfileMap = {
-    [dfname: string]: IColumnProfileWrapper;
-};
+export type IDFProfileWStateMap = {
+    [dfname: string]: IDFProfileWState;
+} | undefined;
 
-export type IColumnProfileWrapper = {
+
+export type IDFProfileWState = IDFProfileData & IDFProfileState
+
+export type IDFProfileState = {
+    lastUpdatedTime: number;
+    isPinned: boolean;
+}
+
+export type IDFProfileData = {
     profile: ColumnProfileData[];
     shape: number[];
-};
+    dfName: string;
+}
 
 export type IQuantChartData = {
     binned_data: any[];
