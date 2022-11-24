@@ -35,8 +35,6 @@
     export let view: string = 'summaries'; // summaries, example
     export let containerWidth: number;
     export let hideRight = false;
-    // hide the null percentage number
-    export let hideNullPercentage = false;
 
     // locals
     let active = false;
@@ -53,7 +51,6 @@
         containerWidth > config.compactBreakpoint
             ? formatInteger
             : formatCompactInteger;
-    $: hideNullPercentage = containerWidth < config.compactBreakpoint;
 </script>
 
 <!-- pl-10 -->
@@ -116,10 +113,7 @@
                 {/if}
             </div>
 
-            <div
-                style:width="{config.nullPercentageWidth}px"
-                class:hidden={hideNullPercentage}
-            >
+            <div style:width="{config.nullPercentageWidth}px">
                 <!-- Number of nulls -->
                 {#if totalRows !== 0 && totalRows !== undefined && nullCount !== undefined}
                     <Tooltip location="right" alignment="center" distance={8}>
