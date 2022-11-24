@@ -30,6 +30,8 @@
     const cpUnsub = profileModel.columnProfiles.subscribe(val => {
         if (!_.isEmpty(val)) {
             colProfileArr = Object.values(val);
+        } else {
+            colProfileArr = [];
         }
     });
 
