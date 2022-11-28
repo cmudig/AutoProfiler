@@ -8,7 +8,6 @@
     export let totalRows: number;
     export let topK: ValueCount[];
     export let color: string;
-    export let containerWidth: number;
 
     $: smallestPercentage = Math.min(
         ...topK.slice(0, 5).map(entry => entry.count / totalRows)

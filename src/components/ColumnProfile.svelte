@@ -165,7 +165,6 @@
                     {#if totalRows !== 0 && nullCount !== totalRows}
                         {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.topK}
                             <TopKSummary
-                                containerWidth={wrapperDivWidth}
                                 color={DATA_TYPE_COLORS[type].bgClass}
                                 {totalRows}
                                 topK={summary.topK}
