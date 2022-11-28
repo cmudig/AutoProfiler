@@ -1,7 +1,7 @@
 <script lang="ts">
     import _ from 'lodash';
     import type { IHistogramBin } from '../../../../common/exchangeInterfaces';
-    import { formatFloat } from '../../../utils/formatters';
+    import { formatFloat, formatInteger } from '../../../utils/formatters';
     // Pandas histogram bins are always floats so can format accordingly
 
     export let textX = 0;
@@ -23,7 +23,7 @@
         >
             {leftBinInclusive ? '[' : '('}{formatFloat(value.low)}, {formatFloat(
                 value.high
-            )}{']'}: {value.count}
+            )}{']'}: {formatInteger(value.count)}
             row{#if value.count !== 1}s{/if}
         </text>
     </g>

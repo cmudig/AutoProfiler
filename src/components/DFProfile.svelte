@@ -7,6 +7,7 @@
     import Pin from './icons/Pin.svelte';
     import Tooltip from './tooltip/Tooltip.svelte';
     import TooltipContent from './tooltip/TooltipContent.svelte';
+    import { formatInteger } from './utils/formatters';
 
     export let dfName: string;
     export let dataframeProfile: IDFProfileWState;
@@ -45,7 +46,9 @@
             <p class="font-bold">{dfName}</p>
 
             <p class="grow">
-                {dataframeProfile?.shape?.[0]} x {dataframeProfile?.shape?.[1]}
+                {formatInteger(dataframeProfile?.shape?.[0])} x {formatInteger(
+                    dataframeProfile?.shape?.[1]
+                )}
             </p>
 
             {#if isInFocus}
