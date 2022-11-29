@@ -1,18 +1,23 @@
 <script lang="ts">
     import CollapsibleCard from './nav/CollapsibleCard.svelte';
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher, getContext } from 'svelte';
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
     import type { IDFProfileWState } from '../common/exchangeInterfaces';
+    import type { ProfileModel } from '../dataAPI/ProfileModel';
+
     import Pin from './icons/Pin.svelte';
     import Tooltip from './tooltip/Tooltip.svelte';
     import TooltipContent from './tooltip/TooltipContent.svelte';
     import { formatInteger } from './utils/formatters';
+    import { currentHoveredCol } from '../stores';
 
     export let dfName: string;
     export let dataframeProfile: IDFProfileWState;
     export let isInFocus = false;
     export let isPinned = false;
+
+    const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
     // locals
     let previewView = 'summaries';
@@ -43,7 +48,13 @@
         <div slot="header" class="dfprofile-header flex gap-1 items-center">
             <ExpanderButton rotated={expanded} />
 
-            <p class="font-bold">{dfName}</p>
+            <div class="font-bold">
+                {#if dfName == profileModel.currentOutputName}
+                    Output from [{profileModel.currentOutputName.slice(1)}]
+                {:else}
+                    {dfName}
+                {/if}
+            </div>
 
             <p class="grow">
                 {formatInteger(dataframeProfile?.shape?.[0])} x {formatInteger(

@@ -14,6 +14,7 @@ export class NotebookAPI {
     panel: NotebookPanel;
     // kernel: KernelAPI;
     cells: CellAPI[];
+    mostRecentExecutionCount: number;
 
     constructor(notebookPanel: NotebookPanel) {
         this.panel = notebookPanel;
@@ -109,6 +110,10 @@ export class NotebookAPI {
                     c => c.model.id === args.cell.model.id
                 );
                 if (cell) {
+                    const exCount = cell.getExecutionCount()
+                    if (exCount) {
+                        this.mostRecentExecutionCount = exCount
+                    }
                     cell._runSignal.emit();
                     this._changed.emit('cell run');
                 }

@@ -24,6 +24,7 @@ export class ProfileModel {
     private _executor: PythonPandasExecutor
     private _name: Writable<string> = writable(undefined)
     private _varsInCurrentCell: Writable<string[]> = writable([])
+    private _currentOutputName: string;
 
     constructor(session: ISessionContext) {
         this._executor = new PythonPandasExecutor(session)
@@ -61,6 +62,13 @@ export class ProfileModel {
 
     get notebook(): NotebookAPI {
         return this._notebook
+    }
+
+    get currentOutputName(): string {
+        if (this.notebook.mostRecentExecutionCount) {
+            return `_${this.notebook.mostRecentExecutionCount}`
+        }
+        return undefined
     }
 
     public async connectNotebook(notebook: NotebookAPI) {
@@ -106,7 +114,7 @@ export class ProfileModel {
 
     public async updateRootData() {
         this._loadingNewData.set(true)
-        const alldf = await this.executor.getAllDataFrames();
+        const alldf = await this.executor.getAllDataFrames(this.currentOutputName);
 
         // only update if we have detected dataframes
         if (!_.isEmpty(alldf)) {

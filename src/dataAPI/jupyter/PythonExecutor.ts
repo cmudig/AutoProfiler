@@ -142,9 +142,9 @@ export class PythonPandasExecutor {
      * and their columns along with the object id
      * @returns
      */
-    public async getAllDataFrames(): Promise<IDFColMap> {
+    public async getAllDataFrames(currentOutputName: string): Promise<IDFColMap> {
         try {
-            const var_names = await this.getVariableNames();
+            const var_names = await this.getVariableNames(currentOutputName);
 
             if (var_names) {
                 const isDF = await this.getDFVars(var_names);
@@ -175,9 +175,10 @@ export class PythonPandasExecutor {
         }
     }
 
-    public async getVariableNames(): Promise<string[]> {
+    public async getVariableNames(currentOutputName: string): Promise<string[]> {
         try {
-            const code = 'print(dir())'
+
+            const code = `print([x for x in dir() if x == "${currentOutputName}" or x[0] != "_"])`
             const res = await this.executeCode(code);
             const content = res['content'];
             const data = content.join("").replace(/'/g, '"');
