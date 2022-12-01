@@ -5,6 +5,7 @@ These are called from PythonExecutor.ts in the frontend
 
 import json
 import pandas as pd
+import math
 from .utils import convertDescribe, convertBinned, convertVC
 
 
@@ -21,7 +22,7 @@ def getColumns(dfName: pd.DataFrame):
     typeDF = pd.concat([indexDF, typeDF])
     print(typeDF.to_json(orient="records", default_handler=str))
 
-def getShape(dfName: pd.DataFrame):
+def getShape(dfName: pd.DataFrame):    
     print(dfName.shape)
 
 def getVariableNamesInPythonStr(codeString: str):
@@ -245,11 +246,61 @@ def getQuantMeta(colData: pd.Series):
 
     return statistics
 
+def getAggrData(dfName: pd.DataFrame, catColName: str, quantColName: str, aggrType: str="mean", n=10):
+    if aggrType == "mean":
+        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].mean().sort_values(ascending=False)[:n]
+    if aggrType == "count":
+        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].count().sort_values(ascending=False)[:n]
+    if aggrType == "sum":
+        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].sum().sort_values(ascending=False)[:n]
+    if aggrType == "min":
+        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].min().sort_values(ascending=False)[:n]
+    if aggrType == "max":
+        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].max().sort_values(ascending=False)[:n]
+    print(aggrData.to_json())
+    
+
+def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, aggrType: str="count", **kwargs): 
+
+    binNum = min(round(1 + 3.322 * math.log10(len(dfName))),20)
+    offsetAliases = ['Y','M','W','D','H','T','S']
+    i = 0
+    previousLen = -float("inf")
+    currentLen = 0
+    while i < len(offsetAliases) and currentLen < binNum and currentLen > previousLen:
+        previousLen = currentLen
+        currentLen = len(dfName[tempColName].dt.to_period(offsetAliases[i]).unique())
+        i += 1
+    if currentLen <= previousLen:
+        timestep = offsetAliases[max(i - 2,0)]
+    else:
+        timestep = offsetAliases[max(i - 1,0)]
+    
+    if "timestep" in kwargs:
+        given_timestep = kwargs.get("timestep")
+        if offsetAliases.index(given_timestep) < offsetAliases.index(timestep):
+            timestep = given_timestep
+    
+    indices = dfName[tempColName].dt.to_period(timestep).astype('string')
+    groups = pd.Series(dfName[quantColName].tolist(),index=indices).groupby(level=0)
+    if aggrType == "mean":
+        tempAggrData = groups.mean()
+    if aggrType == "count":
+        tempAggrData = groups.count()
+    if aggrType == "sum":
+        tempAggrData = groups.sum()
+    if aggrType == "min":
+        tempAggrData = groups.min()
+    if aggrType == "max":
+        tempAggrData = groups.max()
+    print(json.dumps({"data":tempAggrData.to_dict(),"timestep":timestep}))
+    
 def getTemporalMeta(colData: pd.Series):
     if colData.is_monotonic_increasing:
         result = "ascending"
     elif colData.is_monotonic_decreasing:
         result = "descending"
+        
     else:
         result = "noSort"
     return {"sortedness": result}

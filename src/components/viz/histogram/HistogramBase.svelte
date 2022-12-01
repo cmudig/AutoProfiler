@@ -111,7 +111,6 @@
     // const getWidth = (phigh: number, plow: number) =>
     //     X(phigh) - X(plow) + 2 * separateQuantity;
 </script>
-
 <svg
     {width}
     {height}

@@ -28,16 +28,16 @@
     import type { Interval, TimeBin } from '../../../common/exchangeInterfaces';
     import { writable } from 'svelte/store';
     import type { Writable } from 'svelte/store';
-    import { createExtremumResolutionStore } from './extremum-resolution-store';
+    import { createExtremumResolutionStore } from '../timestamp/extremum-resolution-store';
 
-    import TimestampBound from './TimestampBound.svelte';
-    import TimestampProfileSummary from './TimestampProfileSummary.svelte';
+    import TimestampBound from '../timestamp/TimestampBound.svelte';
+    import TimestampProfileSummary from '../timestamp/TimestampProfileSummary.svelte';
 
-    import TimestampMouseoverAnnotation from './TimestampMouseoverAnnotation.svelte';
-    import TimestampPaths from './TimestampPaths.svelte';
+    import TimestampMouseoverAnnotation from '../timestamp/TimestampMouseoverAnnotation.svelte';
+    import TimestampPaths from '../timestamp/TimestampPaths.svelte';
 
     import type { PlotConfig } from '../../utils/constants';
-    import ZoomWindow from './ZoomWindow.svelte';
+    import ZoomWindow from '../timestamp/ZoomWindow.svelte';
 
     const id = guidGenerator();
 
@@ -300,8 +300,8 @@
         {interval}
         numZoomedRows={zoomedRows}
         numTotalRows={~~data.reduce((a, b) => a + b[yAccessor], 0)}
-        zoomed={!($zoomCoords.start.x == undefined) ||
-            !(zoomedXStart == undefined)}
+        zoomed={!_.isUndefined($zoomCoords.start.x) ||
+            !_.isUndefined(zoomedXStart)}
     />
     <svg
         width="100%"

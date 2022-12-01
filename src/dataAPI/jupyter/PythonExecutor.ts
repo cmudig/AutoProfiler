@@ -4,6 +4,7 @@ import type {
     IColTypeTuple,
     IDFColMap,
     ColumnProfileData,
+    ValueCount,
 } from '../../common/exchangeInterfaces';
 import _ from 'lodash';
 
@@ -501,4 +502,52 @@ export class PythonPandasExecutor {
         }
     }
 
+
+    public async getAggrData(
+        dfName: string,
+        catColName: string,
+        quantColName: string,
+        aggrType: string,
+        n = 10
+    ): Promise<ValueCount[]> {
+        const code = `digautoprofiler.getAggrData(${dfName}, "${replaceSpecial(catColName)}", "${replaceSpecial(quantColName)}", "${aggrType}", ${n})`;
+        try {
+            const res = await this.executePythonAP(code);
+            const data = [];
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content?.join("").replace(/'/g, '\'')); // remove single quotes bc not JSON parseable
+            Object.keys(json_res).forEach((k, i) => { data.push({ 'value': k, 'count': json_res[k], 'bucket': i }) });
+            return data;
+        } catch (error) {
+            console.warn(`[Error caught] in getAggrData executing: ${code}`, error);
+            return [];
+        }
+    }
+
+    public async getTempAggrData(
+        dfName: string,
+        tempColName: string,
+        quantColName: string,
+        aggrType: string,
+        timestep: string,
+    ) {
+        let code: string;
+        if (_.isUndefined(timestep)) {
+            code = `digautoprofiler.getTempAggrData(${dfName}, "${replaceSpecial(tempColName)}", "${replaceSpecial(quantColName)}", "${aggrType}")`;
+        }
+        else {
+            code = `digautoprofiler.getTempAggrData(${dfName}, "${replaceSpecial(tempColName)}", "${replaceSpecial(quantColName)}", "${aggrType}", timestep = "${timestep}")`;
+        }
+        try {
+            const res = await this.executePythonAP(code);
+            const content = res['content'];
+            const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            const statistics = { "data": [], "timestep": json_res["timestep"] };
+            Object.keys(json_res["data"]).forEach((k, i) => { statistics["data"].push({ 'period': k, 'value': json_res["data"][k], 'bucket': i }); });
+            return statistics;
+        } catch (error) {
+            console.warn(`[Error caught] in getTempAggrData executing: ${code}`, error);
+            return [];
+        }
+    }
 }

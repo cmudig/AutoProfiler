@@ -44,6 +44,12 @@
         containerWidth > config.compactBreakpoint
             ? formatInteger
             : formatCompactInteger;
+
+    // const dispatch = createEventDispatcher();
+
+    // function selectVariable(colName: string, type: string) {
+    //     dispatch('variable', { 'colName': colName, 'colType': type });
+    // }
 </script>
 
 {#if !isIndex || (isIndex && $showIndex)}
@@ -51,6 +57,14 @@
     <ColumnEntry {hideRight} bind:active hoverKey={colName} {dfName}>
         <svelte:fragment slot="icon">
             <Tooltip location="left" distance={16}>
+                <!-- <button
+                    style={showAddButton?"display: auto":"display: none"}
+                    on:click={() => {
+                        selectVariable(colName, type);
+                    }}
+                >
+                    <AddVariable />
+                </button> -->
                 <DataTypeIcon {type} />
 
                 <TooltipContent slot="tooltip-content">

@@ -69,7 +69,11 @@
             class="fill-gray-500"
             use:outline
         >
+        {#if yAccessor === "count"}
             {formatInteger(~~point[yAccessor])} row{#if point[yAccessor] !== 1}s{/if}
+        {:else}
+            {yAccessor} : {point[yAccessor].toFixed(2)}
+        {/if}
         </text>
     </g>
 </g>
