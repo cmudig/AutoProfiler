@@ -127,6 +127,7 @@
                             containerWidth={profileWidth}
                             view={previewView}
                             totalRows={dataframeProfile?.shape?.[0]}
+                            isIndex={column.isIndex}
                         />
                     {/each}
                 {:else}

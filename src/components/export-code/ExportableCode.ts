@@ -9,8 +9,15 @@ export const QUANT_CHART = (
     df_name: string,
     col_name: string,
     numbins = 8
-) => `${VIS_EXPORTS} 
-binned_series = ${df_name}["${col_name}"].value_counts(bins=${numbins}, sort=False)
+) => {
+    let col_stmt: string;
+    if (col_name === "INDEX") {
+        col_stmt = ".index.to_series()";
+    } else {
+        col_stmt = `["${col_name}"]`;
+    };
+    return `${VIS_EXPORTS} 
+binned_series = ${df_name}${col_stmt}.value_counts(bins=${numbins}, sort=False)
 
 chart_data_binned = pd.DataFrame({
     "leftbin": binned_series.index.left, 
@@ -31,13 +38,21 @@ quant_chart = alt.Chart(chart_data_binned).mark_bar(color="#fca5a5").encode(
 )
 
 quant_chart`;
+}
 
 export const CAT_CHART = (
     df_name: string,
     col_name: string,
     k = 10
-) => `${VIS_EXPORTS}
-topk_series = ${df_name}["${col_name}"].value_counts().iloc[:${k}]
+) => {
+    let col_stmt: string;
+    if (col_name === "INDEX") {
+        col_stmt = ".index.to_series()";
+    } else {
+        col_stmt = `["${col_name}"]`;
+    };
+    return `${VIS_EXPORTS}
+topk_series = ${df_name}${col_stmt}.value_counts().iloc[:${k}]
 topk_df = pd.DataFrame({"${col_name}":topk_series.index, 'count':topk_series.values})
 
 cat_chart = alt.Chart(topk_df).mark_bar(color="#bae6fd").encode( 
@@ -49,16 +64,27 @@ cat_chart = alt.Chart(topk_df).mark_bar(color="#bae6fd").encode(
 )
 
 cat_chart`;
+}
 
 
 export const TEMPORAL_CHART = (
     df_name: string,
     col_name: string,
     shouldDisableMaxRows = false
-) => `${VIS_EXPORTS}
+) => {
+    let col_stmt: string;
+    if (col_name == "INDEX") {
+        col_stmt = ".index.to_series()";
+    } else {
+        col_stmt = `["${col_name}"]`;
+    };
+    return `${VIS_EXPORTS}
 ${shouldDisableMaxRows ? disableMaxRowsCode : ""}
-temporal_chart = alt.Chart(${df_name}).mark_line(color="#14b8a6").encode(
-    x='${col_name}:T',
+
+temp_df = pd.DataFrame({"temp":${df_name}${col_stmt}})
+
+temporal_chart = alt.Chart(temp_df).mark_line(color="#14b8a6").encode(
+    x='temp:T',
     y='count()'
 ).properties(
     width=500,
@@ -66,3 +92,4 @@ temporal_chart = alt.Chart(${df_name}).mark_line(color="#14b8a6").encode(
 )
 
 temporal_chart`;
+}

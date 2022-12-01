@@ -8,38 +8,69 @@ import pandas as pd
 
 def getColumns(dfName: pd.DataFrame):
     typeDF = dfName.dtypes.reset_index().rename(columns={"index": "colName", 0: "type"})
-    typeDF["type"] = typeDF["type"].astype(str)
-    print(typeDF.to_json(orient="records"))
+    typeDF["isIndex"] = False
+    if dfName.index.name:
+        name = dfName.index.name
+    else:
+        name = ""
+    indexDF = pd.DataFrame({"colName": [name], "type": [dfName.index.dtype]})
+    indexDF["isIndex"] = True
+    typeDF = pd.concat([indexDF, typeDF])
+    print(typeDF.to_json(orient="records", default_handler=str))
 
 def getShape(dfName: pd.DataFrame):
     print(dfName.shape)
 
-def getQuantMeta(dfName: pd.DataFrame, colName: str):
-    m = dfName[colName].describe()
+def getQuantMeta(dfName: pd.DataFrame, colName: str, isIndex=False):
+    if isIndex:
+        colData = dfName.index.to_series()
+    else:
+        colData = dfName[colName]
+    m = colData.describe()
     print(m.to_json())
 
-def getColMeta(dfName: pd.DataFrame, colName: str):
-    num_unique = dfName[colName].nunique()
-    num_null = dfName[colName].isna().sum()
+def getColMeta(dfName: pd.DataFrame, colName: str, isIndex=False):
+    if isIndex:
+        colData = dfName.index.to_series()
+    else:
+        colData = dfName[colName]
+    num_unique = colData.nunique()
+    num_null = colData.isna().sum()
     print(num_unique)
     print(num_null)
 
-def getValueCounts(dfName: pd.DataFrame, colName: str, n=10):
-    vc = dfName[colName].value_counts().iloc[:n]
+def getValueCounts(dfName: pd.DataFrame, colName: str, isIndex=False, n=10):
+    if isIndex:
+        colData = dfName.index.to_series()
+    else:
+        colData = dfName[colName]
+    vc = colData.value_counts().iloc[:n]
     print(vc.to_json())
 
-def getQuantBinnedData(dfName: pd.DataFrame, colName: str, n=20):
-    vc = dfName[colName].value_counts(bins=min(n, dfName[colName].nunique()), sort=False)
+def getQuantBinnedData(dfName: pd.DataFrame, colName: str, isIndex=False, n=20):
+    if isIndex:
+        colData = dfName.index.to_series()
+    else:
+        colData = dfName[colName]
+    vc = colData.value_counts(bins=min(n, colData.nunique()), sort=False)
     print(vc.to_json())
 
-def getTempBinnedData(dfName: pd.DataFrame, colName: str, n=200):
-    vc = (dfName[colName].astype("int64")//1e9).value_counts(bins=min(n, dfName[colName].nunique()), sort=False)
-    true_min = (dfName[colName].astype("int64")//1e9).min()
+def getTempBinnedData(dfName: pd.DataFrame, colName: str, isIndex=False, n=200):
+    if isIndex:
+        colData = dfName.index.to_series()
+    else:
+        colData = dfName[colName]
+    vc = (colData.astype("int64")//1e9).value_counts(bins=min(n, colData.nunique()), sort=False)
+    true_min = (colData.astype("int64")//1e9).min()
     print(vc.to_json())
     print(true_min)
 
-def getTempInterval(dfName: pd.DataFrame, colName: str):
-    timerange = dfName[colName].max() - dfName[colName].min()
+def getTempInterval(dfName: pd.DataFrame, colName: str, isIndex=False):
+    if isIndex:
+        colData = dfName.index.to_series()
+    else:
+        colData = dfName[colName]
+    timerange = colData.max() - colData.min()
     print(timerange.days)
 
 def getVariableNamesInPythonStr(codeString: str):

@@ -2,7 +2,7 @@
     import SettingsIcon from '../icons/SettingsIcon.svelte';
     import FloatingElement from '../tooltip/FloatingElement.svelte';
     import Portal from '../tooltip/Portal.svelte';
-    import { allowLogs } from '../../stores';
+    import { allowLogs, showIndex } from '../../stores';
 
     // state
     let active = false;
@@ -36,6 +36,8 @@
                         <div class="flex gap-1 items-center">
                             <input type="checkbox" bind:checked={$allowLogs} />
                             <span>Allow logs</span>
+                            <input type="checkbox" bind:checked={$showIndex} />
+                            <span>Visualize DF index</span>
                         </div>
                     </div>
                 </FloatingElement>

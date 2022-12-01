@@ -34,6 +34,7 @@
     export let view: string = 'summaries'; // summaries, example
     export let containerWidth: number;
     export let hideRight = false;
+    export let isIndex = false;
 
     // locals
     let active = false;
@@ -65,13 +66,25 @@
     </svelte:fragment>
 
     <svelte:fragment slot="left">
-        <div style:width="100%">
-            <div
-                class="column-profile-name text-ellipsis overflow-hidden whitespace-nowrap"
-            >
+        {#if isIndex}
+            <Tooltip location="right" distance={16}>
+                <div
+                    class="w-fit text-ellipsis overflow-hidden whitespace-nowrap"
+                >
+                    <span class="italic">INDEX</span>
+                </div>
+
+                <TooltipContent slot="tooltip-content">
+                    The dataframe index <span class="font-bold"
+                        >{`${dfName}.index`}</span
+                    >
+                </TooltipContent>
+            </Tooltip>
+        {:else}
+            <div class="text-ellipsis overflow-hidden whitespace-nowrap">
                 {colName}
             </div>
-        </div>
+        {/if}
     </svelte:fragment>
 
     <svelte:fragment slot="right">
@@ -175,6 +188,7 @@
                                 chartType={'cat'}
                                 {dfName}
                                 {colName}
+                                {isIndex}
                             />
                         {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
                             <NumericHistogram
@@ -196,6 +210,7 @@
                                 exportOptions={{
                                     numBins: summary.histogram.length
                                 }}
+                                {isIndex}
                             />
                         {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
                             <TimestampDetail
@@ -213,6 +228,7 @@
                                 exportOptions={{
                                     shouldDisableMaxRows: totalRows > 5000
                                 }}
+                                {isIndex}
                             />
                         {/if}
                     {:else}

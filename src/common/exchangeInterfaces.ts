@@ -2,6 +2,7 @@
 export type IColTypeTuple = {
     col_name: string;
     col_type: string;
+    col_index: boolean;
 };
 
 export type Warning = {

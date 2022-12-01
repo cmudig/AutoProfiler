@@ -14,11 +14,13 @@
         numBins?: number;
         shouldDisableMaxRows?: boolean;
     } = undefined;
+    export let isIndex = false;
 
     const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
     function addVisCode() {
         let text: string;
+        colName = isIndex ? 'INDEX' : colName;
         if (chartType == 'quant') {
             text = QUANT_CHART(dfName, colName, exportOptions?.numBins);
         } else if (chartType == 'cat') {
