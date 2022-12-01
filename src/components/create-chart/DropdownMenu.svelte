@@ -15,7 +15,7 @@
     export let clickable: boolean = true;
     export let title = 'Select a column';
     export let selectedColumnName: string = undefined;
-
+    
     let displayGroups: string[];
 
     function determineGroup(column: IColTypeTuple) {
