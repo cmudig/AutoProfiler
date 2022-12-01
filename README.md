@@ -31,10 +31,12 @@ https://user-images.githubusercontent.com/13400543/199877605-ba50f9c8-87e5-46c9-
 
 ## Install
 
-To instally locally use pip and then open a jupyter notebook and the extension will be running.
+To instally locally use pip and then open jupyter lab and the extension will be running.
 ```bash
 pip install -U digautoprofiler
 ```
+
+Please note, AutoProfiler only works in [JupyterLab](https://jupyter.org/install) with version > 3.
 
 ## Try it out
 
