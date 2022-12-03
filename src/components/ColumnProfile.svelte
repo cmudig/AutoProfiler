@@ -54,7 +54,7 @@
 </script>
 
 <!-- pl-10 -->
-<ColumnEntry {hideRight} bind:active hoverKey={colName}>
+<ColumnEntry {hideRight} bind:active hoverKey={colName} {dfName}>
     <svelte:fragment slot="icon">
         <Tooltip location="left" distance={16}>
             <DataTypeIcon {type} />

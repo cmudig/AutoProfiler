@@ -43,11 +43,20 @@
         headerHover = event?.detail?.over;
     }
 
+    function logAction(name: string) {
+        profileModel.logger.log(name, { dfName });
+    }
+
     let baseClasses = 'grid place-items-center rounded hover:bg-gray-100 ';
 </script>
 
 <div>
-    <CollapsibleCard bind:open={expanded} on:header-hover={handleHeaderHover}>
+    <CollapsibleCard
+        bind:open={expanded}
+        on:header-hover={handleHeaderHover}
+        on:open={() => logAction('UI.ToggleDFOpen')}
+        on:close={() => logAction('UI.ToggleDFClose')}
+    >
         <div slot="header" class="dfprofile-header flex gap-1 items-center">
             <ExpanderButton rotated={expanded} />
 

@@ -6,6 +6,7 @@ import { ProfileModel } from './dataAPI/ProfileModel';
 import { ProfileView } from './components/ProfileView';
 import { LabIcon } from '@jupyterlab/ui-components';
 import appIconStr from '../style/logo.svg';
+import { Logger } from './logger/Logger';
 
 export class ProfilePanel extends StackedPanel {
     constructor() {
@@ -24,6 +25,8 @@ export class ProfilePanel extends StackedPanel {
 
         // MODEL init
         this._profileModel = new ProfileModel(this._sessionContext);
+        this._logger = new Logger(this._profileModel);
+        this._profileModel.addLogger(this._logger);
 
         // VIEW init
         this._profileView = new ProfileView(this._profileModel);
@@ -34,6 +37,7 @@ export class ProfilePanel extends StackedPanel {
     private _sessionContext: ISessionContext;
     private _profileModel: ProfileModel;
     private _profileView: ProfileView;
+    private _logger: Logger;
 
     get session(): ISessionContext {
         return this._sessionContext;
