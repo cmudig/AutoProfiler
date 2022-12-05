@@ -187,6 +187,7 @@ export class ProfileModel {
 
         alldf_names.forEach((dfName, index) => {
             colProfileMap[dfName] = resolved_profiles[index];
+            colProfileMap[dfName].warnings = dfColMap[dfName].warnings
         });
         return colProfileMap;
     }
@@ -259,7 +260,7 @@ export class ProfileModel {
             resultData.push(cd);
         }
 
-        return { profile: resultData, shape, dfName, lastUpdatedTime: Date.now(), isPinned: false };
+        return { profile: resultData, shape, dfName, lastUpdatedTime: Date.now(), isPinned: false, warnings: [] };
     }
 
 }

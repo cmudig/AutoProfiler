@@ -12,7 +12,7 @@ export type IDFColMap = {
     [key: string]: {
         columns: IColTypeTuple[];
         python_id: string;
-        warnings?: Warning[]
+        warnings: Warning[]
     };
 };
 
@@ -27,7 +27,7 @@ export type IDFProfileWState = IDFProfileData & IDFProfileState
 export type IDFProfileState = {
     lastUpdatedTime: number;
     isPinned: boolean;
-    warnings?: Warning[]
+    warnings: Warning[]
 }
 
 export type IDFProfileData = {
