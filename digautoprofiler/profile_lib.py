@@ -7,7 +7,9 @@ import pandas as pd
 
 
 def getColumns(dfName: pd.DataFrame):
-    print(dfName.dtypes.to_json(default_handler=str))
+    typeDF = dfName.dtypes.reset_index().rename(columns={"index": "colName", 0: "type"})
+    typeDF["type"] = typeDF["type"].astype(str)
+    print(typeDF.to_json(orient="records"))
 
 def getShape(dfName: pd.DataFrame):
     print(dfName.shape)
