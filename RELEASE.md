@@ -18,6 +18,7 @@ pip install build twine
 To create a Python source package (`.tar.gz`) and the binary package (`.whl`) in the `dist/` directory, do:
 
 ```bash
+npm install
 npm run build
 python3 -m build
 ```
