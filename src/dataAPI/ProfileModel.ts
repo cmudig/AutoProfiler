@@ -114,11 +114,28 @@ export class ProfileModel {
 
     public async updateRootData() {
         this._loadingNewData.set(true)
-        const alldf = await this.executor.getAllDataFrames(this.currentOutputName);
+        let alldf = await this.executor.getAllDataFrames(this.currentOutputName);
+
 
         // only update if we have detected dataframes
         if (!_.isEmpty(alldf)) {
-            const colPromise = this.fetchColumnPromises(alldf);
+
+            // more cells might have executed, so filter to only dataframes in current cell
+            const currentDfs = Object.keys(alldf).filter((key: string) => {
+                if (key == this.currentOutputName) {
+                    return true
+                } else if (key.charAt(0) == '_') {
+                    return false
+                }
+                return true
+            }).reduce((obj, key) => {
+                return {
+                    ...obj,
+                    [key]: alldf[key]
+                }
+            }, {})
+
+            const colPromise = this.fetchColumnPromises(currentDfs);
 
             colPromise.then(result => {
 
