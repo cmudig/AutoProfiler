@@ -160,6 +160,13 @@ export class ProfileModel {
                         }
                     }
 
+                    // copy warnings over from alldf to result
+                    for (const [dfName, dfInfo] of Object.entries(alldf)) {
+                        if (dfName in result) {
+                            result[dfName].warnings = dfInfo.warnings
+                        }
+                    }
+
                     return result
                 });
                 this._loadingNewData.set(false);
@@ -197,6 +204,7 @@ export class ProfileModel {
 
         alldf_names.forEach((dfName, index) => {
             colProfileMap[dfName] = resolved_profiles[index];
+            colProfileMap[dfName].warnings = dfColMap[dfName].warnings
         });
         return colProfileMap;
     }
@@ -269,7 +277,7 @@ export class ProfileModel {
             resultData.push(cd);
         }
 
-        return { profile: resultData, shape, dfName, lastUpdatedTime: Date.now(), isPinned: false };
+        return { profile: resultData, shape, dfName, lastUpdatedTime: Date.now(), isPinned: false, warnings: [] };
     }
 
 }

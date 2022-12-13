@@ -10,6 +10,8 @@ import type {
     Interval,
     TimeBin
 } from '../../common/exchangeInterfaces';
+import _ from 'lodash';
+
 
 type ExecResult = { content: string[]; exec_count: number };
 
@@ -159,11 +161,18 @@ export class PythonPandasExecutor {
 
                     for (let index = 0; index < vars_DF.length; index++) {
                         const dfName = vars_DF[index];
-                        const columnTuples = await this.getColumns(dfName);
+                        let { columnsWithTypes, duplicates } = await this.getColumns(dfName);
+                        const warnings = []
+
+                        if (!_.isEmpty(duplicates)) {
+                            warnings.push({ warnMsg: `All columns must have unique names. The following columns are excluded: ${duplicates.join(', ')}.` })
+                            columnsWithTypes = columnsWithTypes.filter(col => !duplicates.includes(col.col_name))
+                        }
 
                         dfColMap[dfName] = {
-                            columns: columnTuples,
-                            python_id: python_ids[index]
+                            columns: columnsWithTypes,
+                            python_id: python_ids[index],
+                            warnings
                         };
                     }
                     return dfColMap;
@@ -231,7 +240,7 @@ export class PythonPandasExecutor {
         }
     }
 
-    private async getColumns(dfName: string): Promise<IColTypeTuple[]> {
+    private async getColumns(dfName: string): Promise<{ columnsWithTypes: IColTypeTuple[], duplicates: string[] }> {
         /*
         dfName is variable that is pd.DataFrame
         Returns array of "True" or "False" if that variable is a pandas dataframe
@@ -243,14 +252,25 @@ export class PythonPandasExecutor {
 
             const columnsWithTypes: IColTypeTuple[] = []
 
-            for (const [key, value] of Object.entries(json_res)) {
-                columnsWithTypes.push({ "col_name": key, "col_type": (value as string) })
+            let uniqueNames = new Set<string>()
+            let duplicatedNames = new Set<string>()
+
+            for (const item of json_res) {
+                columnsWithTypes.push({
+                    col_name: item["colName"],
+                    col_type: item["type"]
+                })
+                if (uniqueNames.has(item["colName"])) {
+                    duplicatedNames.add(item["colName"])
+                } else {
+                    uniqueNames.add(item["colName"])
+                }
             }
 
-            return columnsWithTypes
+            return { columnsWithTypes, duplicates: Array.from(duplicatedNames) }
         } catch (error) {
             console.warn('[Error caught] in getColumns', error);
-            return [];
+            return { columnsWithTypes: [], duplicates: [] };
         }
     }
 

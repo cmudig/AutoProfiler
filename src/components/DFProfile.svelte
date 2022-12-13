@@ -5,7 +5,7 @@
     import ExpanderButton from './nav/ExpanderButton.svelte';
     import type { IDFProfileWState } from '../common/exchangeInterfaces';
     import type { ProfileModel } from '../dataAPI/ProfileModel';
-
+    import _ from 'lodash';
     import Pin from './icons/Pin.svelte';
     import Tooltip from './tooltip/Tooltip.svelte';
     import TooltipContent from './tooltip/TooltipContent.svelte';
@@ -21,6 +21,9 @@
 
     // locals
     let previewView = 'summaries';
+    $: warningMessage = _.isEmpty(dataframeProfile.warnings)
+        ? ''
+        : dataframeProfile.warnings.map(w => w.warnMsg).join(', ');
 
     // view variables
     let profileWidth: number;
@@ -94,6 +97,15 @@
 
         <div slot="body" class="dfprofile-body">
             <div bind:clientWidth={profileWidth} class="col-profiles">
+                {#if !_.isEmpty(warningMessage)}
+                    <div class="pl-2 pr-2 pb-2">
+                        <span class="bg-amber-500 rounded-md p-[3px]"
+                            >Warning
+                        </span>
+                        {warningMessage}
+                    </div>
+                {/if}
+
                 {#if dataframeProfile?.shape?.[1] > 0}
                     {#each dataframeProfile?.profile as column (column.name)}
                         <ColumnProfile
