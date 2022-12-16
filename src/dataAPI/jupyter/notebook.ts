@@ -29,7 +29,6 @@ export class NotebookAPI {
     }
 
     saveToNotebookMetadata(key: string, value: any) {
-        // let currentLogs = this.notebook.model.metadata.get(key);
         this.panel.model.metadata.set(key, value);
     }
 
