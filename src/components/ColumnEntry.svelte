@@ -37,7 +37,7 @@
         }}
         on:mouseenter={() => {
             $currentHoveredCol = hoverKey;
-            logColumnAction('UI.ColumnHover');
+            // logColumnAction('UI.ColumnHover');
         }}
         on:mouseleave={() => {
             $currentHoveredCol = undefined;
