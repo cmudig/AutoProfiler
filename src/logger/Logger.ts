@@ -1,4 +1,6 @@
 import type { ProfileModel } from "../dataAPI/ProfileModel";
+import { allowLogs } from "../stores";
+import { get } from "svelte/store";
 
 interface LogEvent {
     eventname: string;
@@ -28,11 +30,9 @@ export class Logger {
     }
 
     save() {
-        if (this._profileModel.notebook) {
+        const allowSave = get(allowLogs)
+        if (this._profileModel.notebook && allowSave) {
             this._profileModel.notebook.saveToNotebookMetadata("AutoProfilerLogs", this._logs)
-        } else {
-            console.log("Not connected to notebook, not saving logs")
         }
-        this.printAllLogs()
     }
 }

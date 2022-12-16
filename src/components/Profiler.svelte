@@ -4,7 +4,7 @@
     import type { ProfileModel } from '../dataAPI/ProfileModel';
     import type { IDFProfileWState } from '../common/exchangeInterfaces';
     import { sortDFArr } from './utils/sort-utils';
-
+    import SettingsMenu from './settings/SettingsMenu.svelte';
     import DFProfile from './DFProfile.svelte';
     import Parquet from './icons/Parquet.svelte';
     import AlertIcon from './icons/AlertIcon.svelte';
@@ -74,6 +74,9 @@
 
 <main class="p-4 m-0 flex flex-col h-full">
     <h1 class="text-lg">AutoProfiler</h1>
+    <div class="absolute top-2 right-2">
+        <SettingsMenu />
+    </div>
 
     {#if isReady}
         <!-- <div id="header-icon" /> -->
