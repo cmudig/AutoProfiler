@@ -28,6 +28,9 @@ export class NotebookAPI {
         });
     }
 
+    saveToNotebookMetadata(key: string, value: any) {
+        this.panel.model.metadata.set(key, value);
+    }
 
     // ready is a Promise that resolves once the notebook is done loading
     get ready(): Promise<void> {

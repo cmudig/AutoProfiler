@@ -1,13 +1,18 @@
-<script>
+<script lang="ts">
+    import { getContext } from 'svelte';
     import { currentHoveredCol } from '../stores';
+    import type { ProfileModel } from '../dataAPI/ProfileModel';
 
     export let active = false;
     export let hideRight = false;
+    export let hoverKey: string;
+    export let dfName: string;
 
-    export let hoverKey;
+    const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
-    // So another way of handling click is with
-    // on:click={(event) => { dispatch('select'); }}
+    function logColumnAction(actionName: string) {
+        profileModel.logger.log(actionName, { dfName, colName: hoverKey });
+    }
 </script>
 
 <div>
@@ -22,10 +27,17 @@
         class:bg-gray-50={active}
         class:nameHover={$currentHoveredCol === hoverKey}
         on:click={() => {
+            if (!active) {
+                logColumnAction('UI.ColumnToggleOpen');
+            } else {
+                logColumnAction('UI.ColumnToggleClose');
+            }
+
             active = !active;
         }}
         on:mouseenter={() => {
             $currentHoveredCol = hoverKey;
+            // logColumnAction('UI.ColumnHover');
         }}
         on:mouseleave={() => {
             $currentHoveredCol = undefined;
