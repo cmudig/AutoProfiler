@@ -245,8 +245,9 @@ export class PythonPandasExecutor {
         dfName is variable that is pd.DataFrame
         Returns array of "True" or "False" if that variable is a pandas dataframe
         */
+        const code = `digautoprofiler.getColumns(${dfName})`
         try {
-            const res = await this.executePythonAP(`digautoprofiler.getColumns(${dfName})`);
+            const res = await this.executePythonAP(code);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join(""));
 
@@ -269,7 +270,7 @@ export class PythonPandasExecutor {
 
             return { columnsWithTypes, duplicates: Array.from(duplicatedNames) }
         } catch (error) {
-            console.warn('[Error caught] in getColumns', error);
+            console.warn(`[Error caught] in getColumns executing code: ${code}`, error);
             return { columnsWithTypes: [], duplicates: [] };
         }
     }
@@ -278,8 +279,9 @@ export class PythonPandasExecutor {
         /*
         returns tuple array [length, width]
         */
+        const code = `digautoprofiler.getShape(${dfName})`
         try {
-            const res = await this.executePythonAP(`digautoprofiler.getShape(${dfName})`);
+            const res = await this.executePythonAP(code);
             const content = res['content'];
             const shapeString = content.join("");
             return shapeString
@@ -287,7 +289,7 @@ export class PythonPandasExecutor {
                 .split(',')
                 .map(x => parseFloat(x));
         } catch (error) {
-            console.warn('[Error caught] in getShape', error);
+            console.warn(`[Error caught] in getShape executing: ${code}`, error);
             return [undefined, undefined];
         }
     }
@@ -296,8 +298,9 @@ export class PythonPandasExecutor {
         dfName: string,
         colName: string
     ): Promise<IQuantMeta> {
+        const code = `digautoprofiler.getQuantMeta(${dfName}, "${replaceSpecial(colName)}")`
         try {
-            const res = await this.executePythonAP(`digautoprofiler.getQuantMeta(${dfName}, "${replaceSpecial(colName)}")`);
+            const res = await this.executePythonAP(code);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join("").replace(/'/g, '')); // remove single quotes bc not JSON parseable
 
@@ -310,7 +313,7 @@ export class PythonPandasExecutor {
                 mean: parseFloat(json_res['mean'])
             };
         } catch (error) {
-            console.warn('[Error caught] in getQuantMeta', error);
+            console.warn(`[Error caught] in getQuantMeta executing: ${code} `, error);
             return {
                 min: undefined,
                 q25: undefined,
@@ -326,15 +329,16 @@ export class PythonPandasExecutor {
         dfName: string,
         colName: string
     ): Promise<IColMeta> {
+        const code = `digautoprofiler.getColMeta(${dfName}, "${replaceSpecial(colName)}")`;
         try {
-            const res = await this.executePythonAP(`digautoprofiler.getColMeta(${dfName}, "${replaceSpecial(colName)}")`);
+            const res = await this.executePythonAP(code);
             const content = res['content'];
             return {
                 numUnique: parseInt(content[0]),
                 nullCount: parseInt(content[1])
             };
         } catch (error) {
-            console.warn('[Error caught] in getColMeta', error);
+            console.warn(`[Error caught] in getColMeta executing: ${code}`, error);
             return {
                 numUnique: undefined,
                 nullCount: undefined
@@ -347,8 +351,9 @@ export class PythonPandasExecutor {
         colName: string,
         n = 10
     ): Promise<ValueCount[]> {
+        const code = `digautoprofiler.getValueCounts(${dfName}, "${replaceSpecial(colName)}", ${n})`;
         try {
-            const res = await this.executePythonAP(`digautoprofiler.getValueCounts(${dfName}, "${replaceSpecial(colName)}", ${n})`);
+            const res = await this.executePythonAP(code);
             const data: ValueCount[] = [];
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join("").replace(/'/g, '')); // remove single quotes bc not JSON parseable
@@ -357,7 +362,7 @@ export class PythonPandasExecutor {
             });
             return data;
         } catch (error) {
-            console.warn('[Error caught] in getValueCounts', error);
+            console.warn(`[Error caught] in getValueCounts executing: ${code}`, error);
             return [];
         }
     }
@@ -367,9 +372,11 @@ export class PythonPandasExecutor {
         colName: string,
         maxbins = 20
     ): Promise<IHistogram> {
+        const code = `digautoprofiler.getQuantBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins})`
         try {
-            const res = await this.executePythonAP(`digautoprofiler.getQuantBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins})`);
+            const res = await this.executePythonAP(code);
             const content = res['content'];
+
             const data: IHistogram = [];
             const json_res = JSON.parse(content.join().replace(/'/g, '')); // remove single quotes bc not JSON parseable
 
@@ -385,7 +392,7 @@ export class PythonPandasExecutor {
             });
             return data;
         } catch (error) {
-            console.warn('[Error caught] in getQuantBinnedData', error);
+            console.warn(`[Error caught] in getQuantBinnedData executing: ${code}`, error);
             return [];
         }
     }
@@ -395,8 +402,9 @@ export class PythonPandasExecutor {
         colName: string,
         maxbins = 200
     ): Promise<{ timebin: TimeBin[], histogram: IHistogram }> {
+        const code = `digautoprofiler.getTempBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins})`;
         try {
-            const res = await this.executePythonAP(`digautoprofiler.getTempBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins})`);
+            const res = await this.executePythonAP(code);
             const content = res['content'];
             const timebinData: TimeBin[] = [];
             const histogram: IHistogram = []
@@ -433,7 +441,7 @@ export class PythonPandasExecutor {
             });
             return { timebin: timebinData, histogram: histogram };
         } catch (error) {
-            console.warn('[Error caught] in getTempBinnedData', error);
+            console.warn(`[Error caught] in getTempBinnedData executing: ${code}`, error);
             return { timebin: [], histogram: [] };
         }
     }
@@ -449,8 +457,9 @@ export class PythonPandasExecutor {
         dfName: string,
         colName: string
     ): Promise<Interval> {
+        const code = `digautoprofiler.getTempInterval(${dfName}, "${replaceSpecial(colName)}")`;
         try {
-            const res = await this.executePythonAP(`digautoprofiler.getTempInterval(${dfName}, "${replaceSpecial(colName)}")`);
+            const res = await this.executePythonAP(code);
             const content = res['content'];
             return {
                 months: 0,
@@ -458,7 +467,7 @@ export class PythonPandasExecutor {
                 micros: 0
             };
         } catch (error) {
-            console.warn('[Error caught] in getColMeta', error);
+            console.warn(`[Error caught] in getColMeta executing ${code}`, error);
             return {
                 months: 0,
                 days: 0,
@@ -468,9 +477,10 @@ export class PythonPandasExecutor {
     }
 
     public async getVariableNamesInPythonStr(codeString: string): Promise<string[]> {
+        const formattedCode = codeString.replace(/"/g, '\\"');
+        const code = `digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`;
         try {
-            const formattedCode = codeString.replace(/"/g, '\\"');
-            const res = await this.executePythonAP(`digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`)
+            const res = await this.executePythonAP(code)
             let content = res["content"].join("")
             content = content.replace(/'/g, '"') // replace single quotes
             content = content.replace('{', '[')
