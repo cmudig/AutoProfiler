@@ -33,7 +33,7 @@
             );
         }
 
-        profileModel.notebook.addCell('code', text);
+        profileModel.addCell('code', text);
     }
 </script>
 

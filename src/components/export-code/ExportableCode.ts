@@ -93,3 +93,31 @@ temporal_chart = alt.Chart(temp_df).mark_line(color="#14b8a6").encode(
 
 temporal_chart`;
 }
+
+// ~~~~~~~~~ EXPORT Selection CODE ~~~~~~~~~
+export type CODE_EXPORT_TYPE = "min" | "25%" | "median" | "mean" | "75%" | "max";
+
+export function exportCodeSelection(df_name: string, col_name: string, type: CODE_EXPORT_TYPE) {
+
+    let agg_code = ""
+
+    if (type === "min") {
+        agg_code = `.min()`
+    } else if (type === "25%") {
+        agg_code = `.quantile(0.25)`
+    } else if (type === "median") {
+        agg_code = `.median()`
+    } else if (type === "mean") {
+        agg_code = `.mean()`
+    } else if (type === "75%") {
+        agg_code = `.quantile(0.75)`
+    } else if (type === "max") {
+        agg_code = `.max()`
+    }
+
+    if (agg_code) {
+        return `${df_name}[ ${df_name}["${col_name}"] == ${df_name}["${col_name}"]${agg_code} ]`
+    }
+
+    return `${df_name}["${col_name}"]`
+}

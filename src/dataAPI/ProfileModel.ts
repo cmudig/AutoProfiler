@@ -27,7 +27,6 @@ export class ProfileModel {
     private _executor: PythonPandasExecutor
     private _name: Writable<string> = writable(undefined)
     private _varsInCurrentCell: Writable<string[]> = writable([])
-    private _currentOutputName: string;
     private _logger;
 
     constructor(session: ISessionContext) {
@@ -124,6 +123,12 @@ export class ProfileModel {
 
     public resetData() {
         this._columnProfiles.set(undefined);
+    }
+
+    public addCell(kind: 'code' | 'markdown', text: string) {
+        if (this.notebook) {
+            this.notebook.addCell(kind, text);
+        }
     }
 
     public async updateRootData() {

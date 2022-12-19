@@ -1,0 +1,86 @@
+<script lang="ts">
+    import { fly } from 'svelte/transition';
+    import { getContext } from 'svelte';
+    import type { ProfileModel } from '../../../dataAPI/ProfileModel';
+    import { exportCodeSelection } from '../../export-code/ExportableCode';
+    import { formatNumeric } from '../../utils/formatters';
+
+    const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
+
+    // Props
+    export let defaultColor: string;
+    export let highlightColor: string;
+    $: circleColor = defaultColor;
+    let labelColor = '#000000';
+
+    export let dfName: string;
+    export let colName: string;
+    export let label;
+    export let value;
+    export let left: number;
+    export let labelOffset: number;
+    export let yi: number;
+    export let type: string;
+    export let x;
+    export let histogramID: string;
+    export let anchorPlacement: number;
+    export let anchor;
+    export let fontSize;
+
+    function formatDisplay(dtype: string, label, value) {
+        try {
+            // force float display for mean with decimals
+            if (label === 'mean' && value - Math.trunc(value) > 0) {
+                return formatNumeric('float', value);
+            }
+
+            return formatNumeric(dtype, value);
+        } catch (e) {
+            return value;
+        }
+    }
+
+    function handleHover() {
+        circleColor = highlightColor;
+        labelColor = 'hsl(217,1%,40%)';
+    }
+
+    function handleUnhover() {
+        circleColor = defaultColor;
+        labelColor = '#000000';
+    }
+
+    // Export code
+    function handleClick(event: MouseEvent, label) {
+        // alt key or option key on mac
+        if (event.altKey) {
+            let code = exportCodeSelection(dfName, colName, label);
+            profileModel.addCell('code', code);
+        }
+    }
+</script>
+
+<g
+    on:click={e => handleClick(e, label)}
+    on:mouseenter={handleHover}
+    on:mouseleave={handleUnhover}
+>
+    <text text-anchor="end" x={left - labelOffset} y={yi} fill={labelColor}>
+        {label}
+    </text>
+    <text
+        filter="url(#outline-{histogramID})"
+        x={x(value) + anchorPlacement}
+        y={yi}
+        font-size="11"
+        fill="hsl(217,1%,40%)"
+        text-anchor={anchor}>{formatDisplay(type, label, value)}</text
+    >
+    <circle
+        in:fly={{ duration: 500, y: -5 }}
+        class={circleColor}
+        cx={x(value)}
+        cy={yi - fontSize / 4}
+        r="3"
+    />
+</g>
