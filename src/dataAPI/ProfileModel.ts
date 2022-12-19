@@ -11,7 +11,8 @@ import type {
 } from '../common/exchangeInterfaces';
 import {
     NUMERICS,
-    TIMESTAMPS
+    TIMESTAMPS,
+    CATEGORICALS
 } from '../components/data-types/pandas-data-types';
 import _ from 'lodash';
 import type { Logger } from '../logger/Logger';
@@ -283,6 +284,10 @@ export class ProfileModel {
                     };
 
                     cd.summary.timeSummary = timeSummary;
+                } else if (CATEGORICALS.has(col_type)) {
+                    const stringSummary = await this.executor.getStringStats(dfName, col_name);
+
+                    cd.summary.stringSummary = stringSummary;
                 }
             }
 

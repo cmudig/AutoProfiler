@@ -16,13 +16,12 @@
     } from './data-types/pandas-data-types';
     import Tooltip from './tooltip/Tooltip.svelte';
     import TooltipContent from './tooltip/TooltipContent.svelte';
-
     import Histogram from './viz/histogram/SmallHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
     import TimestampDetail from './viz/timestamp/TimestampDetail.svelte';
     import ExportChartButton from './export-code/ExportChartButton.svelte';
-
     import type { ColumnSummary } from '../common/exchangeInterfaces';
+    import StringStats from './viz/categorical/StringStats.svelte';
 
     // props
     export let dfName: string;
@@ -159,11 +158,14 @@
         {#if active}
             <div
                 transition:slide|local={{ duration: 200 }}
-                class="pt-3 pb-3 pl-8 pr-4 w-full"
+                class="pt-1 pb-1 pl-8 pr-4 w-full"
             >
                 <div bind:clientWidth={wrapperDivWidth}>
                     {#if totalRows !== 0 && nullCount !== totalRows}
                         {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.topK}
+                            {#if CATEGORICALS.has(type)}
+                                <StringStats stats={summary.stringSummary} />
+                            {/if}
                             <TopKSummary
                                 color={DATA_TYPE_COLORS[type].bgClass}
                                 {totalRows}
