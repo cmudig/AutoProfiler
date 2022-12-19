@@ -46,3 +46,9 @@ def getVariableNamesInPythonStr(codeString: str):
     import tokenize, io
 
     print(set([ t.string for t in tokenize.generate_tokens(io.StringIO(codeString).readline) if t.type == 1]))
+
+def getStringStats(dfName: pd.DataFrame, colName: str):
+    lengths = dfName[colName].str.len()
+    print(lengths.min())
+    print(lengths.max())    
+    print(lengths.mean()) 

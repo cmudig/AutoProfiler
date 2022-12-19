@@ -55,6 +55,12 @@ export type IColMeta = {
     nullCount: number;
 };
 
+export type IStringMeta = {
+    minLength: number;
+    maxLength: number;
+    meanLength: number;
+};
+
 export type ColumnProfileData = {
     name: string;
     type: string;
@@ -69,6 +75,7 @@ export interface ColumnSummary {
     histogram?: IHistogram;
     statistics?: IQuantMeta;
     timeSummary?: TimeColumnSummary;
+    stringSummary?: IStringMeta;
 }
 
 // TODO this could be subclass but then need better type guards

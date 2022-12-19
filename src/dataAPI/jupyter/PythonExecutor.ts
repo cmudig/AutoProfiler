@@ -8,7 +8,8 @@ import type {
     IHistogram,
     ValueCount,
     Interval,
-    TimeBin
+    TimeBin,
+    IStringMeta
 } from '../../common/exchangeInterfaces';
 import _ from 'lodash';
 
@@ -342,6 +343,29 @@ export class PythonPandasExecutor {
             return {
                 numUnique: undefined,
                 nullCount: undefined
+            };
+        }
+    }
+
+    public async getStringStats(
+        dfName: string,
+        colName: string
+    ): Promise<IStringMeta> {
+        const code = `digautoprofiler.getStringStats(${dfName}, "${replaceSpecial(colName)}")`;
+        try {
+            const res = await this.executePythonAP(code);
+            const content = res['content'];
+            return {
+                minLength: parseInt(content[0]),
+                maxLength: parseInt(content[1]),
+                meanLength: parseFloat(content[2]),
+            };
+        } catch (error) {
+            console.warn(`[Error caught] in getStringStats executing: ${code}`, error);
+            return {
+                minLength: undefined,
+                maxLength: undefined,
+                meanLength: undefined,
             };
         }
     }
