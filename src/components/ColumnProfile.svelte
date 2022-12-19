@@ -20,7 +20,7 @@
     import Histogram from './viz/histogram/SmallHistogram.svelte';
     import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
     import TimestampDetail from './viz/timestamp/TimestampDetail.svelte';
-    import ExportChartButton from './export-chart/ExportChartButton.svelte';
+    import ExportChartButton from './export-code/ExportChartButton.svelte';
 
     import type { ColumnSummary } from '../common/exchangeInterfaces';
 

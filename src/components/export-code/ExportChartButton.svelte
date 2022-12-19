@@ -5,7 +5,7 @@
     import Tooltip from '../tooltip/Tooltip.svelte';
     import TooltipContent from '../tooltip/TooltipContent.svelte';
 
-    import { QUANT_CHART, CAT_CHART, TEMPORAL_CHART } from './ExportableCharts';
+    import { QUANT_CHART, CAT_CHART, TEMPORAL_CHART } from './ExportableCode';
 
     export let chartType: 'quant' | 'cat' | 'temporal';
     export let dfName: string;
