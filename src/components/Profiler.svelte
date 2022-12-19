@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { flip } from 'svelte/animate';
     import { onDestroy, setContext } from 'svelte';
     import _ from 'lodash';
     import type { ProfileModel } from '../dataAPI/ProfileModel';
@@ -122,13 +123,17 @@
 
             <div>
                 {#each sortedArr as profile (profile.dfName)}
-                    <DFProfile
-                        dfName={profile.dfName}
-                        isInFocus={varsInCurrentCell.includes(profile.dfName)}
-                        dataframeProfile={profile}
-                        isPinned={profile.isPinned}
-                        on:message={handlePin}
-                    />
+                    <div animate:flip={{ duration: 300 }}>
+                        <DFProfile
+                            dfName={profile.dfName}
+                            isInFocus={varsInCurrentCell.includes(
+                                profile.dfName
+                            )}
+                            dataframeProfile={profile}
+                            isPinned={profile.isPinned}
+                            on:message={handlePin}
+                        />
+                    </div>
                 {/each}
             </div>
         {:else}
