@@ -36,6 +36,8 @@
                         <div class="flex gap-1 items-center">
                             <input type="checkbox" bind:checked={$allowLogs} />
                             <span>Allow logs</span>
+                        </div>
+                        <div class="flex gap-1 items-center">
                             <input type="checkbox" bind:checked={$showIndex} />
                             <span>Visualize DF index</span>
                         </div>

@@ -39,7 +39,7 @@ def getColMeta(dfName: pd.DataFrame, colName: str, isIndex=False):
     print(num_unique)
     print(num_null)
 
-def getValueCounts(dfName: pd.DataFrame, colName: str, isIndex=False, n=10):
+def getValueCounts(dfName: pd.DataFrame, colName: str, n=10, isIndex=False):
     if isIndex:
         colData = dfName.index.to_series()
     else:
@@ -47,7 +47,7 @@ def getValueCounts(dfName: pd.DataFrame, colName: str, isIndex=False, n=10):
     vc = colData.value_counts().iloc[:n]
     print(vc.to_json())
 
-def getQuantBinnedData(dfName: pd.DataFrame, colName: str, isIndex=False, n=20):
+def getQuantBinnedData(dfName: pd.DataFrame, colName: str, n=20, isIndex=False):
     if isIndex:
         colData = dfName.index.to_series()
     else:
@@ -55,7 +55,7 @@ def getQuantBinnedData(dfName: pd.DataFrame, colName: str, isIndex=False, n=20):
     vc = colData.value_counts(bins=min(n, colData.nunique()), sort=False)
     print(vc.to_json())
 
-def getTempBinnedData(dfName: pd.DataFrame, colName: str, isIndex=False, n=200):
+def getTempBinnedData(dfName: pd.DataFrame, colName: str, n=200, isIndex=False):
     if isIndex:
         colData = dfName.index.to_series()
     else:

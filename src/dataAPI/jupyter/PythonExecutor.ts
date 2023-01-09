@@ -259,7 +259,7 @@ export class PythonPandasExecutor {
                 columnsWithTypes.push({
                     col_name: item["colName"],
                     col_type: item["type"],
-                    col_index: item["isIndex"],
+                    col_is_index: item["isIndex"],
                 })
                 if (uniqueNames.has(item["colName"])) {
                     duplicatedNames.add(item["colName"])
@@ -380,7 +380,7 @@ export class PythonPandasExecutor {
         n = 10
     ): Promise<ValueCount[]> {
         const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getValueCounts(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy}, ${n})`;
+        const code = `digautoprofiler.getValueCounts(${dfName}, "${replaceSpecial(colName)}", ${n}, ${isIndexPy})`;
         try {
             const res = await this.executePythonAP(code);
             const data: ValueCount[] = [];
@@ -403,7 +403,7 @@ export class PythonPandasExecutor {
         maxbins = 20
     ): Promise<IHistogram> {
         const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getQuantBinnedData(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy}, ${maxbins})`
+        const code = `digautoprofiler.getQuantBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins}, ${isIndexPy})`
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];
@@ -435,7 +435,7 @@ export class PythonPandasExecutor {
         maxbins = 200
     ): Promise<{ timebin: TimeBin[], histogram: IHistogram }> {
         const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getTempBinnedData(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy}, ${maxbins})`;
+        const code = `digautoprofiler.getTempBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins}, ${isIndexPy})`;
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];

@@ -1,8 +1,9 @@
 //  types for store set on notebook re-run
+// TODO merge this type with ColumnProfileData below 
 export type IColTypeTuple = {
     col_name: string;
     col_type: string;
-    col_index: boolean;
+    col_is_index: boolean;
 };
 
 export type Warning = {
@@ -65,6 +66,7 @@ export type IStringMeta = {
 export type ColumnProfileData = {
     name: string;
     type: string;
+    isIndex: boolean;
     summary: ColumnSummary;
     nullCount: number;
     example: any;
