@@ -26,7 +26,7 @@ chart_data_binned = pd.DataFrame({
 })
 
 # move leftmost bin edge up since pandas does not put edge at the min
-chart_data_binned.loc[0, "leftbin"] = ${df_name}["${col_name}"].min()
+chart_data_binned.loc[0, "leftbin"] = ${df_name}${col_stmt}.min()
 
 quant_chart = alt.Chart(chart_data_binned).mark_bar(color="#fca5a5").encode(
     x = alt.X("leftbin", bin="binned", title="${col_name} (binned)"),
