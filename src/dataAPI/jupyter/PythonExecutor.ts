@@ -159,7 +159,6 @@ export class PythonPandasExecutor {
                     // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
                     const dfColMap: IDFColMap = {};
                     const python_ids = await this.getObjectIds(vars_DF);
-
                     for (let index = 0; index < vars_DF.length; index++) {
                         const dfName = vars_DF[index];
                         let { columnsWithTypes, duplicates } = await this.getColumns(dfName);
@@ -251,7 +250,6 @@ export class PythonPandasExecutor {
             const res = await this.executePythonAP(code);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join(""));
-
             const columnsWithTypes: IColTypeTuple[] = []
 
             let uniqueNames = new Set<string>()
@@ -260,7 +258,8 @@ export class PythonPandasExecutor {
             for (const item of json_res) {
                 columnsWithTypes.push({
                     col_name: item["colName"],
-                    col_type: item["type"]
+                    col_type: item["type"],
+                    col_is_index: item["isIndex"],
                 })
                 if (uniqueNames.has(item["colName"])) {
                     duplicatedNames.add(item["colName"])
@@ -297,9 +296,11 @@ export class PythonPandasExecutor {
 
     public async getQuantMeta(
         dfName: string,
-        colName: string
+        colName: string,
+        isIndex: boolean,
     ): Promise<IQuantMeta> {
-        const code = `digautoprofiler.getQuantMeta(${dfName}, "${replaceSpecial(colName)}")`
+        const isIndexPy = isIndex ? "True" : "False";
+        const code = `digautoprofiler.getQuantMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`
         try {
             const res = await this.executePythonAP(code);
             const content = res['content']; // might be null
@@ -328,9 +329,11 @@ export class PythonPandasExecutor {
 
     public async getColMeta(
         dfName: string,
-        colName: string
+        colName: string,
+        isIndex: boolean,
     ): Promise<IColMeta> {
-        const code = `digautoprofiler.getColMeta(${dfName}, "${replaceSpecial(colName)}")`;
+        const isIndexPy = isIndex ? "True" : "False";
+        const code = `digautoprofiler.getColMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`;
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];
@@ -373,14 +376,16 @@ export class PythonPandasExecutor {
     public async getValueCounts(
         dfName: string,
         colName: string,
+        isIndex: boolean,
         n = 10
     ): Promise<ValueCount[]> {
-        const code = `digautoprofiler.getValueCounts(${dfName}, "${replaceSpecial(colName)}", ${n})`;
+        const isIndexPy = isIndex ? "True" : "False";
+        const code = `digautoprofiler.getValueCounts(${dfName}, "${replaceSpecial(colName)}", ${n}, ${isIndexPy})`;
         try {
             const res = await this.executePythonAP(code);
             const data: ValueCount[] = [];
             const content = res['content']; // might be null
-            const json_res = JSON.parse(content?.join("").replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            const json_res = JSON.parse(content?.join("").replace(/'/g, '\'')); // remove single quotes bc not JSON parseable
             Object.keys(json_res).forEach(k => {
                 data.push({ value: k, count: json_res[k] });
             });
@@ -394,9 +399,11 @@ export class PythonPandasExecutor {
     public async getQuantBinnedData(
         dfName: string,
         colName: string,
+        isIndex: boolean,
         maxbins = 20
     ): Promise<IHistogram> {
-        const code = `digautoprofiler.getQuantBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins})`
+        const isIndexPy = isIndex ? "True" : "False";
+        const code = `digautoprofiler.getQuantBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins}, ${isIndexPy})`
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];
@@ -424,9 +431,11 @@ export class PythonPandasExecutor {
     public async getTempBinnedData(
         dfName: string,
         colName: string,
+        isIndex: boolean,
         maxbins = 200
     ): Promise<{ timebin: TimeBin[], histogram: IHistogram }> {
-        const code = `digautoprofiler.getTempBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins})`;
+        const isIndexPy = isIndex ? "True" : "False";
+        const code = `digautoprofiler.getTempBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins}, ${isIndexPy})`;
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];
@@ -479,9 +488,11 @@ export class PythonPandasExecutor {
      */
     public async getTempInterval(
         dfName: string,
-        colName: string
+        colName: string,
+        isIndex: boolean
     ): Promise<Interval> {
-        const code = `digautoprofiler.getTempInterval(${dfName}, "${replaceSpecial(colName)}")`;
+        const isIndexPy = isIndex ? "True" : "False";
+        const code = `digautoprofiler.getTempInterval(${dfName}, "${replaceSpecial(colName)}"), ${isIndexPy}`;
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];

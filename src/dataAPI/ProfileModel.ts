@@ -16,6 +16,7 @@ import {
 } from '../components/data-types/pandas-data-types';
 import _ from 'lodash';
 import type { Logger } from '../logger/Logger';
+import { showIndex } from '../stores';
 
 export class ProfileModel {
 
@@ -235,14 +236,16 @@ export class ProfileModel {
             const ci = colMetaInfoArr[j];
             const col_name = ci.col_name;
             const col_type = ci.col_type;
+            const isIndex = ci.col_is_index;
 
             // model calls
-            const rowVC = await this.executor.getValueCounts(dfName, col_name);
-            const colMd = await this.executor.getColMeta(dfName, col_name);
+            const rowVC = await this.executor.getValueCounts(dfName, col_name, isIndex);
+            const colMd = await this.executor.getColMeta(dfName, col_name, isIndex);
 
             const cd: ColumnProfileData = {
                 name: col_name,
                 type: col_type,
+                isIndex,
                 summary: {
                     cardinality: colMd.numUnique,
                     topK: rowVC
@@ -254,8 +257,8 @@ export class ProfileModel {
             // need at least 1 row to calculate these
             if (shape[0] > 0) {
                 if (NUMERICS.has(col_type)) {
-                    const chartData = await this.executor.getQuantBinnedData(dfName, col_name);
-                    const statistics = await this.executor.getQuantMeta(dfName, col_name);
+                    const chartData = await this.executor.getQuantBinnedData(dfName, col_name, isIndex);
+                    const statistics = await this.executor.getQuantMeta(dfName, col_name, isIndex);
 
                     // replace min on far bin with true minimum since pandas puts the left bin edge lower
                     if (!_.isUndefined(chartData[0])) {
@@ -265,8 +268,8 @@ export class ProfileModel {
                     cd.summary.statistics = statistics;
                     cd.summary.histogram = chartData;
                 } else if (TIMESTAMPS.has(col_type)) {
-                    const { timebin, histogram } = await this.executor.getTempBinnedData(dfName, col_name);
-                    const interval = await this.executor.getTempInterval(dfName, col_name);
+                    const { timebin, histogram } = await this.executor.getTempBinnedData(dfName, col_name, isIndex);
+                    const interval = await this.executor.getTempInterval(dfName, col_name, isIndex);
 
                     cd.summary.histogram = histogram;
 
