@@ -1,2 +1,2 @@
 jupyterlite>=0.1.0b13
-digautoprofiler>=0.2.6
+digautoprofiler>=0.2.7
