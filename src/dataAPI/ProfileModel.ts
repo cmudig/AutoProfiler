@@ -7,7 +7,8 @@ import type {
     IDFProfileWStateMap,
     ColumnProfileData,
     IDFProfileWState,
-    TimeColumnSummary
+    TimeColumnSummary,
+    NgramCount
 } from '../common/exchangeInterfaces';
 import {
     NUMERICS,
@@ -172,7 +173,7 @@ export class ProfileModel {
                                     this.logger.log('ProfileModel.updateData', { dfName })
                                 }
                             }
-                        }
+                        } 8
                     }
 
                     // copy warnings over from alldf to result
@@ -204,6 +205,7 @@ export class ProfileModel {
         }
 
     }
+
 
     // ################################# State updates ############################################
     private async fetchColumnPromises(
@@ -291,6 +293,8 @@ export class ProfileModel {
                     const stringSummary = await this.executor.getStringStats(dfName, col_name);
 
                     cd.summary.stringSummary = stringSummary;
+                    // return function so not called immediatley
+                    cd.summary.ngramSummaryCall = () => this.executor.getNgrams(dfName, col_name, 10)
                 }
             }
 

@@ -4,6 +4,10 @@ These are called from PythonExecutor.ts in the frontend
 """
 
 import pandas as pd
+import numpy as np
+import re
+from collections import Counter
+import nltk
 
 
 def getColumns(dfName: pd.DataFrame):
@@ -72,6 +76,39 @@ def getTempInterval(dfName: pd.DataFrame, colName: str, isIndex=False):
         colData = dfName[colName]
     timerange = colData.max() - colData.min()
     print(timerange.days)
+    
+def getNgrams(dfName: pd.DataFrame, colName: str, n=10):
+    stopwords = {"ourselves", "hers", "between", "yourself", "but", "again", "there", "about", "once", 
+        "during", "very", "with", "own", "an", "posting", "post", "resim", "hide", "restore", "this", 
+        "for", "in", "and", "to", "the", "a", "of", "is" }
+    
+    documents = dfName[colName].dropna().apply(
+        lambda entry: " ".join([text for text in (nltk.word_tokenize(re.sub("[^0-9a-zA-Z_ ]", " ", str(entry)).lower())) if text not in stopwords])
+        ).tolist()
+    unigram = []
+    bigram = []
+    trigram = []
+    for string in documents:
+        document = string.split(" ")
+        length = len(document)
+        for i in range(length):
+            unigram.append(" ".join(document[i:i+1]))
+            if (i <= length-2):
+                bigram.append(" ".join(document[i:i+2]))
+            if (i <= length-3):
+                trigram.append(" ".join(document[i:i+3]))
+    unilen = len(unigram)
+    bilen = len(bigram)
+    trilen = len(trigram)
+    uni = pd.Series(dict(Counter(unigram).most_common(n)))
+    bi = pd.Series(dict(Counter(bigram).most_common(n)))
+    tri = pd.Series(dict(Counter(trigram).most_common(n)))
+    print(unilen)
+    print(bilen)
+    print(trilen)
+    print(uni.to_json())
+    print(bi.to_json())
+    print(tri.to_json())
 
 def getVariableNamesInPythonStr(codeString: str):
     import tokenize, io

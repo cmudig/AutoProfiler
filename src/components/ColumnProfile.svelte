@@ -3,7 +3,6 @@
     import ColumnEntry from './ColumnEntry.svelte';
     import DataTypeIcon from './data-types/DataTypeIcon.svelte';
     import BarAndLabel from './viz//BarAndLabel.svelte';
-    import TopKSummary from './viz/TopKSummary.svelte';
     import FormattedDataType from './data-types/FormattedDataType.svelte';
     import { config, percentage, getSummarySize } from './utils/sizes';
     import { formatInteger, formatCompactInteger } from './utils/formatters';
@@ -23,6 +22,7 @@
     import type { ColumnSummary } from '../common/exchangeInterfaces';
     import StringStats from './viz/categorical/StringStats.svelte';
     import { showIndex } from '../stores';
+    import TopKOrNGram from './viz/ngram/TopKOrNGram.svelte';
 
     // props
     export let dfName: string;
@@ -40,6 +40,10 @@
     // locals
     let active = false;
     let wrapperDivWidth: number;
+
+    // top k toggle options so persisted on panel close
+    let topKToggleOption = 'topk';
+    let selectedNgramNumber = 1;
 
     $: exampleWidth =
         containerWidth > config.mediumCutoff
@@ -193,16 +197,15 @@
                                         stats={summary.stringSummary}
                                     />
                                 {/if}
-                                <TopKSummary
+                                <TopKOrNGram
                                     color={DATA_TYPE_COLORS[type].bgClass}
-                                    {totalRows}
-                                    topK={summary.topK}
-                                />
-                                <ExportChartButton
-                                    chartType={'cat'}
                                     {dfName}
                                     {colName}
-                                    {isIndex}
+                                    topKData={summary.topK}
+                                    {totalRows}
+                                    ngramSummaryCall={summary.ngramSummaryCall}
+                                    bind:topKToggleOption
+                                    bind:selectedNgramNumber
                                 />
                             {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
                                 <NumericHistogram

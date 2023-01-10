@@ -72,6 +72,15 @@ export type ColumnProfileData = {
     example: any;
 };
 
+export type NgramCount = {
+    unitotal: number;
+    bitotal: number;
+    tritotal: number;
+    unigram: ValueCount[];
+    bigram: ValueCount[];
+    trigram: ValueCount[];
+}
+
 export interface ColumnSummary {
     cardinality: number; // num unique
     topK: ValueCount[];
@@ -79,6 +88,7 @@ export interface ColumnSummary {
     statistics?: IQuantMeta;
     timeSummary?: TimeColumnSummary;
     stringSummary?: IStringMeta;
+    ngramSummaryCall?: () => Promise<NgramCount>;
 }
 
 // TODO this could be subclass but then need better type guards

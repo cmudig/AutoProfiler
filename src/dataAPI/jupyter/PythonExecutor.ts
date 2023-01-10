@@ -9,7 +9,8 @@ import type {
     ValueCount,
     Interval,
     TimeBin,
-    IStringMeta
+    IStringMeta,
+    NgramCount
 } from '../../common/exchangeInterfaces';
 import _ from 'lodash';
 
@@ -476,6 +477,54 @@ export class PythonPandasExecutor {
         } catch (error) {
             console.warn(`[Error caught] in getTempBinnedData executing: ${code}`, error);
             return { timebin: [], histogram: [] };
+        }
+    }
+
+    public async getNgrams(
+        dfName: string,
+        colName: string,
+        n = 10
+    ): Promise<NgramCount> {
+        let code = `digautoprofiler.getNgrams(${dfName}, "${replaceSpecial(colName)}", ${n})`
+        try {
+            const res = await this.executePythonAP(code);
+            const unigram: ValueCount[] = [];
+            const bigram: ValueCount[] = [];
+            const trigram: ValueCount[] = [];
+            const content = res['content'];
+            const unitotal = parseInt(content[0]);
+            const bitotal = parseInt(content[1]);
+            const tritotal = parseInt(content[2]);
+            const uni = JSON.parse(content[3].replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            Object.keys(uni).forEach(k => {
+                unigram.push({ value: k, count: uni[k] });
+            });
+            const bi = JSON.parse(content[4].replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            Object.keys(bi).forEach(k => {
+                bigram.push({ value: k, count: bi[k] });
+            });
+            const tri = JSON.parse(content[5].replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            Object.keys(tri).forEach(k => {
+                trigram.push({ value: k, count: tri[k] });
+            });
+            return {
+                unitotal,
+                bitotal,
+                tritotal,
+                unigram,
+                bigram,
+                trigram
+            }
+        } catch (error) {
+            console.warn(`[Error caught] in getNgrams executing ${code}`, error);
+            return {
+                unitotal: 0,
+                bitotal: 0,
+                tritotal: 0,
+                unigram: [],
+                bigram: [],
+                trigram: []
+            }
         }
     }
 
