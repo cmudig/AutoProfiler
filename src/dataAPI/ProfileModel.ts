@@ -168,6 +168,8 @@ export class ProfileModel {
                                 result[dfName].lastUpdatedTime = lastUpdatedTime
                                 result[dfName].isPinned = isPinned
 
+                                // TODO need to exclude the ngram function for the update to work 
+
                                 if (!_.isEqual(currentShapeAndProfile, newShapeAndProfile)) {
                                     result[dfName].lastUpdatedTime = Date.now()
                                     this.logger.log('ProfileModel.updateData', { dfName })
