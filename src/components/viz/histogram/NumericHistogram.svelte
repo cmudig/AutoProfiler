@@ -9,6 +9,7 @@
     export let height = 100;
     export let dfName: string;
     export let colName: string;
+    export let isIndex: boolean;
 
     let left = 60;
     let right = 4;
@@ -114,6 +115,7 @@
                 <SummaryStatLabel
                     {dfName}
                     {colName}
+                    {isIndex}
                     defaultColor={NUMERIC_TOKENS.vizFillClass}
                     highlightColor={NUMERIC_TOKENS.vizHoverClass}
                     {label}

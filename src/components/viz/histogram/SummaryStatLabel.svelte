@@ -26,6 +26,7 @@
     export let anchorPlacement: number;
     export let anchor;
     export let fontSize;
+    export let isIndex: boolean;
 
     function formatDisplay(dtype: string, label, value) {
         try {
@@ -54,7 +55,7 @@
     function handleClick(event: MouseEvent, label) {
         // alt key or option key on mac
         if (event.altKey) {
-            let code = exportCodeSelection(dfName, colName, label);
+            let code = exportCodeSelection(dfName, colName, label, isIndex);
             profileModel.addCell('code', code);
         }
     }
