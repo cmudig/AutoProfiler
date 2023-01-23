@@ -158,7 +158,7 @@
                                     {percentage(nullCount / totalRows)} of the values
                                     are null
                                 {:else}
-                                    no null values in this column
+                                    No null values in this column
                                 {/if}
                             </TooltipContent>
                         </Tooltip>
@@ -188,16 +188,16 @@
                     <div bind:clientWidth={wrapperDivWidth}>
                         {#if totalRows !== 0 && nullCount !== totalRows}
                             {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.topK}
-                                {#if CATEGORICALS.has(type)}
-                                    <StringStats
-                                        stats={summary.stringSummary}
-                                    />
-                                {/if}
                                 <TopKSummary
                                     color={DATA_TYPE_COLORS[type].bgClass}
                                     {totalRows}
                                     topK={summary.topK}
                                 />
+                                {#if CATEGORICALS.has(type)}
+                                    <StringStats
+                                        stats={summary.stringSummary}
+                                    />
+                                {/if}
                                 <ExportChartButton
                                     chartType={'cat'}
                                     {dfName}

@@ -42,7 +42,7 @@
     }
 </script>
 
-<div class="flex justify-end w-full pt-1">
+<div class="flex justify-end w-full">
     <Tooltip location="bottom" alignment="center" distance={8}>
         <button
             class="hover:bg-gray-100 text-gray-400 grid place-items-center rounded"
