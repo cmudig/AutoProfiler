@@ -1,13 +1,15 @@
 <script lang="ts">
-    import { fly } from 'svelte/transition';
-    import { formatNumeric } from '../../utils/formatters';
     import { guidGenerator } from '../../utils/guid';
     import HistogramBase from './HistogramBase.svelte';
     import { NUMERIC_TOKENS } from '../../data-types/pandas-data-types';
+    import SummaryStatLabel from './SummaryStatLabel.svelte';
+
     export let data;
     export let width = 100;
     export let height = 100;
-    export let color = NUMERIC_TOKENS.vizFillClass;
+    export let dfName: string;
+    export let colName: string;
+    export let isIndex: boolean;
 
     let left = 60;
     let right = 4;
@@ -21,19 +23,6 @@
     export let mean: number;
     export let max: number;
 
-    function formatDisplay(dtype: string, label, value) {
-        try {
-            // force float display for mean with decimals
-            if (label === 'mean' && value - Math.trunc(value) > 0) {
-                return formatNumeric('float', value);
-            }
-
-            return formatNumeric(dtype, value);
-        } catch (e) {
-            return value;
-        }
-    }
-
     export let anchorBuffer = 8;
     export let labelOffset = 16;
 
@@ -44,6 +33,10 @@
     let fontSize = 12;
     let buffer = 4;
 </script>
+
+<div class="text-gray-400">
+    Option + Click on a summary stat to export to code
+</div>
 
 <HistogramBase
     showTooltip={true}
@@ -119,24 +112,23 @@
                 {@const anchorPlacement =
                     anchor === 'start' ? anchorBuffer : -anchorBuffer}
 
-                <text text-anchor="end" x={left - labelOffset} y={yi}>
+                <SummaryStatLabel
+                    {dfName}
+                    {colName}
+                    {isIndex}
+                    defaultColor={NUMERIC_TOKENS.vizFillClass}
+                    highlightColor={NUMERIC_TOKENS.vizHoverClass}
                     {label}
-                </text>
-                <text
-                    filter="url(#outline-{histogramID})"
-                    x={x(value) + anchorPlacement}
-                    y={yi}
-                    font-size="11"
-                    fill="hsl(217,1%,40%)"
-                    text-anchor={anchor}
-                    >{formatDisplay(type, label, value)}</text
-                >
-                <circle
-                    in:fly={{ duration: 500, y: -5 }}
-                    class={color}
-                    cx={x(value)}
-                    cy={yi - fontSize / 4}
-                    r="3"
+                    {value}
+                    {left}
+                    {labelOffset}
+                    {yi}
+                    {type}
+                    {x}
+                    {histogramID}
+                    {anchorPlacement}
+                    {anchor}
+                    {fontSize}
                 />
             {/each}
         </g>

@@ -27,7 +27,6 @@ export class ProfileModel {
     private _executor: PythonPandasExecutor
     private _name: Writable<string> = writable(undefined)
     private _varsInCurrentCell: Writable<string[]> = writable([])
-    private _currentOutputName: string;
     private _logger;
 
     constructor(session: ISessionContext) {
@@ -124,6 +123,12 @@ export class ProfileModel {
 
     public resetData() {
         this._columnProfiles.set(undefined);
+    }
+
+    public addCell(kind: 'code' | 'markdown', text: string) {
+        if (this.notebook) {
+            this.notebook.addCell(kind, text);
+        }
     }
 
     public async updateRootData() {
@@ -254,8 +259,8 @@ export class ProfileModel {
                 example: rowVC[0]?.value
             };
 
-            // need at least 1 row to calculate these
-            if (shape[0] > 0) {
+            // need at least 1 non-null row to calculate these
+            if (shape[0] > 0 && shape[0] > colMd.nullCount) {
                 if (NUMERICS.has(col_type)) {
                     const chartData = await this.executor.getQuantBinnedData(dfName, col_name, isIndex);
                     const statistics = await this.executor.getQuantMeta(dfName, col_name, isIndex);
@@ -293,8 +298,6 @@ export class ProfileModel {
                     cd.summary.stringSummary = stringSummary;
                 }
             }
-
-
             resultData.push(cd);
         }
 

@@ -206,7 +206,10 @@
                                 />
                             {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
                                 <NumericHistogram
+                                    {dfName}
+                                    {colName}
                                     {type}
+                                    {isIndex}
                                     width={wrapperDivWidth}
                                     height={65}
                                     data={summary.histogram}

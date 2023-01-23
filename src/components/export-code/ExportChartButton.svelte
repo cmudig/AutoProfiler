@@ -20,20 +20,25 @@
 
     function addVisCode() {
         let text: string;
-        colName = isIndex ? 'INDEX' : colName;
         if (chartType == 'quant') {
-            text = QUANT_CHART(dfName, colName, exportOptions?.numBins);
+            text = QUANT_CHART(
+                dfName,
+                colName,
+                exportOptions?.numBins,
+                isIndex
+            );
         } else if (chartType == 'cat') {
-            text = CAT_CHART(dfName, colName);
+            text = CAT_CHART(dfName, colName, 10, isIndex);
         } else {
             text = TEMPORAL_CHART(
                 dfName,
                 colName,
-                exportOptions?.shouldDisableMaxRows
+                exportOptions?.shouldDisableMaxRows,
+                isIndex
             );
         }
 
-        profileModel.notebook.addCell('code', text);
+        profileModel.addCell('code', text);
     }
 </script>
 
