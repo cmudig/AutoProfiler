@@ -46,6 +46,10 @@ To try out Autoprofiler in a hosted notebook, use one of the options below
 |:---:|:---:|
 |[![Lite](https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg)](http://dig.cmu.edu/AutoProfiler) | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfiler/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb) |
 
+## Browser support
+
+AutoProfiler has been developed and tested with Chrome. Some functionality might be buggy in other browsers.
+
 ## Development Install
 
 For development install instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
