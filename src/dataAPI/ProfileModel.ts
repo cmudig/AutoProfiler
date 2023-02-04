@@ -6,8 +6,7 @@ import type {
     IDFColMap,
     IDFProfileWStateMap,
     ColumnProfileData,
-    IDFProfileWState,
-    TimeColumnSummary
+    IDFProfileWState
 } from '../common/exchangeInterfaces';
 import {
     NUMERICS,
@@ -273,25 +272,11 @@ export class ProfileModel {
                     cd.summary.statistics = statistics;
                     cd.summary.histogram = chartData;
                 } else if (TIMESTAMPS.has(col_type)) {
-                    const { timebin, histogram } = await this.executor.getTempBinnedData(dfName, col_name, isIndex);
+                    const histogram = await this.executor.getTempBinnedData(dfName, col_name, isIndex);
                     const interval = await this.executor.getTempInterval(dfName, col_name, isIndex);
 
                     cd.summary.histogram = histogram;
-
-                    const timeSummary: TimeColumnSummary = {
-                        interval,
-                        rollup: {
-                            results: timebin,
-                            spark: timebin,
-                            timeRange: {
-                                start: timebin[0]?.ts_start,
-                                end: timebin[timebin.length - 1]?.ts_end,
-                                interval: interval
-                            }
-                        }
-                    };
-
-                    cd.summary.timeSummary = timeSummary;
+                    cd.summary.timeInterval = interval;
                 } else if (CATEGORICALS.has(col_type)) {
                     const stringSummary = await this.executor.getStringStats(dfName, col_name);
 

@@ -7,6 +7,7 @@
     import FormattedDataType from './data-types/FormattedDataType.svelte';
     import { config, percentage, getSummarySize } from './utils/sizes';
     import { formatInteger, formatCompactInteger } from './utils/formatters';
+    import { convertToTimeBin } from './utils/convertTypes';
     import {
         CATEGORICALS,
         NUMERICS,
@@ -229,14 +230,14 @@
                                     }}
                                     {isIndex}
                                 />
-                            {:else if TIMESTAMPS.has(type) && summary?.timeSummary}
+                            {:else if TIMESTAMPS.has(type) && summary?.histogram?.length}
                                 <TimestampDetail
-                                    data={summary?.timeSummary.rollup.results}
+                                    data={convertToTimeBin(summary?.histogram)}
                                     xAccessor="ts_end"
                                     yAccessor="count"
                                     height={160}
                                     width={wrapperDivWidth}
-                                    interval={summary?.timeSummary.interval}
+                                    interval={summary?.timeInterval}
                                 />
                                 <ExportChartButton
                                     chartType={'temporal'}

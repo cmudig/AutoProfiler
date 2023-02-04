@@ -77,23 +77,10 @@ export interface ColumnSummary {
     topK: ValueCount[];
     histogram?: IHistogram;
     statistics?: IQuantMeta;
-    timeSummary?: TimeColumnSummary;
+    timeInterval?: Interval;
     stringSummary?: IStringMeta;
 }
 
-// TODO this could be subclass but then need better type guards
-export interface TimeColumnSummary {
-    interval: Interval;
-    rollup: {
-        results: TimeBin[];
-        spark: TimeBin[];
-        timeRange: {
-            start: Date;
-            end: Date;
-            interval: Interval;
-        };
-    };
-}
 
 export type TimeBin = {
     count: number;

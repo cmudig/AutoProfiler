@@ -433,13 +433,12 @@ export class PythonPandasExecutor {
         colName: string,
         isIndex: boolean,
         maxbins = 200
-    ): Promise<{ timebin: TimeBin[], histogram: IHistogram }> {
+    ): Promise<IHistogram> {
         const isIndexPy = isIndex ? "True" : "False";
         const code = `digautoprofiler.getTempBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins}, ${isIndexPy})`;
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];
-            const timebinData: TimeBin[] = [];
             const histogram: IHistogram = []
             const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
             const true_minimum = parseFloat(content[1]);
@@ -451,17 +450,6 @@ export class PythonPandasExecutor {
                 const lowNum = parseFloat(low)
                 const highNum = parseFloat(high)
 
-                const lowDate = new Date(lowNum * 1000)
-                const highDate = new Date(highNum * 1000)
-
-                // for time detail chart
-                timebinData.push({
-                    // Pandas extends the minimum bin an arbitrary number below the col's minimum so we shift the lowest bin boundary to the actual minimum
-                    ts_start: i === 0 ? new Date(true_minimum * 1000) : lowDate,
-                    ts_end: highDate,
-                    count: json_res[k],
-                });
-
                 // for histogram preview
                 histogram.push(
                     {
@@ -472,10 +460,10 @@ export class PythonPandasExecutor {
                     }
                 )
             });
-            return { timebin: timebinData, histogram: histogram };
+            return histogram;
         } catch (error) {
             console.warn(`[Error caught] in getTempBinnedData executing: ${code}`, error);
-            return { timebin: [], histogram: [] };
+            return [];
         }
     }
 
