@@ -8,7 +8,9 @@ import type {
     IHistogram,
     ValueCount,
     Interval,
-    IStringMeta
+    IStringMeta,
+    IQuantRow,
+    ITemporalFact,
 } from '../../common/exchangeInterfaces';
 import _ from 'lodash';
 
@@ -354,6 +356,7 @@ export class PythonPandasExecutor {
         colName: string
     ): Promise<IStringMeta> {
         const code = `digautoprofiler.getStringStats(${dfName}, "${replaceSpecial(colName)}")`;
+
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];
@@ -361,6 +364,9 @@ export class PythonPandasExecutor {
                 minLength: parseInt(content[0]),
                 maxLength: parseInt(content[1]),
                 meanLength: parseFloat(content[2]),
+                top_mean: parseFloat(content[4]),
+                bottom_mean: parseFloat(content[3]),
+                low_count: [],
             };
         } catch (error) {
             console.warn(`[Error caught] in getStringStats executing: ${code}`, error);
@@ -368,7 +374,61 @@ export class PythonPandasExecutor {
                 minLength: undefined,
                 maxLength: undefined,
                 meanLength: undefined,
+                top_mean: undefined,
+                bottom_mean: undefined,
+                low_count: undefined,
             };
+        }
+    }
+
+    public async getNumStats(
+        dfName: string,
+        colName: string
+    ): Promise<IQuantRow> {
+        const code = `digautoprofiler.getNumericalStats(${dfName}, "${replaceSpecial(colName)}")`;
+        try {
+            const res = await this.executePythonAP(code);
+            const content = res['content'];
+            console.log("NUM STATES")
+            console.log(colName)
+            console.log(res)
+            return {
+                ascending: content[2],
+                negative: parseInt(content[4]),
+                positive: parseInt(content[5]),
+                zero: parseInt(content[3]),
+                sd_outlier: parseInt(content[0]),
+                iqr_outlier: parseInt(content[1]),
+            }
+        } catch (error) {
+            console.warn(`[Error caught] in getNumStats executing: ${code}`, error);
+            return {
+                ascending: undefined,
+                positive: undefined,
+                negative: undefined,
+                zero: undefined,
+                sd_outlier: undefined,
+                iqr_outlier: undefined,
+            }
+        }
+    }
+
+    public async getTemporalFacts(
+        dfName: string,
+        colName: string
+    ): Promise<ITemporalFact> {
+        const code = `digautoprofiler.getTemporalFacts(${dfName}, "${replaceSpecial(colName)}")`;
+        try {
+            const res = await this.executePythonAP(code);
+            const content = res['content'];
+            return {
+                sorted: content[0],
+            }
+        } catch (error) {
+            console.warn(`[Error caught] in getTemporalFacts executing: ${code}`, error);
+            return {
+                sorted: undefined
+            }
         }
     }
 

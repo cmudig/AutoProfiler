@@ -1,3 +1,4 @@
+
 import type { ISessionContext } from '@jupyterlab/apputils';
 import { type Writable, writable, get } from 'svelte/store';
 import type { NotebookAPI } from './jupyter/notebook';
@@ -262,20 +263,22 @@ export class ProfileModel {
                 if (NUMERICS.has(col_type)) {
                     const chartData = await this.executor.getQuantBinnedData(dfName, col_name, isIndex);
                     const statistics = await this.executor.getQuantMeta(dfName, col_name, isIndex);
-
+                    const quantFacts = await this.executor.getNumStats(dfName, col_name)
                     // replace min on far bin with true minimum since pandas puts the left bin edge lower
                     if (!_.isUndefined(chartData[0])) {
                         chartData[0].low = statistics.min
                     }
 
                     cd.summary.statistics = statistics;
+                    cd.summary.quantFacts = quantFacts;
                     cd.summary.histogram = chartData;
                 } else if (TIMESTAMPS.has(col_type)) {
                     const histogram = await this.executor.getTempBinnedData(dfName, col_name, isIndex);
                     const interval = await this.executor.getTempInterval(dfName, col_name, isIndex);
-
+                    const temporalFact = await this.executor.getTemporalFacts(dfName, col_name);
                     cd.summary.histogram = histogram;
                     cd.summary.timeInterval = interval;
+                    cd.summary.temporalFacts = temporalFact
                 } else if (CATEGORICALS.has(col_type)) {
                     const stringSummary = await this.executor.getStringStats(dfName, col_name);
 
