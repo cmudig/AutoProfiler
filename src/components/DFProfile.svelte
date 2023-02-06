@@ -10,7 +10,6 @@
     import Tooltip from './tooltip/Tooltip.svelte';
     import TooltipContent from './tooltip/TooltipContent.svelte';
     import { formatInteger } from './utils/formatters';
-    import { currentHoveredCol } from '../stores';
 
     export let dfName: string;
     export let dataframeProfile: IDFProfileWState;

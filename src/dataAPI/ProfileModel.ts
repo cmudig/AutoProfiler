@@ -15,7 +15,6 @@ import {
 } from '../components/data-types/pandas-data-types';
 import _ from 'lodash';
 import type { Logger } from '../logger/Logger';
-import { showIndex } from '../stores';
 
 export class ProfileModel {
 

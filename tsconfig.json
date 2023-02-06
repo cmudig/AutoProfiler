@@ -11,7 +11,7 @@
         "moduleResolution": "node",
         "noEmitOnError": true,
         "noImplicitAny": false,
-        "noUnusedLocals": false,
+        "noUnusedLocals": true,
         "preserveWatchOutput": true,
         "resolveJsonModule": true,
         "outDir": "lib",
@@ -19,7 +19,16 @@
         "strict": false,
         "strictNullChecks": false,
         "target": "es2017",
-        "types": ["svelte", "node"]
+        "types": [
+            "svelte",
+            "node"
+        ],
+        "importsNotUsedAsValues": "error",
+        "isolatedModules": true,
+        "forceConsistentCasingInFileNames": true
     },
-    "include": ["src/**/*", "style"]
+    "include": [
+        "src/**/*",
+        "style"
+    ]
 }

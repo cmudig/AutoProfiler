@@ -8,7 +8,6 @@ import type {
     IHistogram,
     ValueCount,
     Interval,
-    TimeBin,
     IStringMeta
 } from '../../common/exchangeInterfaces';
 import _ from 'lodash';
