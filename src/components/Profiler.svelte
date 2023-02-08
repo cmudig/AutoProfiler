@@ -6,6 +6,7 @@
     import type { IDFProfileWState } from '../common/exchangeInterfaces';
     import { sortDFArr } from './utils/sort-utils';
     import SettingsMenu from './nav/SettingsMenu.svelte';
+    import RefreshData from './nav/RefreshData.svelte';
     import DFProfile from './DFProfile.svelte';
     import Parquet from './icons/Parquet.svelte';
     import AlertIcon from './icons/AlertIcon.svelte';
@@ -77,6 +78,9 @@
     <h1 class="text-lg">AutoProfiler</h1>
     <div class="absolute top-2 right-2">
         <SettingsMenu />
+    </div>
+    <div class="absolute top-2 right-8">
+        <RefreshData />
     </div>
 
     {#if isReady}
