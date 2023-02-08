@@ -5,7 +5,7 @@
     import type { ProfileModel } from '../dataAPI/ProfileModel';
     import type { IDFProfileWState } from '../common/exchangeInterfaces';
     import { sortDFArr } from './utils/sort-utils';
-    import SettingsMenu from './settings/SettingsMenu.svelte';
+    import SettingsMenu from './nav/SettingsMenu.svelte';
     import DFProfile from './DFProfile.svelte';
     import Parquet from './icons/Parquet.svelte';
     import AlertIcon from './icons/AlertIcon.svelte';
