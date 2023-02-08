@@ -184,7 +184,7 @@
             {#if active}
                 <div
                     transition:slide|local={{ duration: 200 }}
-                    class="pt-1 pb-1 pl-8 pr-4 w-full"
+                    class="pt-1 pb-1 pl-4 pr-2 w-full"
                 >
                     <div bind:clientWidth={wrapperDivWidth}>
                         {#if totalRows !== 0 && nullCount !== totalRows}
@@ -199,12 +199,14 @@
                                         stats={summary.stringSummary}
                                     />
                                 {/if}
-                                <ExportChartButton
-                                    chartType={'cat'}
-                                    {dfName}
-                                    {colName}
-                                    {isIndex}
-                                />
+                                <div class="mt-1">
+                                    <ExportChartButton
+                                        chartType={'cat'}
+                                        {dfName}
+                                        {colName}
+                                        {isIndex}
+                                    />
+                                </div>
                             {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
                                 <NumericHistogram
                                     {dfName}
@@ -221,15 +223,17 @@
                                     mean={summary.statistics.mean}
                                     max={summary.statistics.max}
                                 />
-                                <ExportChartButton
-                                    chartType={'quant'}
-                                    {dfName}
-                                    {colName}
-                                    exportOptions={{
-                                        numBins: summary.histogram.length
-                                    }}
-                                    {isIndex}
-                                />
+                                <div class="mt-1">
+                                    <ExportChartButton
+                                        chartType={'quant'}
+                                        {dfName}
+                                        {colName}
+                                        exportOptions={{
+                                            numBins: summary.histogram.length
+                                        }}
+                                        {isIndex}
+                                    />
+                                </div>
                             {:else if TIMESTAMPS.has(type) && summary?.histogram?.length}
                                 <TimestampDetail
                                     data={convertToTimeBin(summary?.histogram)}
@@ -239,15 +243,18 @@
                                     width={wrapperDivWidth}
                                     interval={summary?.timeInterval}
                                 />
-                                <ExportChartButton
-                                    chartType={'temporal'}
-                                    {dfName}
-                                    {colName}
-                                    exportOptions={{
-                                        shouldDisableMaxRows: totalRows > 5000
-                                    }}
-                                    {isIndex}
-                                />
+                                <div class="mt-1">
+                                    <ExportChartButton
+                                        chartType={'temporal'}
+                                        {dfName}
+                                        {colName}
+                                        exportOptions={{
+                                            shouldDisableMaxRows:
+                                                totalRows > 5000
+                                        }}
+                                        {isIndex}
+                                    />
+                                </div>
                             {/if}
                         {:else}
                             <p>No values to show for this column</p>

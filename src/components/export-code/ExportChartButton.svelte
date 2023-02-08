@@ -42,18 +42,27 @@
     }
 </script>
 
-<div class="flex justify-end w-full">
-    <Tooltip location="bottom" alignment="center" distance={8}>
-        <button
-            class="hover:bg-gray-100 text-gray-500 grid place-items-center rounded"
-            style="width: 20px; height: 20px;"
-            on:click={addVisCode}
-        >
-            <ExportIcon size="16px" />
-        </button>
+<div class="flex items-center">
+    <div class="grow" />
 
-        <TooltipContent slot="tooltip-content">
-            Export chart to code
-        </TooltipContent>
-    </Tooltip>
+    <div class="justify-end">
+        <Tooltip location="bottom" alignment="center" distance={8}>
+            <div
+                class="flex items-center w-full hover:bg-gray-100 text-gray-500"
+                on:click={addVisCode}
+            >
+                <p class="mx-1">Export</p>
+                <button
+                    class=" grid place-items-center rounded"
+                    style="width: 20px; height: 20px;"
+                >
+                    <ExportIcon size="16px" />
+                </button>
+            </div>
+
+            <TooltipContent slot="tooltip-content"
+                >Export chart to code</TooltipContent
+            >
+        </Tooltip>
+    </div>
 </div>
