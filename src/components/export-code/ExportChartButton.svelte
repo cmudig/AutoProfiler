@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getContext } from 'svelte';
     import type { ProfileModel } from '../../dataAPI/ProfileModel';
-    import RightArrow from '../icons/RightArrow.svelte';
+    import ExportIcon from '../icons/ExportIcon.svelte';
     import Tooltip from '../tooltip/Tooltip.svelte';
     import TooltipContent from '../tooltip/TooltipContent.svelte';
 
@@ -45,11 +45,11 @@
 <div class="flex justify-end w-full">
     <Tooltip location="bottom" alignment="center" distance={8}>
         <button
-            class="hover:bg-gray-100 text-gray-400 grid place-items-center rounded"
-            style="width: 16px; height: 16px;"
+            class="hover:bg-gray-100 text-gray-500 grid place-items-center rounded"
+            style="width: 20px; height: 20px;"
             on:click={addVisCode}
         >
-            <RightArrow size="16px" />
+            <ExportIcon size="16px" />
         </button>
 
         <TooltipContent slot="tooltip-content">
