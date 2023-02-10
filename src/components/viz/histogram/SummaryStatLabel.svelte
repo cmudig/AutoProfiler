@@ -4,6 +4,7 @@
     import type { ProfileModel } from '../../../dataAPI/ProfileModel';
     import { exportCodeSelection } from '../../export-code/ExportableCode';
     import { formatNumeric } from '../../utils/formatters';
+    import ExportIcon from '../../icons/ExportIcon.svelte';
 
     const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
@@ -27,6 +28,11 @@
     export let anchor;
     export let fontSize;
     export let isIndex: boolean;
+
+    const vizOffset = 5;
+    const buttonSize = 10;
+    const buttonOffsetY = 9;
+    const buttonOffsetX = 11;
 
     function formatDisplay(dtype: string, label, value) {
         try {
@@ -53,22 +59,33 @@
 
     // Export code
     function handleClick(event: MouseEvent, label) {
-        // alt key or option key on mac
-        if (event.altKey) {
-            let code = exportCodeSelection(dfName, colName, label, isIndex);
-            profileModel.addCell('code', code);
-        }
+        let code = exportCodeSelection(dfName, colName, label, isIndex);
+        profileModel.addCell('code', code);
     }
 </script>
 
-<g
-    on:click={e => handleClick(e, label)}
-    on:mouseenter={handleHover}
-    on:mouseleave={handleUnhover}
->
-    <text text-anchor="end" x={left - labelOffset} y={yi} fill={labelColor}>
-        {label}
-    </text>
+<g>
+    <g
+        on:click={e => handleClick(e, label)}
+        on:mouseenter={handleHover}
+        on:mouseleave={handleUnhover}
+    >
+        <text
+            text-anchor="end"
+            x={left - labelOffset - vizOffset}
+            y={yi}
+            fill={labelColor}
+        >
+            {label}
+        </text>
+
+        <ExportIcon
+            size={buttonSize}
+            x={left - vizOffset - buttonOffsetX}
+            y={yi - buttonOffsetY}
+        />
+    </g>
+
     <text
         filter="url(#outline-{histogramID})"
         x={x(value) + anchorPlacement}

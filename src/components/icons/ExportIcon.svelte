@@ -1,13 +1,19 @@
-<script>
-    export let size = '1em';
+<script lang="ts">
+    export let size: number | string;
+    export let x = 0;
+    export let y = 0;
     export let mainColor = 'black';
     export let secondaryColor = 'currentColor';
 </script>
 
 <svg
     height={size}
+    width={size}
+    {x}
+    {y}
     viewBox="0 0 24 24"
-    fill="none"
+    fill="white"
+    class="hover:bg-gray-100 bg-gray-50 text-gray-500"
     xmlns="http://www.w3.org/2000/svg"
 >
     <path

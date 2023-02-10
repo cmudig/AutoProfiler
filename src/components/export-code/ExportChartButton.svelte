@@ -51,12 +51,12 @@
                 class="flex items-center w-full hover:bg-gray-100 text-gray-500"
                 on:click={addVisCode}
             >
-                <p class="mx-1">Export</p>
+                <p class="ml-1 mr-0.5 ">Export</p>
                 <button
-                    class=" grid place-items-center rounded"
+                    class="grid place-items-center rounded"
                     style="width: 20px; height: 20px;"
                 >
-                    <ExportIcon size="16px" />
+                    <ExportIcon size="14px" />
                 </button>
             </div>
 
