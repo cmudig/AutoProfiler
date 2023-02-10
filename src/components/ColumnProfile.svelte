@@ -5,8 +5,12 @@
     import BarAndLabel from './viz//BarAndLabel.svelte';
     import TopKSummary from './viz/TopKSummary.svelte';
     import FormattedDataType from './data-types/FormattedDataType.svelte';
-    import { config, percentage, getSummarySize } from './utils/sizes';
-    import { formatInteger, formatCompactInteger } from './utils/formatters';
+    import { config, getSummarySize } from './utils/sizes';
+    import {
+        formatInteger,
+        formatCompactInteger,
+        formatPercentage
+    } from './utils/formatters';
     import { convertToTimeBin } from './utils/convertTypes';
     import {
         CATEGORICALS,
@@ -41,11 +45,6 @@
     // locals
     let active = false;
     let wrapperDivWidth: number;
-
-    $: exampleWidth =
-        containerWidth > config.mediumCutoff
-            ? config.exampleWidth.medium
-            : config.exampleWidth.small;
 
     $: summaryWidthSize = getSummarySize(containerWidth);
 
@@ -148,7 +147,9 @@
                                 value={nullCount / totalRows || 0}
                             >
                                 <span class:text-gray-300={nullCount === 0}
-                                    >∅ {percentage(nullCount / totalRows)}</span
+                                    >∅ {formatPercentage(
+                                        nullCount / totalRows
+                                    )}</span
                                 >
                             </BarAndLabel>
                             <TooltipContent slot="tooltip-content">
@@ -156,8 +157,8 @@
                                     what percentage of values are null?
                                 </svelte:fragment>
                                 {#if nullCount > 0}
-                                    {percentage(nullCount / totalRows)} of the values
-                                    are null
+                                    {formatPercentage(nullCount / totalRows)} of
+                                    the values are null
                                 {:else}
                                     No null values in this column
                                 {/if}
@@ -170,7 +171,7 @@
                 class:hidden={view !== 'example'}
                 class="
             pl-8 text-ellipsis overflow-hidden whitespace-nowrap text-right"
-                style:max-width="{exampleWidth}px"
+                style:max-width="{summaryWidthSize}px"
             >
                 <FormattedDataType
                     {type}

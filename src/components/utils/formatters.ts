@@ -42,6 +42,8 @@ export function formatFloat(v) {
     return format('.2r')(v);
 }
 
+export const formatPercentage = format('.1%');
+
 /**
  * changes precision depending on the
  */
