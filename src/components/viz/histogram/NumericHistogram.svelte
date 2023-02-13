@@ -11,7 +11,7 @@
     export let colName: string;
     export let isIndex: boolean;
 
-    let left = 60;
+    let left = 70;
     let right = 4;
     let top = 14;
 
@@ -33,10 +33,6 @@
     let fontSize = 12;
     let buffer = 4;
 </script>
-
-<div class="text-gray-400">
-    Option + Click on a summary stat to export to code
-</div>
 
 <HistogramBase
     showTooltip={true}
@@ -82,7 +78,6 @@
                     anchorBuffer +
                     i * (fontSize + buffer + anchorBuffer / 2) +
                     anchorBuffer * 2}
-                {@const anchor = x(value) < width / 2 ? 'start' : 'end'}
 
                 <line
                     x1={left}
