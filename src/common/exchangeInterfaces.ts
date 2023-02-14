@@ -51,6 +51,12 @@ export type IQuantMeta = {
     q75: number;
     max: number;
     mean: number;
+    sd_outlier: number;
+    iqr_outlier: number;
+    sortedness: string;
+    n_zero: number;
+    n_positive: number;
+    n_negative: number;
 };
 
 export type IColMeta = {
@@ -67,17 +73,8 @@ export type IStringMeta = {
     low_count: ValueCount[];
 };
 
-export type IQuantRow = {
-    ascending: string;
-    negative: number;
-    positive: number;
-    zero: number;
-    sd_outlier: number;
-    iqr_outlier: number;
-};
-
-export type ITemporalFact = {
-    sorted: string;
+export type ITemporalMeta = {
+    sortedness: string;
 }
 export type ColumnProfileData = {
     name: string;
@@ -92,13 +89,11 @@ export interface ColumnSummary {
     cardinality: number; // num unique
     topK: ValueCount[];
     histogram?: IHistogram;
-    statistics?: IQuantMeta;
     timeInterval?: Interval;
-    stringSummary?: IStringMeta;
-    quantFacts?: IQuantRow;
-    temporalFacts?: ITemporalFact;
+    quantMeta?: IQuantMeta;
+    stringMeta?: IStringMeta;
+    temporalMeta?: ITemporalMeta;
 }
-
 
 export type TimeBin = {
     count: number;

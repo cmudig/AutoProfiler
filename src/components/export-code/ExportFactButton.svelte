@@ -1,44 +1,41 @@
 <script lang="ts">
     import { getContext } from 'svelte';
     import type { ProfileModel } from '../../dataAPI/ProfileModel';
-    import RightArrow from '../icons/RightArrow.svelte';
+    import ExportIcon from '../icons/ExportIcon.svelte';
     import Tooltip from '../tooltip/Tooltip.svelte';
     import TooltipContent from '../tooltip/TooltipContent.svelte';
 
     import { DUPLICATES, IQR_OUTLIERS, SD_OUTLIERS } from './ExportableCode';
 
-    export let type: 'iqr' | 'sd' | 'unique';
+    export let type: 'outliers_iqr' | 'outliers_sd' | 'duplicates';
     export let dfName: string;
     export let colName: string;
     export let isIndex = false;
+    export let tooltipText = 'Export text fact to code';
 
     const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
-    function addVisCode() {
+    function addCode() {
         let text: string;
-        if (type === 'iqr') {
+        if (type === 'outliers_iqr') {
             text = IQR_OUTLIERS(dfName, colName, isIndex);
-        } else if (type === 'sd') {
+        } else if (type === 'outliers_sd') {
             text = SD_OUTLIERS(dfName, colName, isIndex);
-        } else if (type === 'unique') {
+        } else if (type === 'duplicates') {
             text = DUPLICATES(dfName, colName, isIndex);
         }
         profileModel.addCell('code', text);
     }
 </script>
 
-<div class="flex justify-end w-full">
-    <Tooltip location="bottom" alignment="center" distance={8}>
-        <button
-            class="hover:bg-gray-100 text-gray-400 grid place-items-center rounded"
-            style="width: 16px; height: 16px;"
-            on:click={addVisCode}
-        >
-            <RightArrow size="16px" />
-        </button>
+<Tooltip location="bottom" alignment="center" distance={8}>
+    <button
+        class="grid place-items-center rounded hover:bg-gray-100 text-gray-500"
+        style="width: 20px; height: 20px;"
+        on:click={addCode}
+    >
+        <ExportIcon size="14px" />
+    </button>
 
-        <TooltipContent slot="tooltip-content">
-            Export text fact to code
-        </TooltipContent>
-    </Tooltip>
-</div>
+    <TooltipContent slot="tooltip-content">{tooltipText}</TooltipContent>
+</Tooltip>

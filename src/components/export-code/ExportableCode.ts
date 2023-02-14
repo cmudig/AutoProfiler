@@ -19,26 +19,15 @@ export const SD_OUTLIERS = (
         col_stmt = `["${col_name}"]`;
     };
     return `${TEXT_EXPORTS}
-sd = ${df_name}${col_stmt}.describe().loc['std']
-mean = ${df_name}${col_stmt}.describe().loc['mean']
-${col_name}_outliers_sd = ${df_name}[((${df_name}${col_stmt}-mean)/sd < -2.5) | ((${df_name}${col_stmt}-mean)/sd > 2.5)]
-${col_name}_wout_outliers_sd = ${df_name}[((${df_name}${col_stmt}-mean)/sd >= -2.5) & ((${df_name}${col_stmt}-mean)/sd <= 2.5)]`
-}
+sd = ${df_name}${col_stmt}.std()
+mean = ${df_name}${col_stmt}.mean()
+_normalized_sd = (${df_name}${col_stmt} - mean) / sd
 
-export const DUPLICATES = (
-    df_name: string,
-    col_name: string,
-    isIndex: boolean,
-) => {
-    let col_stmt: string;
-    if (isIndex) {
-        col_stmt = ".index.to_series()";
-    } else {
-        col_stmt = `["${col_name}"]`;
-    };
-    return `${TEXT_EXPORTS}
-${col_name}_duplicates = ${df_name}[${df_name}.groupby("${col_name}")${col_stmt}.transform('size') > 1].sort_values("${col_name}")
-${col_name}_unique = ${df_name}[${df_name}.groupby("${col_name}")${col_stmt}.transform('size') == 1]`
+# dataframe with only outliers
+outliers_sd = ${df_name}[abs(_normalized_sd) > 3]
+
+# dataframe without outliers
+no_outliers_sd = ${df_name}[abs(_normalized_sd) <= 3]`
 }
 
 export const IQR_OUTLIERS = (
@@ -53,14 +42,35 @@ export const IQR_OUTLIERS = (
         col_stmt = `["${col_name}"]`;
     };
     return `${TEXT_EXPORTS}
-q3 =${df_name}${col_stmt}.describe().loc['75%']
-q1 =${df_name}${col_stmt}.describe().loc['25%']
-iqr = q3-q1
-lower = q1-1.5*iqr
-upper = q3+1.5*iqr
-${col_name}_outliers_iqr = ${df_name}[(${df_name}${col_stmt} < lower) | (${df_name}${col_stmt} > upper)]
-${col_name}_wout_outliers_iqr = ${df_name}[(${df_name}${col_stmt} >= lower) & (${df_name}${col_stmt} <= upper)]`;
+q1, q3 = ${df_name}${col_stmt}.quantile(0.25), ${df_name}${col_stmt}.quantile(0.75)
+iqr = q3 - q1
+lower = q1 - 1.5 * iqr
+upper = q3 + 1.5 * iqr
+
+# dataframe with only outliers
+outliers_iqr = ${df_name}[(${df_name}${col_stmt} < lower) | (${df_name}${col_stmt} > upper)]
+
+# dataframe without outliers
+no_outliers_iqr= ${df_name}[(${df_name}${col_stmt} >= lower) & (${df_name}${col_stmt} <= upper)]`;
 }
+
+
+export const DUPLICATES = (
+    df_name: string,
+    col_name: string,
+    isIndex: boolean,
+) => {
+    let col_stmt: string;
+    if (isIndex) {
+        col_stmt = ".index.to_series()";
+    } else {
+        col_stmt = `["${col_name}"]`;
+    };
+    return `${TEXT_EXPORTS}
+# dataframe with duplicate values for ${col_name}
+duplicates = ${df_name}[${df_name}${col_stmt}.duplicated()]`;
+}
+
 
 // ~~~~~~~~~ EXPORT Chart CODE ~~~~~~~~~
 

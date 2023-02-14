@@ -1,20 +1,20 @@
 <script lang="ts">
-    import ExportChartButton from './export-code/ExportChartButton.svelte';
-    import TopKSummary from './viz/TopKSummary.svelte';
-    import StringStats from './viz/categorical/StringStats.svelte';
-    import NumericalStats from './viz/NumericalStats.svelte';
-    import TempFacts from './viz/TempFacts.svelte';
-    import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
-    import TimestampDetail from './viz/timestamp/TimestampDetail.svelte';
-    import type { ColumnSummary } from '../common/exchangeInterfaces';
-    import { convertToTimeBin } from './utils/convertTypes';
+    import ExportChartButton from '../export-code/ExportChartButton.svelte';
+    import TopKSummary from '../viz/TopKSummary.svelte';
+    import StringStats from './StringStats.svelte';
+    import NumericalStats from './NumericalStats.svelte';
+    import TempFacts from './TempStats.svelte';
+    import NumericHistogram from '../viz/histogram/NumericHistogram.svelte';
+    import TimestampDetail from '../viz/timestamp/TimestampDetail.svelte';
+    import type { ColumnSummary } from '../../common/exchangeInterfaces';
+    import { convertToTimeBin } from '../utils/convertTypes';
     import {
         CATEGORICALS,
         NUMERICS,
         TIMESTAMPS,
         DATA_TYPE_COLORS,
         BOOLEANS
-    } from './data-types/pandas-data-types';
+    } from '../data-types/pandas-data-types';
 
     export let dfName: string;
     export let colName: string;
@@ -34,14 +34,14 @@
                 class="rounded border border-6 bg-gray-100 hover:border-gray-300"
                 bind:value={vizToggleOption}
             >
-                <option value={'viz'}>Visualization</option>
-                <option value={'text'}>Text Facts</option>
+                <option value={'viz'}>Chart</option>
+                <option value={'text'}>Summary</option>
             </select>
         </div>
     </div>
     {#if vizToggleOption === 'viz'}
         <div>
-            {#if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
+            {#if NUMERICS.has(type) && summary?.quantMeta && summary?.histogram?.length}
                 <NumericHistogram
                     {dfName}
                     {colName}
@@ -50,12 +50,12 @@
                     width={wrapperDivWidth}
                     height={65}
                     data={summary.histogram}
-                    min={summary.statistics.min}
-                    qlow={summary.statistics.q25}
-                    median={summary.statistics.q50}
-                    qhigh={summary.statistics.q75}
-                    mean={summary.statistics.mean}
-                    max={summary.statistics.max}
+                    min={summary.quantMeta.min}
+                    qlow={summary.quantMeta.q25}
+                    median={summary.quantMeta.q50}
+                    qhigh={summary.quantMeta.q75}
+                    mean={summary.quantMeta.mean}
+                    max={summary.quantMeta.max}
                 />
                 <div class="mt-1">
                     <ExportChartButton
@@ -104,23 +104,27 @@
                 </div>
             {/if}
         </div>
-    {:else if NUMERICS.has(type)}
-        <NumericalStats
-            {dfName}
-            {colName}
-            {isIndex}
-            stats={summary.quantFacts}
-        />
-    {:else if CATEGORICALS.has(type)}
-        <StringStats
-            {dfName}
-            {colName}
-            {isIndex}
-            stats={summary.stringSummary}
-            unique={summary.cardinality}
-            rows={totalRows - nullCount}
-        />
-    {:else if TIMESTAMPS.has(type)}
-        <TempFacts facts={summary?.temporalFacts} />
+    {:else}
+        <div class="pl-6 pr-2">
+            {#if NUMERICS.has(type)}
+                <NumericalStats
+                    {dfName}
+                    {colName}
+                    {isIndex}
+                    stats={summary.quantMeta}
+                />
+            {:else if CATEGORICALS.has(type)}
+                <StringStats
+                    {dfName}
+                    {colName}
+                    {isIndex}
+                    stats={summary.stringMeta}
+                    unique={summary.cardinality}
+                    rows={totalRows - nullCount}
+                />
+            {:else if TIMESTAMPS.has(type)}
+                <TempFacts facts={summary.temporalMeta} />
+            {/if}
+        </div>
     {/if}
 </div>

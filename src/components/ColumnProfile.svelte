@@ -4,13 +4,12 @@
     import DataTypeIcon from './data-types/DataTypeIcon.svelte';
     import BarAndLabel from './viz//BarAndLabel.svelte';
     import FormattedDataType from './data-types/FormattedDataType.svelte';
-    import { config, percentage, getSummarySize } from './utils/sizes';
+    import { config, getSummarySize } from './utils/sizes';
     import {
         formatInteger,
         formatCompactInteger,
         formatPercentage
     } from './utils/formatters';
-    import { convertToTimeBin } from './utils/convertTypes';
     import {
         CATEGORICALS,
         NUMERICS,
@@ -23,7 +22,7 @@
     import Histogram from './viz/histogram/SmallHistogram.svelte';
     import type { ColumnSummary } from '../common/exchangeInterfaces';
     import { showIndex } from '../stores';
-    import VizOrText from './VizOrText.svelte';
+    import VizOrText from './fact-panel/VizOrStats.svelte';
 
     // props
     export let dfName: string;

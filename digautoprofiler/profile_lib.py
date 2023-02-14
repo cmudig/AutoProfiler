@@ -22,13 +22,6 @@ def getColumns(dfName: pd.DataFrame):
 def getShape(dfName: pd.DataFrame):
     print(dfName.shape)
 
-def getQuantMeta(dfName: pd.DataFrame, colName: str, isIndex=False):
-    if isIndex:
-        colData = dfName.index.to_series()
-    else:
-        colData = dfName[colName]
-    m = colData.describe()
-    print(m.to_json())
 
 def getColMeta(dfName: pd.DataFrame, colName: str, isIndex=False):
     if isIndex:
@@ -79,73 +72,68 @@ def getVariableNamesInPythonStr(codeString: str):
 
     print(set([ t.string for t in tokenize.generate_tokens(io.StringIO(codeString).readline) if t.type == 1]))
 
-def getStringStats(dfName: pd.DataFrame, colName: str):
-    lengths = dfName[colName].str.len()
-    colData = dfName[colName]
-    vc = colData.value_counts()
-    bottom_n = vc.iloc[-5:]
-    bottom_mean = bottom_n.mean()
-    top_n = vc.iloc[:5]
-    top_mean = top_n.mean()
-    #after add the value counts for each thing
-    #make the n variable
+def getStringMeta(dfName: pd.DataFrame, colName: str, isIndex=False):
+    if isIndex:
+        lengths = dfName.index.to_series().str.len()
+    else:
+        lengths = dfName[colName].str.len()
     print(lengths.min())
     print(lengths.max())    
     print(lengths.mean())
-    print(bottom_mean)
-    print(top_mean)
 
-
-def getNumericalStats(dfName:pd.DataFrame,colName:str):
-    sd = dfName[colName].describe().loc['std']
-    mean = dfName[colName].describe().loc['mean']
-    update = (dfName[colName] - mean)/sd
-    sd_out1 = update.loc[lambda x:(x < -2.5)]
-    sd_out2 = update.loc[lambda x:(x > 2.5)]
-    q3 =dfName[colName].describe().loc['75%']
-    q1 =dfName[colName].describe().loc['25%']
-    iqr = q3-q1
-    lower = q1-1.5*iqr
-    upper = q3+1.5*iqr
-    iqr_out1 = dfName[colName].loc[lambda x: (x < lower)]
-    iqr_out2 = dfName[colName].loc[lambda x: (x > upper)]
-    sd_num_outliers = len(sd_out2) + len(sd_out1)
-    iqr_num_outliers = len(iqr_out2) + len(iqr_out1)
-
-    column = dfName[colName].dropna()
-    prev = column[:1][1]
-    ascending = 0
-    descending = 0
-    for item in column[1:]:
-        if item >= prev:
-            ascending+=1
-        else: 
-            descending+=1
-    status= ""
-    proportion = (ascending/(ascending+descending))
-    if proportion == 1:
-        status = "ascending"
-    elif proportion == 0:
-        status = "descending"
-    elif ((ascending/(ascending+descending)) > 0.7):
-        status= "mostly ascending"
-    elif ((ascending/(ascending+descending))>0.3):
-        status = "a mix of both ascending and descending values"
+def getQuantMeta(dfName: pd.DataFrame, colName: str, isIndex=False):
+    if isIndex:
+        colData = dfName.index.to_series()
     else:
-        status ="mostly descending"
-    zero = len(dfName[colName].loc[lambda x: (x == 0)])
-    negative = len(dfName[colName].loc[lambda x: (x < 0)])
-    positive = len(dfName[colName].loc[lambda x: (x > 0)])
+        colData = dfName[colName]
+    
+    describe = colData.describe()
+    sd = describe.loc['std']
+    mean = describe.loc['mean']
+    q3 = describe.loc['75%']
+    q1 = describe.loc['25%']
+
+    # get num outliers > 3 std away from mean
+    normalized = (colData - mean) / sd
+    sd_num_outliers = sum( abs(normalized) > 3)
+
+    # get iqr outliers that are 1.5 * iqr away from q1 or q3
+    iqr = q3 - q1
+    lower = q1 - 1.5 * iqr
+    upper = q3 + 1.5 * iqr
+    iqr_num_outliers = sum((colData < lower) | (colData > upper))
+
+    # get sortedness
+    if colData.is_monotonic_increasing:
+        status = "ascending"
+    elif colData.is_monotonic_decreasing:
+        status = "descending"
+    else:
+        status = "noSort"
+    
+    n_zero = sum(colData == 0)
+    n_negative = sum(colData < 0)
+    n_positive = sum(colData > 0)
+    
+    print(describe.to_json())
     print(sd_num_outliers)
     print(iqr_num_outliers)
     print(status)
-    print(zero)
-    print(negative)
-    print(positive)
+    print(n_zero)
+    print(n_negative)
+    print(n_positive)
 
-def getTemporalFacts(dfName:pd.DataFrame,colName:str):
-    if (dfName[colName].is_monotonic):
-        result = "The dataframe is sorted with respect to time."
+
+def getTemporalMeta(dfName:pd.DataFrame, colName:str, isIndex=False):
+    if isIndex:
+        colData = dfName.index
     else:
-        result = "The dataframe is not sorted with respect to time."
+        colData = dfName[colName]
+
+    if colData.is_monotonic_increasing:
+        result = "ascending"
+    elif colData.is_monotonic_decreasing:
+        result = "descending"
+    else:
+        result = "noSort"
     print(result)
