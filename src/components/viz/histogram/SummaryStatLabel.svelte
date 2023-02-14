@@ -66,6 +66,7 @@
 
 <g>
     <g
+        class="cp"
         on:click={e => handleClick(e, label)}
         on:mouseenter={handleHover}
         on:mouseleave={handleUnhover}
@@ -102,3 +103,9 @@
         r="3"
     />
 </g>
+
+<style>
+    .cp {
+        cursor: pointer;
+    }
+</style>
