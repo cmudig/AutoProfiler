@@ -47,18 +47,13 @@
 
     <div class="justify-end">
         <Tooltip location="bottom" alignment="center" distance={8}>
-            <div
-                class="flex items-center w-full hover:bg-gray-100 text-gray-500"
+            <button
+                class="flex items-center w-full gap-1 hover:bg-gray-100 text-gray-500 pl-1 pr-1"
                 on:click={addVisCode}
             >
-                <p class="ml-1 mr-0.5 ">Export</p>
-                <button
-                    class="grid place-items-center rounded"
-                    style="width: 20px; height: 20px;"
-                >
-                    <ExportIcon size="14px" />
-                </button>
-            </div>
+                <p>Export</p>
+                <ExportIcon size="14px" />
+            </button>
 
             <TooltipContent slot="tooltip-content"
                 >Export chart to code</TooltipContent
