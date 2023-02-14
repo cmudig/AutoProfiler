@@ -4,8 +4,6 @@ These are called from PythonExecutor.ts in the frontend
 """
 
 import pandas as pd
-import numpy as np
-
 
 def getColumns(dfName: pd.DataFrame):
     typeDF = dfName.dtypes.reset_index().rename(columns={"index": "colName", 0: "type"})
