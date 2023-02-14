@@ -1,5 +1,6 @@
 //  types for store set on notebook re-run
 // TODO merge this type with ColumnProfileData below 
+/*eslint-disable*/
 export type IColTypeTuple = {
     col_name: string;
     col_type: string;
@@ -50,6 +51,12 @@ export type IQuantMeta = {
     q75: number;
     max: number;
     mean: number;
+    sd_outlier: number;
+    iqr_outlier: number;
+    sortedness: string;
+    n_zero: number;
+    n_positive: number;
+    n_negative: number;
 };
 
 export type IColMeta = {
@@ -61,8 +68,14 @@ export type IStringMeta = {
     minLength: number;
     maxLength: number;
     meanLength: number;
+    top_mean: number;
+    bottom_mean: number;
+    low_count: ValueCount[];
 };
 
+export type ITemporalMeta = {
+    sortedness: string;
+}
 export type ColumnProfileData = {
     name: string;
     type: string;
@@ -76,11 +89,11 @@ export interface ColumnSummary {
     cardinality: number; // num unique
     topK: ValueCount[];
     histogram?: IHistogram;
-    statistics?: IQuantMeta;
     timeInterval?: Interval;
-    stringSummary?: IStringMeta;
+    quantMeta?: IQuantMeta;
+    stringMeta?: IStringMeta;
+    temporalMeta?: ITemporalMeta;
 }
-
 
 export type TimeBin = {
     count: number;

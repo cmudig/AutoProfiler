@@ -3,7 +3,6 @@
     import ColumnEntry from './ColumnEntry.svelte';
     import DataTypeIcon from './data-types/DataTypeIcon.svelte';
     import BarAndLabel from './viz//BarAndLabel.svelte';
-    import TopKSummary from './viz/TopKSummary.svelte';
     import FormattedDataType from './data-types/FormattedDataType.svelte';
     import { config, getSummarySize } from './utils/sizes';
     import {
@@ -11,7 +10,6 @@
         formatCompactInteger,
         formatPercentage
     } from './utils/formatters';
-    import { convertToTimeBin } from './utils/convertTypes';
     import {
         CATEGORICALS,
         NUMERICS,
@@ -22,12 +20,9 @@
     import Tooltip from './tooltip/Tooltip.svelte';
     import TooltipContent from './tooltip/TooltipContent.svelte';
     import Histogram from './viz/histogram/SmallHistogram.svelte';
-    import NumericHistogram from './viz/histogram/NumericHistogram.svelte';
-    import TimestampDetail from './viz/timestamp/TimestampDetail.svelte';
-    import ExportChartButton from './export-code/ExportChartButton.svelte';
     import type { ColumnSummary } from '../common/exchangeInterfaces';
-    import StringStats from './viz/categorical/StringStats.svelte';
     import { showIndex } from '../stores';
+    import VizOrText from './fact-panel/VizOrStats.svelte';
 
     // props
     export let dfName: string;
@@ -45,6 +40,7 @@
     // locals
     let active = false;
     let wrapperDivWidth: number;
+    let vizToggleOption: 'viz';
 
     $: summaryWidthSize = getSummarySize(containerWidth);
 
@@ -189,74 +185,17 @@
                 >
                     <div bind:clientWidth={wrapperDivWidth}>
                         {#if totalRows !== 0 && nullCount !== totalRows}
-                            {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.topK}
-                                <TopKSummary
-                                    color={DATA_TYPE_COLORS[type].bgClass}
-                                    {totalRows}
-                                    topK={summary.topK}
-                                />
-                                {#if CATEGORICALS.has(type)}
-                                    <StringStats
-                                        stats={summary.stringSummary}
-                                    />
-                                {/if}
-                                <div class="mt-1">
-                                    <ExportChartButton
-                                        chartType={'cat'}
-                                        {dfName}
-                                        {colName}
-                                        {isIndex}
-                                    />
-                                </div>
-                            {:else if NUMERICS.has(type) && summary?.statistics && summary?.histogram?.length}
-                                <NumericHistogram
-                                    {dfName}
-                                    {colName}
-                                    {type}
-                                    {isIndex}
-                                    width={wrapperDivWidth}
-                                    height={65}
-                                    data={summary.histogram}
-                                    min={summary.statistics.min}
-                                    qlow={summary.statistics.q25}
-                                    median={summary.statistics.q50}
-                                    qhigh={summary.statistics.q75}
-                                    mean={summary.statistics.mean}
-                                    max={summary.statistics.max}
-                                />
-                                <div class="mt-1">
-                                    <ExportChartButton
-                                        chartType={'quant'}
-                                        {dfName}
-                                        {colName}
-                                        exportOptions={{
-                                            numBins: summary.histogram.length
-                                        }}
-                                        {isIndex}
-                                    />
-                                </div>
-                            {:else if TIMESTAMPS.has(type) && summary?.histogram?.length}
-                                <TimestampDetail
-                                    data={convertToTimeBin(summary?.histogram)}
-                                    xAccessor="ts_end"
-                                    yAccessor="count"
-                                    height={160}
-                                    width={wrapperDivWidth}
-                                    interval={summary?.timeInterval}
-                                />
-                                <div class="mt-1">
-                                    <ExportChartButton
-                                        chartType={'temporal'}
-                                        {dfName}
-                                        {colName}
-                                        exportOptions={{
-                                            shouldDisableMaxRows:
-                                                totalRows > 5000
-                                        }}
-                                        {isIndex}
-                                    />
-                                </div>
-                            {/if}
+                            <VizOrText
+                                {dfName}
+                                {colName}
+                                {totalRows}
+                                {type}
+                                {summary}
+                                {isIndex}
+                                {wrapperDivWidth}
+                                {nullCount}
+                                bind:vizToggleOption
+                            />
                         {:else}
                             <p>No values to show for this column</p>
                         {/if}

@@ -1,3 +1,4 @@
+
 import type { ISessionContext } from '@jupyterlab/apputils';
 import { type Writable, writable, get } from 'svelte/store';
 import type { NotebookAPI } from './jupyter/notebook';
@@ -268,18 +269,18 @@ export class ProfileModel {
                         chartData[0].low = statistics.min
                     }
 
-                    cd.summary.statistics = statistics;
+                    cd.summary.quantMeta = statistics;
                     cd.summary.histogram = chartData;
                 } else if (TIMESTAMPS.has(col_type)) {
                     const histogram = await this.executor.getTempBinnedData(dfName, col_name, isIndex);
                     const interval = await this.executor.getTempInterval(dfName, col_name, isIndex);
-
+                    const temporalFact = await this.executor.getTemporalMeta(dfName, col_name, isIndex);
                     cd.summary.histogram = histogram;
                     cd.summary.timeInterval = interval;
+                    cd.summary.temporalMeta = temporalFact
                 } else if (CATEGORICALS.has(col_type)) {
-                    const stringSummary = await this.executor.getStringStats(dfName, col_name);
-
-                    cd.summary.stringSummary = stringSummary;
+                    const stringSummary = await this.executor.getStringMeta(dfName, col_name, isIndex);
+                    cd.summary.stringMeta = stringSummary;
                 }
             }
             resultData.push(cd);

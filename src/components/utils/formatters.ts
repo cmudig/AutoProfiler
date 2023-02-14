@@ -154,3 +154,10 @@ export const PreviewRollupIntervalFormatter = {
     [PreviewRollupInterval.month]: 'monthly' /** showing monthly counts */,
     [PreviewRollupInterval.year]: 'yearly' /** showing yearly counts */
 };
+
+export function formatSort(sortedness: string) {
+    if (sortedness === 'noSort') {
+        return 'not sorted';
+    }
+    return `sorted (${sortedness})`;
+}

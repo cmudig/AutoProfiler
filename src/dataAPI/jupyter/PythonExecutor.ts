@@ -8,7 +8,8 @@ import type {
     IHistogram,
     ValueCount,
     Interval,
-    IStringMeta
+    IStringMeta,
+    ITemporalMeta,
 } from '../../common/exchangeInterfaces';
 import _ from 'lodash';
 
@@ -293,39 +294,6 @@ export class PythonPandasExecutor {
         }
     }
 
-    public async getQuantMeta(
-        dfName: string,
-        colName: string,
-        isIndex: boolean,
-    ): Promise<IQuantMeta> {
-        const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getQuantMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`
-        try {
-            const res = await this.executePythonAP(code);
-            const content = res['content']; // might be null
-            const json_res = JSON.parse(content?.join("").replace(/'/g, '')); // remove single quotes bc not JSON parseable
-
-            return {
-                min: parseFloat(json_res['min']),
-                q25: parseFloat(json_res['25%']),
-                q50: parseFloat(json_res['50%']),
-                q75: parseFloat(json_res['75%']),
-                max: parseFloat(json_res['max']),
-                mean: parseFloat(json_res['mean'])
-            };
-        } catch (error) {
-            console.warn(`[Error caught] in getQuantMeta executing: ${code} `, error);
-            return {
-                min: undefined,
-                q25: undefined,
-                q50: undefined,
-                q75: undefined,
-                max: undefined,
-                mean: undefined
-            };
-        }
-    }
-
     public async getColMeta(
         dfName: string,
         colName: string,
@@ -349,11 +317,60 @@ export class PythonPandasExecutor {
         }
     }
 
-    public async getStringStats(
+    public async getQuantMeta(
         dfName: string,
-        colName: string
+        colName: string,
+        isIndex: boolean,
+    ): Promise<IQuantMeta> {
+        const isIndexPy = isIndex ? "True" : "False";
+        const code = `digautoprofiler.getQuantMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`
+        try {
+            const res = await this.executePythonAP(code);
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
+
+            return {
+                min: parseFloat(json_res['min']),
+                q25: parseFloat(json_res['25%']),
+                q50: parseFloat(json_res['50%']),
+                q75: parseFloat(json_res['75%']),
+                max: parseFloat(json_res['max']),
+                mean: parseFloat(json_res['mean']),
+
+                sd_outlier: parseInt(content[1]),
+                iqr_outlier: parseInt(content[2]),
+                sortedness: content[3],
+                n_zero: parseInt(content[4]),
+                n_negative: parseInt(content[5]),
+                n_positive: parseInt(content[6]),
+            };
+        } catch (error) {
+            console.warn(`[Error caught] in getQuantMeta executing: ${code} `, error);
+            return {
+                min: undefined,
+                q25: undefined,
+                q50: undefined,
+                q75: undefined,
+                max: undefined,
+                mean: undefined,
+                sd_outlier: undefined,
+                iqr_outlier: undefined,
+                sortedness: undefined,
+                n_zero: undefined,
+                n_positive: undefined,
+                n_negative: undefined,
+            };
+        }
+    }
+
+    public async getStringMeta(
+        dfName: string,
+        colName: string,
+        isIndex: boolean,
     ): Promise<IStringMeta> {
-        const code = `digautoprofiler.getStringStats(${dfName}, "${replaceSpecial(colName)}")`;
+        const isIndexPy = isIndex ? "True" : "False";
+        const code = `digautoprofiler.getStringMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`;
+
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];
@@ -361,6 +378,9 @@ export class PythonPandasExecutor {
                 minLength: parseInt(content[0]),
                 maxLength: parseInt(content[1]),
                 meanLength: parseFloat(content[2]),
+                top_mean: parseFloat(content[4]),
+                bottom_mean: parseFloat(content[3]),
+                low_count: [],
             };
         } catch (error) {
             console.warn(`[Error caught] in getStringStats executing: ${code}`, error);
@@ -368,7 +388,31 @@ export class PythonPandasExecutor {
                 minLength: undefined,
                 maxLength: undefined,
                 meanLength: undefined,
+                top_mean: undefined,
+                bottom_mean: undefined,
+                low_count: undefined,
             };
+        }
+    }
+
+    public async getTemporalMeta(
+        dfName: string,
+        colName: string,
+        isIndex: boolean,
+    ): Promise<ITemporalMeta> {
+        const isIndexPy = isIndex ? "True" : "False";
+        const code = `digautoprofiler.getTemporalMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`;
+        try {
+            const res = await this.executePythonAP(code);
+            const content = res['content'];
+            return {
+                sortedness: content[0],
+            }
+        } catch (error) {
+            console.warn(`[Error caught] in getTemporalFacts executing: ${code}`, error);
+            return {
+                sortedness: undefined
+            }
         }
     }
 
