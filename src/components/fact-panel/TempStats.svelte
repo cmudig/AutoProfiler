@@ -6,7 +6,7 @@
     export let facts: ITemporalMeta;
 </script>
 
-<ul class="list-disc pt-1 text-gray-600">
+<ul class="pt-1 text-gray-600">
     <DisplayFact>
         <svelte:fragment slot="fact">
             This column is {formatSort(facts?.sortedness)}.

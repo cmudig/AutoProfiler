@@ -12,7 +12,7 @@
     export let rows: number;
 </script>
 
-<ul class="list-disc pt-1 text-gray-600">
+<ul class="pt-1 text-gray-600">
     <DisplayFact>
         <svelte:fragment slot="fact">
             Entries are {stats?.minLength}-{stats?.maxLength} characters long, mean

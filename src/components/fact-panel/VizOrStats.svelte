@@ -105,7 +105,7 @@
             {/if}
         </div>
     {:else}
-        <div class="pl-6 pr-2">
+        <div class="pr-2">
             {#if NUMERICS.has(type)}
                 <NumericalStats
                     {dfName}
