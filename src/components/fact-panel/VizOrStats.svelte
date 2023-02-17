@@ -47,8 +47,6 @@
     }
 
     $: validatedChartType = determineValidChartType(type, summary);
-
-    console.log('validatedChartType is', validatedChartType);
 </script>
 
 <div>
@@ -89,7 +87,7 @@
 
     <div class="pt-2">
         <CollapsibleCard bind:open={expanded}>
-            <div slot="header" class="dfprofile-header flex gap-1 items-center">
+            <div slot="header" class="flex gap-1 items-center">
                 <ExpanderButton rotated={expanded} />
                 <p>
                     {#if expanded}Hide {:else}Show{/if} summary
