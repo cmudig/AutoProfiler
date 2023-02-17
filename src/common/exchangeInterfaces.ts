@@ -68,9 +68,6 @@ export type IStringMeta = {
     minLength: number;
     maxLength: number;
     meanLength: number;
-    top_mean: number;
-    bottom_mean: number;
-    low_count: ValueCount[];
 };
 
 export type ITemporalMeta = {

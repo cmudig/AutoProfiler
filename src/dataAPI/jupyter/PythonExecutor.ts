@@ -378,9 +378,6 @@ export class PythonPandasExecutor {
                 minLength: parseInt(content[0]),
                 maxLength: parseInt(content[1]),
                 meanLength: parseFloat(content[2]),
-                top_mean: parseFloat(content[4]),
-                bottom_mean: parseFloat(content[3]),
-                low_count: [],
             };
         } catch (error) {
             console.warn(`[Error caught] in getStringStats executing: ${code}`, error);
@@ -388,9 +385,6 @@ export class PythonPandasExecutor {
                 minLength: undefined,
                 maxLength: undefined,
                 meanLength: undefined,
-                top_mean: undefined,
-                bottom_mean: undefined,
-                low_count: undefined,
             };
         }
     }
