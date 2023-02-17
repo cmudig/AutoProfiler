@@ -40,7 +40,6 @@
     // locals
     let active = false;
     let wrapperDivWidth: number;
-    let vizToggleOption: 'viz';
 
     $: summaryWidthSize = getSummarySize(containerWidth);
 
@@ -194,7 +193,6 @@
                                 {isIndex}
                                 {wrapperDivWidth}
                                 {nullCount}
-                                bind:vizToggleOption
                             />
                         {:else}
                             <p>No values to show for this column</p>
