@@ -100,12 +100,24 @@
                     <!-- check to see if the summary has cardinality. Otherwise do not show these values.-->
                     {#if totalRows}
                         {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.cardinality}
-                            <BarAndLabel
-                                color={DATA_TYPE_COLORS[type].bgClass}
-                                value={summary?.cardinality / totalRows}
+                            <Tooltip
+                                location="bottom"
+                                alignment="center"
+                                distance={8}
                             >
-                                |{cardinalityFormatter(summary?.cardinality)}|
-                            </BarAndLabel>
+                                <BarAndLabel
+                                    color={DATA_TYPE_COLORS[type].bgClass}
+                                    value={summary?.cardinality / totalRows}
+                                >
+                                    |{cardinalityFormatter(
+                                        summary?.cardinality
+                                    )}|
+                                </BarAndLabel>
+                                <TooltipContent slot="tooltip-content">
+                                    {cardinalityFormatter(summary?.cardinality)}
+                                    unique values
+                                </TooltipContent>
+                            </Tooltip>
                         {:else if NUMERICS.has(type) && summary?.histogram?.length}
                             <Histogram
                                 data={summary.histogram}
@@ -132,7 +144,7 @@
                     <!-- Number of nulls -->
                     {#if totalRows !== 0 && totalRows !== undefined && nullCount !== undefined}
                         <Tooltip
-                            location="right"
+                            location="bottom"
                             alignment="center"
                             distance={8}
                         >
