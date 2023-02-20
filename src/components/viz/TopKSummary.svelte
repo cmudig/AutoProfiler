@@ -1,8 +1,6 @@
 <script lang="ts">
     import { format } from 'd3-format';
     import BarAndLabel from './BarAndLabel.svelte';
-    import { config } from '../utils/sizes';
-
     import type { ValueCount } from '../../common/exchangeInterfaces';
 
     export let totalRows: number;
