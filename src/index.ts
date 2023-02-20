@@ -14,7 +14,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     autoStart: true,
     activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
         const panel: ProfilePanel = new ProfilePanel();
-        app.shell.add(panel, 'left'); //{ rank: 600 }
+        app.shell.add(panel, 'right', { rank: 1000 });
 
         // emitted when the user's notebook changes I think...
         notebookTracker.currentChanged.connect((_, widget) => {
