@@ -6,6 +6,12 @@ The `jlpm` command is JupyterLab's pinned version of
 [yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
 `yarn` or `npm` in lieu of `jlpm` below.
 
+If first time, be sure to pip install the following:
+```bash
+pip install jupyterlab jupyter-packaging
+```
+
+Build steps:
 ```bash
 # Clone the repo to your local environment
 # Change directory to the AutoProfiler directory
