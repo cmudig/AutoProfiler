@@ -240,6 +240,26 @@ export class PythonPandasExecutor {
         }
     }
 
+    public async getVariableNamesInPythonStr(codeString: string): Promise<string[]> {
+        const formattedCode = codeString.replace(/"/g, '\\"');
+        const code = `digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`;
+        try {
+            const res = await this.executePythonAP(code)
+            let content = res["content"].join("")
+            content = content.replace(/'/g, '"') // replace single quotes
+            content = content.replace('{', '[')
+            content = content.replace('}', ']')
+
+            const vars = JSON.parse(content)
+
+            return vars
+
+        } catch (error) {
+            return []
+        }
+
+    }
+
     private async getColumns(dfName: string): Promise<{ columnsWithTypes: IColTypeTuple[], duplicates: string[] }> {
         /*
         dfName is variable that is pd.DataFrame
@@ -536,23 +556,5 @@ export class PythonPandasExecutor {
         }
     }
 
-    public async getVariableNamesInPythonStr(codeString: string): Promise<string[]> {
-        const formattedCode = codeString.replace(/"/g, '\\"');
-        const code = `digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`;
-        try {
-            const res = await this.executePythonAP(code)
-            let content = res["content"].join("")
-            content = content.replace(/'/g, '"') // replace single quotes
-            content = content.replace('{', '[')
-            content = content.replace('}', ']')
 
-            const vars = JSON.parse(content)
-
-            return vars
-
-        } catch (error) {
-            return []
-        }
-
-    }
 }
