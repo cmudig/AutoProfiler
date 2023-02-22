@@ -19,7 +19,6 @@
     const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
     // locals
-    let previewView = 'summaries';
     $: warningMessage = _.isEmpty(dataframeProfile.warnings)
         ? ''
         : dataframeProfile.warnings.map(w => w.warnMsg).join(', ');
@@ -115,18 +114,16 @@
                 {/if}
 
                 {#if dataframeProfile?.shape?.[1] > 0}
-                    {#each dataframeProfile?.profile as column (column.name)}
+                    {#each dataframeProfile?.profile as column (column.colName)}
                         <ColumnProfile
-                            example={column.example}
                             {dfName}
-                            colName={column.name}
-                            type={column.type}
+                            colName={column.colName}
+                            type={column.colType}
                             summary={column.summary}
                             nullCount={column.nullCount}
                             containerWidth={profileWidth}
-                            view={previewView}
                             totalRows={dataframeProfile?.shape?.[0]}
-                            isIndex={column.isIndex}
+                            isIndex={column.colIsIndex}
                         />
                     {/each}
                 {:else}

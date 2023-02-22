@@ -2,9 +2,9 @@
 // TODO merge this type with ColumnProfileData below 
 /*eslint-disable*/
 export type IColTypeTuple = {
-    col_name: string;
-    col_type: string;
-    col_is_index: boolean;
+    colName: string;
+    colType: string;
+    colIsIndex: boolean;
 };
 
 export type Warning = {
@@ -25,7 +25,12 @@ export type IDFProfileWStateMap = {
 } | undefined;
 
 
-export type IDFProfileWState = IDFProfileData & IDFProfileState
+export type IDFProfileData = {
+    profile: ColumnProfileData[];
+    shape: number[];
+    dfName: string;
+}
+
 
 export type IDFProfileState = {
     lastUpdatedTime: number;
@@ -33,17 +38,52 @@ export type IDFProfileState = {
     warnings: Warning[]
 }
 
-export type IDFProfileData = {
-    profile: ColumnProfileData[];
-    shape: number[];
-    dfName: string;
-}
+export type IDFProfileWState = IDFProfileData & IDFProfileState
 
-export type IQuantChartData = {
-    binned_data: any[];
-    bin_size: number;
+// ~~~~~~~ General column type info ~~~~~~~
+export type IColMeta = {
+    numUnique: number;
+    nullCount: number;
 };
 
+export type ColumnProfileData = IColTypeTuple & {
+    nullCount: number,
+    summary: AnySummary;
+}
+
+export type AnySummary = NumericSummary | CategoricalSummary | TemporalSummary;
+
+export type NumericSummary = {
+    histogram: IHistogram;
+    quantMeta: IQuantMeta;
+}
+
+export type CategoricalSummary = { // string or boolean
+    cardinality: number; // num unique
+    topK: ValueCount[];
+    stringMeta: IStringMeta;
+}
+
+export type TemporalSummary = {
+    histogram: IHistogram;
+    timeInterval: Interval;
+    temporalMeta: ITemporalMeta;
+}
+
+// type guards
+export function isNumericSummary(s: AnySummary): s is NumericSummary {
+    return (s as NumericSummary).quantMeta !== undefined
+}
+
+export function isCategoricalSummary(s: AnySummary): s is CategoricalSummary {
+    return (s as CategoricalSummary).stringMeta !== undefined
+}
+
+export function isTemporalSummary(s: AnySummary): s is TemporalSummary {
+    return (s as TemporalSummary).temporalMeta !== undefined
+}
+
+// ~~~~~~~ Individual data type info ~~~~~~~
 export type IQuantMeta = {
     min: number;
     q25: number;
@@ -59,11 +99,6 @@ export type IQuantMeta = {
     n_negative: number;
 };
 
-export type IColMeta = {
-    numUnique: number;
-    nullCount: number;
-};
-
 export type IStringMeta = {
     minLength: number;
     maxLength: number;
@@ -72,24 +107,6 @@ export type IStringMeta = {
 
 export type ITemporalMeta = {
     sortedness: string;
-}
-export type ColumnProfileData = {
-    name: string;
-    type: string;
-    isIndex: boolean;
-    summary: ColumnSummary;
-    nullCount: number;
-    example: any;
-};
-
-export interface ColumnSummary {
-    cardinality: number; // num unique
-    topK: ValueCount[];
-    histogram?: IHistogram;
-    timeInterval?: Interval;
-    quantMeta?: IQuantMeta;
-    stringMeta?: IStringMeta;
-    temporalMeta?: ITemporalMeta;
 }
 
 export type TimeBin = {

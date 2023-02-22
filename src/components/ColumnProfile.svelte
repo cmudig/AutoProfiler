@@ -3,7 +3,6 @@
     import ColumnEntry from './ColumnEntry.svelte';
     import DataTypeIcon from './data-types/DataTypeIcon.svelte';
     import BarAndLabel from './viz//BarAndLabel.svelte';
-    import FormattedDataType from './data-types/FormattedDataType.svelte';
     import { config, getSummarySize } from './utils/sizes';
     import {
         formatInteger,
@@ -20,7 +19,12 @@
     import Tooltip from './tooltip/Tooltip.svelte';
     import TooltipContent from './tooltip/TooltipContent.svelte';
     import Histogram from './viz/histogram/SmallHistogram.svelte';
-    import type { ColumnSummary } from '../common/exchangeInterfaces';
+    import type { AnySummary } from '../common/exchangeInterfaces';
+    import {
+        isNumericSummary,
+        isCategoricalSummary,
+        isTemporalSummary
+    } from '../common/exchangeInterfaces';
     import { showIndex } from '../stores';
     import VizOrText from './fact-panel/VizOrStats.svelte';
 
@@ -28,11 +32,9 @@
     export let dfName: string;
     export let colName: string;
     export let type: string;
-    export let summary: ColumnSummary;
+    export let summary: AnySummary;
     export let totalRows: number;
     export let nullCount: number;
-    export let example: any; // TODO cast harder
-    export let view: string = 'summaries'; // summaries, example
     export let containerWidth: number;
     export let hideRight = false;
     export let isIndex = false;
@@ -88,10 +90,7 @@
         </svelte:fragment>
 
         <svelte:fragment slot="right">
-            <div
-                class="flex gap-2 items-center"
-                class:hidden={view !== 'summaries'}
-            >
+            <div class="flex gap-2 items-center">
                 <div
                     class="flex items-center"
                     style:width="{summaryWidthSize}px"
@@ -99,7 +98,7 @@
                     <!-- Distribution preview -->
                     <!-- check to see if the summary has cardinality. Otherwise do not show these values.-->
                     {#if totalRows}
-                        {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && summary?.cardinality}
+                        {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && isCategoricalSummary(summary)}
                             <Tooltip
                                 location="bottom"
                                 alignment="center"
@@ -118,7 +117,7 @@
                                     unique values
                                 </TooltipContent>
                             </Tooltip>
-                        {:else if NUMERICS.has(type) && summary?.histogram?.length}
+                        {:else if NUMERICS.has(type) && isNumericSummary(summary) && summary?.histogram?.length}
                             <Histogram
                                 data={summary.histogram}
                                 width={summaryWidthSize}
@@ -127,7 +126,7 @@
                                 baselineStrokeColor={DATA_TYPE_COLORS[type]
                                     .vizStrokeClass}
                             />
-                        {:else if TIMESTAMPS.has(type) && summary?.histogram?.length}
+                        {:else if TIMESTAMPS.has(type) && isTemporalSummary(summary) && summary?.histogram?.length}
                             <Histogram
                                 data={summary.histogram}
                                 width={summaryWidthSize}
@@ -173,18 +172,6 @@
                         </Tooltip>
                     {/if}
                 </div>
-            </div>
-            <div
-                class:hidden={view !== 'example'}
-                class="
-            pl-8 text-ellipsis overflow-hidden whitespace-nowrap text-right"
-                style:max-width="{summaryWidthSize}px"
-            >
-                <FormattedDataType
-                    {type}
-                    isNull={example === null || example === ''}
-                    value={example}
-                />
             </div>
         </svelte:fragment>
 

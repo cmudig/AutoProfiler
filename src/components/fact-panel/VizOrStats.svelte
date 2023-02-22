@@ -6,15 +6,14 @@
     import TempFacts from './TempStats.svelte';
     import NumericHistogram from '../viz/histogram/NumericHistogram.svelte';
     import TimestampDetail from '../viz/timestamp/TimestampDetail.svelte';
-    import type { ColumnSummary } from '../../common/exchangeInterfaces';
-    import { convertToTimeBin } from '../utils/convertTypes';
+    import type { AnySummary } from '../../common/exchangeInterfaces';
     import {
-        CATEGORICALS,
-        NUMERICS,
-        TIMESTAMPS,
-        DATA_TYPE_COLORS,
-        BOOLEANS
-    } from '../data-types/pandas-data-types';
+        isNumericSummary,
+        isCategoricalSummary,
+        isTemporalSummary
+    } from '../../common/exchangeInterfaces';
+    import { convertToTimeBin } from '../utils/convertTypes';
+    import { DATA_TYPE_COLORS } from '../data-types/pandas-data-types';
     import CollapsibleCard from '../nav/CollapsibleCard.svelte';
     import ExpanderButton from '../nav/ExpanderButton.svelte';
 
@@ -22,7 +21,7 @@
     export let colName: string;
     export let totalRows: number;
     export let type: string;
-    export let summary: ColumnSummary;
+    export let summary: AnySummary;
     export let isIndex = false;
     export let wrapperDivWidth: number;
     export let nullCount: number;
@@ -31,27 +30,27 @@
 
     type ValidChartType = 'quant' | 'cat' | 'temporal';
 
-    function determineValidChartType(
-        t: string,
-        s: ColumnSummary
-    ): ValidChartType {
-        if (NUMERICS.has(t) && s?.quantMeta && s?.histogram?.length) {
+    function determineValidChartType(s: AnySummary): ValidChartType {
+        if (isNumericSummary(summary)) {
+            // && s?.histogram?.length > 0) {
             return 'quant';
-        } else if ((CATEGORICALS.has(t) || BOOLEANS.has(t)) && s?.topK) {
+        } else if (isCategoricalSummary(summary)) {
+            // && s?.topK) {
             return 'cat';
-        } else if (TIMESTAMPS.has(type) && summary?.histogram?.length) {
+        } else if (isTemporalSummary(summary)) {
+            // &&  summary?.histogram?.length > 0) {
             return 'temporal';
         }
 
         return undefined;
     }
 
-    $: validatedChartType = determineValidChartType(type, summary);
+    // TODO not sure what to do with the export chart button if things are undefined here? Might be ok
 </script>
 
 <div>
     <div>
-        {#if validatedChartType === 'quant'}
+        {#if isNumericSummary(summary)}
             <NumericHistogram
                 {dfName}
                 {colName}
@@ -67,13 +66,13 @@
                 mean={summary.quantMeta.mean}
                 max={summary.quantMeta.max}
             />
-        {:else if validatedChartType === 'cat'}
+        {:else if isCategoricalSummary(summary)}
             <TopKSummary
                 color={DATA_TYPE_COLORS[type].bgClass}
                 {totalRows}
                 topK={summary.topK}
             />
-        {:else if validatedChartType === 'temporal'}
+        {:else if isTemporalSummary(summary)}
             <TimestampDetail
                 data={convertToTimeBin(summary?.histogram)}
                 xAccessor="ts_end"
@@ -95,28 +94,26 @@
             </div>
 
             <div slot="header-no-collapse">
-                {#if validatedChartType}
-                    <ExportChartButton
-                        chartType={validatedChartType}
-                        {dfName}
-                        {colName}
-                        exportOptions={{
-                            shouldDisableMaxRows: totalRows > 5000
-                        }}
-                        {isIndex}
-                    />
-                {/if}
+                <ExportChartButton
+                    chartType={determineValidChartType(summary)}
+                    {dfName}
+                    {colName}
+                    exportOptions={{
+                        shouldDisableMaxRows: totalRows > 5000
+                    }}
+                    {isIndex}
+                />
             </div>
 
             <div slot="body" class="pl-5">
-                {#if validatedChartType === 'quant'}
+                {#if isNumericSummary(summary)}
                     <NumericalStats
                         {dfName}
                         {colName}
                         {isIndex}
                         stats={summary.quantMeta}
                     />
-                {:else if CATEGORICALS.has(type)}
+                {:else if isCategoricalSummary(summary)}
                     <StringStats
                         {dfName}
                         {colName}
@@ -125,7 +122,7 @@
                         unique={summary.cardinality}
                         rows={totalRows - nullCount}
                     />
-                {:else if validatedChartType === 'temporal'}
+                {:else if isTemporalSummary(summary)}
                     <TempFacts facts={summary.temporalMeta} />
                 {:else}
                     <p class="text-gray-600">No summary available.</p>
