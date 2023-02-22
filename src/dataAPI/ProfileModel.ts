@@ -13,7 +13,8 @@ import type {
 import {
     NUMERICS,
     TIMESTAMPS,
-    CATEGORICALS
+    CATEGORICALS,
+    BOOLEANS
 } from '../components/data-types/pandas-data-types';
 import _ from 'lodash';
 import type { Logger } from '../logger/Logger';
@@ -197,8 +198,11 @@ export class ProfileModel {
     }
 
     private async handleCellSelect() {
-        const cellCode = this._notebook.activeCell.text
-        const variablesInCell = await this._executor.getVariableNamesInPythonStr(cellCode)
+        const cellCode = this._notebook?.activeCell?.text
+        let variablesInCell = []
+        if (!_.isUndefined(cellCode)) {
+            variablesInCell = await this._executor.getVariableNamesInPythonStr(cellCode)
+        }
 
         // determine which ones are actual dataframes
         const profiles = get(this.columnProfiles)
@@ -244,9 +248,10 @@ export class ProfileModel {
                 colType: x.colType,
                 colIsIndex: x.colIsIndex,
                 nullCount: 0,
-                summary: { // TODO not sure if quant summary wil always work here?
+                summary: { // default numeric summary
                     histogram: undefined,
-                    quantMeta: undefined
+                    quantMeta: undefined,
+                    summaryType: undefined
                 },
             }))
         } else {
@@ -263,6 +268,8 @@ export class ProfileModel {
                     cd = await this.executor.getTemporalData(dfName, colInfo)
                 } else if (CATEGORICALS.has(colInfo.colType)) {
                     cd = await this.executor.getCategoricalData(dfName, colInfo)
+                } else if (BOOLEANS.has(colInfo.colType)) {
+                    cd = await this.executor.getBooleanData(dfName, colInfo)
                 }
                 resultData.push(cd);
             }

@@ -84,8 +84,8 @@ function setTypeTailwindStyles(
 
 export const DATA_TYPE_COLORS = {
     ...setTypeTailwindStyles(Array.from(CATEGORICALS), CATEGORICAL_TOKENS),
+    ...setTypeTailwindStyles(Array.from(BOOLEANS), CATEGORICAL_TOKENS),
     ...setTypeTailwindStyles(Array.from(NUMERICS), NUMERIC_TOKENS),
     ...setTypeTailwindStyles(Array.from(TIMESTAMPS), TIMESTAMP_TOKENS),
     // ...setTypeTailwindStyles(Array.from(INTERVALS), INTERVAL_TOKENS),
-    ...setTypeTailwindStyles(Array.from(BOOLEANS), CATEGORICAL_TOKENS)
 };

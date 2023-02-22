@@ -37,6 +37,18 @@ def getNumericData(dfName: pd.DataFrame, colName: str, isIndex=False):
 
     # get data
     nullCount = getNullCount(colData)
+    
+    # all nulls
+    if nullCount == colData.shape[0]:
+        data = {
+            "nullCount": nullCount,
+            "histogram": [],
+            "quantMeta": None
+        }
+        jsonString = json.dumps(data, default=str)
+        print(jsonString)
+        return
+
     quantMetaDict = getQuantMeta(colData)
     chartData = getQuantBinnedData(colData)
     chartData = convertBinned(chartData, quantMetaDict["min"])
@@ -59,6 +71,18 @@ def getTemporalData(dfName: pd.DataFrame, colName: str, isIndex=False):
         colData = dfName[colName]
 
     nullCount = getNullCount(colData)
+
+    if nullCount == colData.shape[0]:
+        data = {
+            "nullCount": nullCount,
+            "histogram": [],
+            "timeInterval": None,
+            "temporalMeta": None
+        }
+        jsonString = json.dumps(data, default=str)
+        print(jsonString)
+        return
+
     vc, true_min = getTempBinnedData(colData)
     interval = getTempInterval(colData)
     temporalMeta = getTemporalMeta(colData)
@@ -84,9 +108,21 @@ def getCategoricalData(dfName: pd.DataFrame, colName: str, isIndex=False):
         colData = dfName[colName]
 
     nullCount = getNullCount(colData)
+
+    if nullCount == colData.shape[0]:
+        data = {
+            "nullCount": nullCount,
+            "cardinality": 0,
+            "topK": None,
+            "stringMeta": None
+        }
+        jsonString = json.dumps(data, default=str)
+        print(jsonString)
+        return
+
     numUnique = getNumUnique(colData)
-    stringMeta = getStringMeta(colData)
     vc = getValueCounts(colData)
+    stringMeta = getStringMeta(colData)
 
     # convert to JSON serializable
     topK = convertVC(vc, colName)
@@ -97,6 +133,39 @@ def getCategoricalData(dfName: pd.DataFrame, colName: str, isIndex=False):
         "cardinality": numUnique,
         "topK": topK,
         "stringMeta": stringMeta
+    }
+
+    jsonString = json.dumps(data, default=str)
+    print(jsonString)
+
+def getBooleanData(dfName: pd.DataFrame, colName: str, isIndex=False):
+    if isIndex:
+        colData = dfName.index.to_series()
+    else:
+        colData = dfName[colName]
+
+    nullCount = getNullCount(colData)
+
+    if nullCount == colData.shape[0]:
+        data = {
+            "nullCount": nullCount,
+            "cardinality": 0,
+            "topK": None,
+        }
+        jsonString = json.dumps(data, default=str)
+        print(jsonString)
+        return
+    numUnique = getNumUnique(colData)
+    vc = getValueCounts(colData)
+
+    # convert to JSON serializable
+    topK = convertVC(vc, colName)
+    
+    # should match CategoricalSummary
+    data = {
+        "nullCount": nullCount,
+        "cardinality": numUnique,
+        "topK": topK,
     }
 
     jsonString = json.dumps(data, default=str)

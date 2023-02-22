@@ -322,10 +322,11 @@ export class PythonPandasExecutor {
             colName: colInfo.colName,
             colType: colInfo.colType,
             colIsIndex: colInfo.colIsIndex,
-            nullCount: undefined,
+            nullCount: 0,
             summary: {
-                histogram: undefined,
+                histogram: [],
                 quantMeta: undefined,
+                summaryType: "numeric"
             },
         };
 
@@ -335,7 +336,7 @@ export class PythonPandasExecutor {
             const json_res = JSON.parse(content?.join(""));
 
             // parse info from json_res
-            cd["nullCount"] = json_res["nullCount"]
+            cd["nullCount"] = parseInt(json_res["nullCount"])
             cd.summary["histogram"] = json_res["histogram"]
             cd.summary["quantMeta"] = json_res["quantMeta"]
             return cd;
@@ -359,11 +360,12 @@ export class PythonPandasExecutor {
             colName: colInfo.colName,
             colType: colInfo.colType,
             colIsIndex: colInfo.colIsIndex,
-            nullCount: undefined,
+            nullCount: 0,
             summary: {
-                histogram: undefined,
+                histogram: [],
                 timeInterval: undefined,
-                temporalMeta: undefined
+                temporalMeta: undefined,
+                summaryType: "temporal"
             },
         };
 
@@ -373,7 +375,7 @@ export class PythonPandasExecutor {
             const json_res = JSON.parse(content?.join(""));
 
             // parse info from json_res
-            cd["nullCount"] = json_res["nullCount"]
+            cd["nullCount"] = parseInt(json_res["nullCount"])
             cd.summary["histogram"] = json_res["histogram"]
             cd.summary["temporalMeta"] = json_res["temporalMeta"]
             cd.summary["timeInterval"] = json_res["timeInterval"]
@@ -398,11 +400,12 @@ export class PythonPandasExecutor {
             colName: colInfo.colName,
             colType: colInfo.colType,
             colIsIndex: colInfo.colIsIndex,
-            nullCount: undefined,
+            nullCount: 0,
             summary: {
-                cardinality: undefined,
+                cardinality: 0,
                 topK: undefined,
                 stringMeta: undefined,
+                summaryType: "categorical"
             },
         };
 
@@ -412,10 +415,48 @@ export class PythonPandasExecutor {
             const json_res = JSON.parse(content?.join(""));
 
             // parse info from json_res
-            cd.nullCount = json_res["nullCount"]
-            cd.summary["cardinality"] = json_res["cardinality"]
+            cd.nullCount = parseInt(json_res["nullCount"])
+            cd.summary["cardinality"] = parseInt(json_res["cardinality"])
             cd.summary["topK"] = json_res["topK"]
             cd.summary["stringMeta"] = json_res["stringMeta"]
+            return cd;
+        } catch (error) {
+            console.warn(`[Error caught] in getCategoricalData executing: ${code}`, error);
+            return cd;
+        }
+    }
+
+    /**
+   * Get all info for bool column
+   * @param dfName 
+   * @param colInfo 
+   * @returns ColumnProfileData with BoolSummary
+   */
+    public async getBooleanData(dfName: string, colInfo: IColTypeTuple): Promise<ColumnProfileData> {
+        const isIndexPy = colInfo.colIsIndex ? "True" : "False";
+        const code = `digautoprofiler.getBooleanData(${dfName}, "${replaceSpecial(colInfo.colName)}", ${isIndexPy})`;
+
+        const cd: ColumnProfileData = {
+            colName: colInfo.colName,
+            colType: colInfo.colType,
+            colIsIndex: colInfo.colIsIndex,
+            nullCount: 0,
+            summary: {
+                cardinality: 0,
+                topK: undefined,
+                summaryType: "boolean"
+            },
+        };
+
+        try {
+            const res = await this.executePythonAP(code);
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content?.join(""));
+
+            // parse info from json_res
+            cd.nullCount = parseInt(json_res["nullCount"])
+            cd.summary["cardinality"] = parseInt(json_res["cardinality"])
+            cd.summary["topK"] = json_res["topK"]
             return cd;
         } catch (error) {
             console.warn(`[Error caught] in getCategoricalData executing: ${code}`, error);

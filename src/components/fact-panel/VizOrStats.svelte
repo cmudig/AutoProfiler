@@ -10,7 +10,8 @@
     import {
         isNumericSummary,
         isCategoricalSummary,
-        isTemporalSummary
+        isTemporalSummary,
+        isBooleanSummary
     } from '../../common/exchangeInterfaces';
     import { convertToTimeBin } from '../utils/convertTypes';
     import { DATA_TYPE_COLORS } from '../data-types/pandas-data-types';
@@ -31,26 +32,26 @@
     type ValidChartType = 'quant' | 'cat' | 'temporal';
 
     function determineValidChartType(s: AnySummary): ValidChartType {
-        if (isNumericSummary(summary)) {
-            // && s?.histogram?.length > 0) {
+        if (isNumericSummary(s) && s?.histogram?.length > 0) {
             return 'quant';
-        } else if (isCategoricalSummary(summary)) {
-            // && s?.topK) {
+        } else if (
+            (isCategoricalSummary(s) || isBooleanSummary(s)) &&
+            s?.topK?.length > 0
+        ) {
             return 'cat';
-        } else if (isTemporalSummary(summary)) {
-            // &&  summary?.histogram?.length > 0) {
+        } else if (isTemporalSummary(s) && s?.histogram?.length > 0) {
             return 'temporal';
         }
 
         return undefined;
     }
 
-    // TODO not sure what to do with the export chart button if things are undefined here? Might be ok
+    $: validatedChartType = determineValidChartType(summary);
 </script>
 
 <div>
     <div>
-        {#if isNumericSummary(summary)}
+        {#if isNumericSummary(summary) && validatedChartType === 'quant'}
             <NumericHistogram
                 {dfName}
                 {colName}
@@ -66,13 +67,13 @@
                 mean={summary.quantMeta.mean}
                 max={summary.quantMeta.max}
             />
-        {:else if isCategoricalSummary(summary)}
+        {:else if (isCategoricalSummary(summary) || isBooleanSummary(summary)) && validatedChartType === 'cat'}
             <TopKSummary
                 color={DATA_TYPE_COLORS[type].bgClass}
                 {totalRows}
                 topK={summary.topK}
             />
-        {:else if isTemporalSummary(summary)}
+        {:else if isTemporalSummary(summary) && validatedChartType === 'temporal'}
             <TimestampDetail
                 data={convertToTimeBin(summary?.histogram)}
                 xAccessor="ts_end"
@@ -94,26 +95,28 @@
             </div>
 
             <div slot="header-no-collapse">
-                <ExportChartButton
-                    chartType={determineValidChartType(summary)}
-                    {dfName}
-                    {colName}
-                    exportOptions={{
-                        shouldDisableMaxRows: totalRows > 5000
-                    }}
-                    {isIndex}
-                />
+                {#if validatedChartType}
+                    <ExportChartButton
+                        chartType={validatedChartType}
+                        {dfName}
+                        {colName}
+                        exportOptions={{
+                            shouldDisableMaxRows: totalRows > 5000
+                        }}
+                        {isIndex}
+                    />
+                {/if}
             </div>
 
             <div slot="body" class="pl-5">
-                {#if isNumericSummary(summary)}
+                {#if isNumericSummary(summary) && validatedChartType === 'quant'}
                     <NumericalStats
                         {dfName}
                         {colName}
                         {isIndex}
                         stats={summary.quantMeta}
                     />
-                {:else if isCategoricalSummary(summary)}
+                {:else if isCategoricalSummary(summary) && validatedChartType === 'cat'}
                     <StringStats
                         {dfName}
                         {colName}
@@ -122,7 +125,7 @@
                         unique={summary.cardinality}
                         rows={totalRows - nullCount}
                     />
-                {:else if isTemporalSummary(summary)}
+                {:else if isTemporalSummary(summary) && validatedChartType === 'temporal'}
                     <TempFacts facts={summary.temporalMeta} />
                 {:else}
                     <p class="text-gray-600">No summary available.</p>

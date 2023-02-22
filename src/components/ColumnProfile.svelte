@@ -9,13 +9,7 @@
         formatCompactInteger,
         formatPercentage
     } from './utils/formatters';
-    import {
-        CATEGORICALS,
-        NUMERICS,
-        TIMESTAMPS,
-        DATA_TYPE_COLORS,
-        BOOLEANS
-    } from './data-types/pandas-data-types';
+    import { DATA_TYPE_COLORS } from './data-types/pandas-data-types';
     import Tooltip from './tooltip/Tooltip.svelte';
     import TooltipContent from './tooltip/TooltipContent.svelte';
     import Histogram from './viz/histogram/SmallHistogram.svelte';
@@ -23,7 +17,8 @@
     import {
         isNumericSummary,
         isCategoricalSummary,
-        isTemporalSummary
+        isTemporalSummary,
+        isBooleanSummary
     } from '../common/exchangeInterfaces';
     import { showIndex } from '../stores';
     import VizOrText from './fact-panel/VizOrStats.svelte';
@@ -98,7 +93,7 @@
                     <!-- Distribution preview -->
                     <!-- check to see if the summary has cardinality. Otherwise do not show these values.-->
                     {#if totalRows}
-                        {#if (CATEGORICALS.has(type) || BOOLEANS.has(type)) && isCategoricalSummary(summary)}
+                        {#if isCategoricalSummary(summary) || isBooleanSummary(summary)}
                             <Tooltip
                                 location="bottom"
                                 alignment="center"
@@ -117,7 +112,7 @@
                                     unique values
                                 </TooltipContent>
                             </Tooltip>
-                        {:else if NUMERICS.has(type) && isNumericSummary(summary) && summary?.histogram?.length}
+                        {:else if isNumericSummary(summary) && summary?.histogram?.length > 0}
                             <Histogram
                                 data={summary.histogram}
                                 width={summaryWidthSize}
@@ -126,7 +121,7 @@
                                 baselineStrokeColor={DATA_TYPE_COLORS[type]
                                     .vizStrokeClass}
                             />
-                        {:else if TIMESTAMPS.has(type) && isTemporalSummary(summary) && summary?.histogram?.length}
+                        {:else if isTemporalSummary(summary) && summary?.histogram?.length > 0}
                             <Histogram
                                 data={summary.histogram}
                                 width={summaryWidthSize}
