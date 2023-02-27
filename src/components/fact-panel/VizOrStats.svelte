@@ -46,6 +46,13 @@
         return undefined;
     }
 
+    function getNumBins(s: AnySummary): number {
+        if (isNumericSummary(s) || isTemporalSummary(s)) {
+            return s.histogram.length;
+        }
+        return 8; // default value, doesnt matter
+    }
+
     $: validatedChartType = determineValidChartType(summary);
 </script>
 
@@ -101,7 +108,8 @@
                         {dfName}
                         {colName}
                         exportOptions={{
-                            shouldDisableMaxRows: totalRows > 5000
+                            shouldDisableMaxRows: totalRows > 5000,
+                            numBins: getNumBins(summary)
                         }}
                         {isIndex}
                     />
