@@ -36,6 +36,8 @@
 
 <HistogramBase
     showTooltip={true}
+    {dfName}
+    {colName}
     separate={width > 300}
     bind:buffer
     {top}

@@ -6,6 +6,9 @@
     import _ from 'lodash';
     import type { IHistogram } from '../../../common/exchangeInterfaces';
     import HistogramTooltip from './histogram-tooltip/HistogramTooltip.svelte';
+    import { exportQuantBin } from '../../export-code/ExportableCode';
+    import { getContext } from 'svelte';
+    import type { ProfileModel } from '../../../dataAPI/ProfileModel';
 
     export let data: IHistogram;
     export let width = 60;
@@ -16,7 +19,11 @@
     export let baselineStrokeColor: string;
     export let separate = true;
     $: separateQuantity = separate ? 0.25 : 0;
-    export let showTooltip = false;
+    export let showTooltip = false; // TODO this is used to toggle more than tooltip, change the name
+    export let dfName = '';
+    export let colName = '';
+
+    const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
     // rowsize for table
     export let left = 60;
@@ -55,7 +62,7 @@
     let tooltipIdx: number = undefined;
     $: tooltipValue = data[tooltipIdx];
 
-    function handleMousemove(event: MouseEvent) {
+    function getNearestIndex(event: MouseEvent): number {
         let nearestIdx = bisect(data, X.invert(event.offsetX));
         let np = data[nearestIdx];
         // only show tooltip when mouse x and y are in plot area
@@ -65,14 +72,38 @@
             event.offsetX < xScaleMax &&
             event.offsetY < Y(0)
         ) {
-            tooltipIdx = nearestIdx;
-        } else {
-            tooltipIdx = undefined;
+            return nearestIdx;
         }
+
+        return undefined;
+    }
+
+    function handleMousemove(event: MouseEvent) {
+        tooltipIdx = getNearestIndex(event);
     }
 
     function clearMouseMove() {
         tooltipIdx = undefined;
+    }
+
+    function handleClick(event: MouseEvent) {
+        // alt key or option key on mac
+        if (showTooltip && event.altKey) {
+            let npIdx = getNearestIndex(event);
+
+            if (!_.isUndefined(npIdx)) {
+                let value = data[npIdx];
+                let code = exportQuantBin(
+                    dfName,
+                    colName,
+                    value.low,
+                    value.high,
+                    value.bucket == 0
+                );
+
+                profileModel.addCell('code', code);
+            }
+        }
     }
 
     // utils for position
@@ -86,6 +117,7 @@
     {height}
     on:mousemove={handleMousemove}
     on:mouseleave={clearMouseMove}
+    on:click={handleClick}
 >
     <!-- histogram -->
     <g shape-rendering="crispEdges">
