@@ -3,13 +3,7 @@ import type { KernelMessage } from '@jupyterlab/services';
 import type {
     IColTypeTuple,
     IDFColMap,
-    IQuantMeta,
-    IColMeta,
-    IHistogram,
-    ValueCount,
-    Interval,
-    IStringMeta,
-    ITemporalMeta,
+    ColumnProfileData,
 } from '../../common/exchangeInterfaces';
 import _ from 'lodash';
 
@@ -166,7 +160,7 @@ export class PythonPandasExecutor {
 
                         if (!_.isEmpty(duplicates)) {
                             warnings.push({ warnMsg: `All columns must have unique names. The following columns are excluded: ${duplicates.join(', ')}.` })
-                            columnsWithTypes = columnsWithTypes.filter(col => !duplicates.includes(col.col_name))
+                            columnsWithTypes = columnsWithTypes.filter(col => !duplicates.includes(col.colName))
                         }
 
                         dfColMap[dfName] = {
@@ -240,6 +234,26 @@ export class PythonPandasExecutor {
         }
     }
 
+    public async getVariableNamesInPythonStr(codeString: string): Promise<string[]> {
+        const formattedCode = codeString.replace(/"/g, '\\"');
+        const code = `digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`;
+        try {
+            const res = await this.executePythonAP(code)
+            let content = res["content"].join("")
+            content = content.replace(/'/g, '"') // replace single quotes
+            content = content.replace('{', '[')
+            content = content.replace('}', ']')
+
+            const vars = JSON.parse(content)
+
+            return vars
+
+        } catch (error) {
+            return []
+        }
+
+    }
+
     private async getColumns(dfName: string): Promise<{ columnsWithTypes: IColTypeTuple[], duplicates: string[] }> {
         /*
         dfName is variable that is pd.DataFrame
@@ -257,9 +271,9 @@ export class PythonPandasExecutor {
 
             for (const item of json_res) {
                 columnsWithTypes.push({
-                    col_name: item["colName"],
-                    col_type: item["type"],
-                    col_is_index: item["isIndex"],
+                    colName: item["colName"],
+                    colType: item["type"],
+                    colIsIndex: item["isIndex"],
                 })
                 if (uniqueNames.has(item["colName"])) {
                     duplicatedNames.add(item["colName"])
@@ -294,265 +308,160 @@ export class PythonPandasExecutor {
         }
     }
 
-    public async getColMeta(
-        dfName: string,
-        colName: string,
-        isIndex: boolean,
-    ): Promise<IColMeta> {
-        const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getColMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`;
-        try {
-            const res = await this.executePythonAP(code);
-            const content = res['content'];
-            return {
-                numUnique: parseInt(content[0]),
-                nullCount: parseInt(content[1])
-            };
-        } catch (error) {
-            console.warn(`[Error caught] in getColMeta executing: ${code}`, error);
-            return {
-                numUnique: undefined,
-                nullCount: undefined
-            };
-        }
-    }
+    /**
+     * Get all info for numeric column
+     * @param dfName 
+     * @param colInfo 
+     * @returns ColumnProfileData with NumericSummary
+     */
+    public async getNumericData(dfName: string, colInfo: IColTypeTuple): Promise<ColumnProfileData> {
+        const isIndexPy = colInfo.colIsIndex ? "True" : "False";
+        const code = `digautoprofiler.getNumericData(${dfName}, "${replaceSpecial(colInfo.colName)}", ${isIndexPy})`;
 
-    public async getQuantMeta(
-        dfName: string,
-        colName: string,
-        isIndex: boolean,
-    ): Promise<IQuantMeta> {
-        const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getQuantMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`
+        const cd: ColumnProfileData = {
+            colName: colInfo.colName,
+            colType: colInfo.colType,
+            colIsIndex: colInfo.colIsIndex,
+            nullCount: 0,
+            summary: {
+                histogram: [],
+                quantMeta: undefined,
+                summaryType: "numeric"
+            },
+        };
+
         try {
             const res = await this.executePythonAP(code);
             const content = res['content']; // might be null
-            const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
+            const json_res = JSON.parse(content?.join(""));
 
-            return {
-                min: parseFloat(json_res['min']),
-                q25: parseFloat(json_res['25%']),
-                q50: parseFloat(json_res['50%']),
-                q75: parseFloat(json_res['75%']),
-                max: parseFloat(json_res['max']),
-                mean: parseFloat(json_res['mean']),
-
-                sd_outlier: parseInt(content[1]),
-                iqr_outlier: parseInt(content[2]),
-                sortedness: content[3],
-                n_zero: parseInt(content[4]),
-                n_negative: parseInt(content[5]),
-                n_positive: parseInt(content[6]),
-            };
+            // parse info from json_res
+            cd["nullCount"] = parseInt(json_res["nullCount"])
+            cd.summary["histogram"] = json_res["histogram"]
+            cd.summary["quantMeta"] = json_res["quantMeta"]
+            return cd;
         } catch (error) {
-            console.warn(`[Error caught] in getQuantMeta executing: ${code} `, error);
-            return {
-                min: undefined,
-                q25: undefined,
-                q50: undefined,
-                q75: undefined,
-                max: undefined,
-                mean: undefined,
-                sd_outlier: undefined,
-                iqr_outlier: undefined,
-                sortedness: undefined,
-                n_zero: undefined,
-                n_positive: undefined,
-                n_negative: undefined,
-            };
-        }
-    }
-
-    public async getStringMeta(
-        dfName: string,
-        colName: string,
-        isIndex: boolean,
-    ): Promise<IStringMeta> {
-        const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getStringMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`;
-
-        try {
-            const res = await this.executePythonAP(code);
-            const content = res['content'];
-            return {
-                minLength: parseInt(content[0]),
-                maxLength: parseInt(content[1]),
-                meanLength: parseFloat(content[2]),
-            };
-        } catch (error) {
-            console.warn(`[Error caught] in getStringStats executing: ${code}`, error);
-            return {
-                minLength: undefined,
-                maxLength: undefined,
-                meanLength: undefined,
-            };
-        }
-    }
-
-    public async getTemporalMeta(
-        dfName: string,
-        colName: string,
-        isIndex: boolean,
-    ): Promise<ITemporalMeta> {
-        const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getTemporalMeta(${dfName}, "${replaceSpecial(colName)}", ${isIndexPy})`;
-        try {
-            const res = await this.executePythonAP(code);
-            const content = res['content'];
-            return {
-                sortedness: content[0],
-            }
-        } catch (error) {
-            console.warn(`[Error caught] in getTemporalFacts executing: ${code}`, error);
-            return {
-                sortedness: undefined
-            }
-        }
-    }
-
-    public async getValueCounts(
-        dfName: string,
-        colName: string,
-        isIndex: boolean,
-        n = 10
-    ): Promise<ValueCount[]> {
-        const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getValueCounts(${dfName}, "${replaceSpecial(colName)}", ${n}, ${isIndexPy})`;
-        try {
-            const res = await this.executePythonAP(code);
-            const data: ValueCount[] = [];
-            const content = res['content']; // might be null
-            const json_res = JSON.parse(content?.join("").replace(/'/g, '\'')); // remove single quotes bc not JSON parseable
-            Object.keys(json_res).forEach(k => {
-                data.push({ value: k, count: json_res[k] });
-            });
-            return data;
-        } catch (error) {
-            console.warn(`[Error caught] in getValueCounts executing: ${code}`, error);
-            return [];
-        }
-    }
-
-    public async getQuantBinnedData(
-        dfName: string,
-        colName: string,
-        isIndex: boolean,
-        maxbins = 20
-    ): Promise<IHistogram> {
-        const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getQuantBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins}, ${isIndexPy})`
-        try {
-            const res = await this.executePythonAP(code);
-            const content = res['content'];
-
-            const data: IHistogram = [];
-            const json_res = JSON.parse(content.join().replace(/'/g, '')); // remove single quotes bc not JSON parseable
-
-            Object.keys(json_res).forEach((k, i) => {
-                const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
-                const [low, high] = cleank.split(',');
-                data.push({
-                    low: parseFloat(low),
-                    high: parseFloat(high),
-                    count: json_res[k],
-                    bucket: i
-                });
-            });
-            return data;
-        } catch (error) {
-            console.warn(`[Error caught] in getQuantBinnedData executing: ${code}`, error);
-            return [];
-        }
-    }
-
-    public async getTempBinnedData(
-        dfName: string,
-        colName: string,
-        isIndex: boolean,
-        maxbins = 200
-    ): Promise<IHistogram> {
-        const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getTempBinnedData(${dfName}, "${replaceSpecial(colName)}", ${maxbins}, ${isIndexPy})`;
-        try {
-            const res = await this.executePythonAP(code);
-            const content = res['content'];
-            const histogram: IHistogram = []
-            const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
-            const true_minimum = parseFloat(content[1]);
-
-            Object.keys(json_res).forEach((k, i) => {
-                const cleank = k.replace(/[\])}[{(]/g, ''); // comes in interval formatting like [22, 50)
-                const [low, high] = cleank.split(',');
-
-                const lowNum = parseFloat(low)
-                const highNum = parseFloat(high)
-
-                // for histogram preview
-                histogram.push(
-                    {
-                        low: i === 0 ? true_minimum : lowNum,
-                        high: highNum,
-                        count: json_res[k],
-                        bucket: i
-                    }
-                )
-            });
-            return histogram;
-        } catch (error) {
-            console.warn(`[Error caught] in getTempBinnedData executing: ${code}`, error);
-            return [];
+            console.warn(`[Error caught] in getNumericData executing: ${code}`, error);
+            return cd;
         }
     }
 
     /**
-     * Get interval range of the temporal column.
-     * TODO only getting days right now so need to get months or microseconds
-     * @param dfName
-     * @param colName
-     * @returns Interval
+     * Get all info for temporal column
+     * @param dfName 
+     * @param colInfo 
+     * @returns ColumnProfileData with TemporalSummary
      */
-    public async getTempInterval(
-        dfName: string,
-        colName: string,
-        isIndex: boolean
-    ): Promise<Interval> {
-        const isIndexPy = isIndex ? "True" : "False";
-        const code = `digautoprofiler.getTempInterval(${dfName}, "${replaceSpecial(colName)}"), ${isIndexPy}`;
+    public async getTemporalData(dfName: string, colInfo: IColTypeTuple): Promise<ColumnProfileData> {
+        const isIndexPy = colInfo.colIsIndex ? "True" : "False";
+        const code = `digautoprofiler.getTemporalData(${dfName}, "${replaceSpecial(colInfo.colName)}", ${isIndexPy})`;
+
+        const cd: ColumnProfileData = {
+            colName: colInfo.colName,
+            colType: colInfo.colType,
+            colIsIndex: colInfo.colIsIndex,
+            nullCount: 0,
+            summary: {
+                histogram: [],
+                timeInterval: undefined,
+                temporalMeta: undefined,
+                summaryType: "temporal"
+            },
+        };
+
         try {
             const res = await this.executePythonAP(code);
-            const content = res['content'];
-            return {
-                months: 0,
-                days: parseInt(content.join("")),
-                micros: 0
-            };
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content?.join(""));
+
+            // parse info from json_res
+            cd["nullCount"] = parseInt(json_res["nullCount"])
+            cd.summary["histogram"] = json_res["histogram"]
+            cd.summary["temporalMeta"] = json_res["temporalMeta"]
+            cd.summary["timeInterval"] = json_res["timeInterval"]
+            return cd;
         } catch (error) {
-            console.warn(`[Error caught] in getColMeta executing ${code}`, error);
-            return {
-                months: 0,
-                days: 0,
-                micros: 0
-            };
+            console.warn(`[Error caught] in getTemporalData executing: ${code}`, error);
+            return cd;
         }
     }
 
-    public async getVariableNamesInPythonStr(codeString: string): Promise<string[]> {
-        const formattedCode = codeString.replace(/"/g, '\\"');
-        const code = `digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`;
+    /**
+    * Get all info for categorical column
+    * @param dfName 
+    * @param colInfo 
+    * @returns ColumnProfileData with CategoricalSummary
+    */
+    public async getCategoricalData(dfName: string, colInfo: IColTypeTuple): Promise<ColumnProfileData> {
+        const isIndexPy = colInfo.colIsIndex ? "True" : "False";
+        const code = `digautoprofiler.getCategoricalData(${dfName}, "${replaceSpecial(colInfo.colName)}", ${isIndexPy})`;
+
+        const cd: ColumnProfileData = {
+            colName: colInfo.colName,
+            colType: colInfo.colType,
+            colIsIndex: colInfo.colIsIndex,
+            nullCount: 0,
+            summary: {
+                cardinality: 0,
+                topK: undefined,
+                stringMeta: undefined,
+                summaryType: "categorical"
+            },
+        };
+
         try {
-            const res = await this.executePythonAP(code)
-            let content = res["content"].join("")
-            content = content.replace(/'/g, '"') // replace single quotes
-            content = content.replace('{', '[')
-            content = content.replace('}', ']')
+            const res = await this.executePythonAP(code);
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content?.join(""));
 
-            const vars = JSON.parse(content)
-
-            return vars
-
+            // parse info from json_res
+            cd.nullCount = parseInt(json_res["nullCount"])
+            cd.summary["cardinality"] = parseInt(json_res["cardinality"])
+            cd.summary["topK"] = json_res["topK"]
+            cd.summary["stringMeta"] = json_res["stringMeta"]
+            return cd;
         } catch (error) {
-            return []
+            console.warn(`[Error caught] in getCategoricalData executing: ${code}`, error);
+            return cd;
         }
-
     }
+
+    /**
+   * Get all info for bool column
+   * @param dfName 
+   * @param colInfo 
+   * @returns ColumnProfileData with BoolSummary
+   */
+    public async getBooleanData(dfName: string, colInfo: IColTypeTuple): Promise<ColumnProfileData> {
+        const isIndexPy = colInfo.colIsIndex ? "True" : "False";
+        const code = `digautoprofiler.getBooleanData(${dfName}, "${replaceSpecial(colInfo.colName)}", ${isIndexPy})`;
+
+        const cd: ColumnProfileData = {
+            colName: colInfo.colName,
+            colType: colInfo.colType,
+            colIsIndex: colInfo.colIsIndex,
+            nullCount: 0,
+            summary: {
+                cardinality: 0,
+                topK: undefined,
+                summaryType: "boolean"
+            },
+        };
+
+        try {
+            const res = await this.executePythonAP(code);
+            const content = res['content']; // might be null
+            const json_res = JSON.parse(content?.join(""));
+
+            // parse info from json_res
+            cd.nullCount = parseInt(json_res["nullCount"])
+            cd.summary["cardinality"] = parseInt(json_res["cardinality"])
+            cd.summary["topK"] = json_res["topK"]
+            return cd;
+        } catch (error) {
+            console.warn(`[Error caught] in getCategoricalData executing: ${code}`, error);
+            return cd;
+        }
+    }
+
 }

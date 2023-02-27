@@ -7,12 +7,14 @@ import type {
     IDFColMap,
     IDFProfileWStateMap,
     ColumnProfileData,
-    IDFProfileWState
+    IDFProfileWState,
+    IColTypeTuple
 } from '../common/exchangeInterfaces';
 import {
     NUMERICS,
     TIMESTAMPS,
-    CATEGORICALS
+    CATEGORICALS,
+    BOOLEANS
 } from '../components/data-types/pandas-data-types';
 import _ from 'lodash';
 import type { Logger } from '../logger/Logger';
@@ -196,8 +198,11 @@ export class ProfileModel {
     }
 
     private async handleCellSelect() {
-        const cellCode = this._notebook.activeCell.text
-        const variablesInCell = await this._executor.getVariableNamesInPythonStr(cellCode)
+        const cellCode = this._notebook?.activeCell?.text
+        let variablesInCell = []
+        if (!_.isUndefined(cellCode)) {
+            variablesInCell = await this._executor.getVariableNamesInPythonStr(cellCode)
+        }
 
         // determine which ones are actual dataframes
         const profiles = get(this.columnProfiles)
@@ -234,56 +239,40 @@ export class ProfileModel {
     ): Promise<IDFProfileWState> {
         const shape = await this.executor.getShape(dfName);
         const colMetaInfoArr = dfColMap[dfName].columns;
-        const resultData: ColumnProfileData[] = [];
+        let resultData: ColumnProfileData[] = [];
 
-        for (let j = 0; j < colMetaInfoArr.length; j++) {
-            const ci = colMetaInfoArr[j];
-            const col_name = ci.col_name;
-            const col_type = ci.col_type;
-            const isIndex = ci.col_is_index;
-
-            // model calls
-            const rowVC = await this.executor.getValueCounts(dfName, col_name, isIndex);
-            const colMd = await this.executor.getColMeta(dfName, col_name, isIndex);
-
-            const cd: ColumnProfileData = {
-                name: col_name,
-                type: col_type,
-                isIndex,
-                summary: {
-                    cardinality: colMd.numUnique,
-                    topK: rowVC
+        // Handle empty dataframe
+        if (shape[0] === 0) {
+            resultData = colMetaInfoArr.map((x: IColTypeTuple) => ({
+                colName: x.colName,
+                colType: x.colType,
+                colIsIndex: x.colIsIndex,
+                nullCount: 0,
+                summary: { // default numeric summary
+                    histogram: undefined,
+                    quantMeta: undefined,
+                    summaryType: undefined
                 },
-                nullCount: colMd.nullCount,
-                example: rowVC[0]?.value
-            };
+            }))
+        } else {
+            for (let j = 0; j < colMetaInfoArr.length; j++) {
+                const colInfo = colMetaInfoArr[j];
 
-            // need at least 1 non-null row to calculate these
-            if (shape[0] > 0 && shape[0] > colMd.nullCount) {
-                if (NUMERICS.has(col_type)) {
-                    const chartData = await this.executor.getQuantBinnedData(dfName, col_name, isIndex);
-                    const statistics = await this.executor.getQuantMeta(dfName, col_name, isIndex);
+                let cd: ColumnProfileData;
 
-                    // replace min on far bin with true minimum since pandas puts the left bin edge lower
-                    if (!_.isUndefined(chartData[0])) {
-                        chartData[0].low = statistics.min
-                    }
+                // TODO still need to handle all null columns and booleans
 
-                    cd.summary.quantMeta = statistics;
-                    cd.summary.histogram = chartData;
-                } else if (TIMESTAMPS.has(col_type)) {
-                    const histogram = await this.executor.getTempBinnedData(dfName, col_name, isIndex);
-                    const interval = await this.executor.getTempInterval(dfName, col_name, isIndex);
-                    const temporalFact = await this.executor.getTemporalMeta(dfName, col_name, isIndex);
-                    cd.summary.histogram = histogram;
-                    cd.summary.timeInterval = interval;
-                    cd.summary.temporalMeta = temporalFact
-                } else if (CATEGORICALS.has(col_type)) {
-                    const stringSummary = await this.executor.getStringMeta(dfName, col_name, isIndex);
-                    cd.summary.stringMeta = stringSummary;
+                if (NUMERICS.has(colInfo.colType)) {
+                    cd = await this.executor.getNumericData(dfName, colInfo)
+                } else if (TIMESTAMPS.has(colInfo.colType)) {
+                    cd = await this.executor.getTemporalData(dfName, colInfo)
+                } else if (CATEGORICALS.has(colInfo.colType)) {
+                    cd = await this.executor.getCategoricalData(dfName, colInfo)
+                } else if (BOOLEANS.has(colInfo.colType)) {
+                    cd = await this.executor.getBooleanData(dfName, colInfo)
                 }
+                resultData.push(cd);
             }
-            resultData.push(cd);
         }
 
         return { profile: resultData, shape, dfName, lastUpdatedTime: Date.now(), isPinned: false, warnings: [] };
