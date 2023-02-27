@@ -201,3 +201,17 @@ export function exportCodeSelection(df_name: string, col_name: string, type: COD
 
     return `${df_name}${col_stmt}`
 }
+
+
+export function exportQuantBin(df_name: string, col_name: string, leftbin: number, rightbin: number, includeleft = false) {
+    let col_stmt = `["${col_name}"]`;
+    let left_op = includeleft ? ">=" : ">"
+
+    return `${df_name}[(${df_name}${col_stmt} ${left_op} ${leftbin}) & (${df_name}${col_stmt} <= ${rightbin})]`
+}
+
+export function exportCatValue(df_name: string, col_name: string, value: string) {
+    let col_stmt = `["${col_name}"]`;
+
+    return `${df_name}[${df_name}${col_stmt} == "${value}"]`
+}
