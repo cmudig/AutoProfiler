@@ -24,7 +24,7 @@
             {leftBinInclusive ? '[' : '('}{formatFloat(value.low)}, {formatFloat(
                 value.high
             )}{']'}: {formatInteger(value.count)}
-            row{#if value.count !== 1}s{/if}
+            row{#if value.count !== 1}s{/if} (click bar to export)
         </text>
     </g>
 {/if}

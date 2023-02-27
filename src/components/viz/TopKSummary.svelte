@@ -5,6 +5,9 @@
     import { exportCatValue } from '../export-code/ExportableCode';
     import { getContext } from 'svelte';
     import type { ProfileModel } from '../../dataAPI/ProfileModel';
+    import ExportIcon from '../icons/ExportIcon.svelte';
+    import Tooltip from '../tooltip/Tooltip.svelte';
+    import TooltipContent from '../tooltip/TooltipContent.svelte';
 
     export let totalRows: number;
     export let topK: ValueCount[];
@@ -24,11 +27,10 @@
     $: formatCount = format(',');
 
     function handleClick(event: MouseEvent, value: string) {
-        // alt key or option key on mac
-        if (event.altKey) {
-            let code = exportCatValue(dfName, colName, value);
-            profileModel.addCell('code', code);
-        }
+        // event.altKey alt key or option key on mac
+
+        let code = exportCatValue(dfName, colName, value);
+        profileModel.addCell('code', code);
     }
 </script>
 
@@ -45,10 +47,24 @@
         {#each topK.slice(0, 10) as { value, count }}
             {@const printValue = value === null ? ' null ∅' : value}
             <div
-                class="text-ellipsis overflow-hidden whitespace-nowrap hover:text-gray-500"
+                class="overflow-hidden hover:text-gray-500 flex items-center gap-1"
                 on:click={e => handleClick(e, value)}
             >
-                {printValue}
+                <Tooltip location="bottom" alignment="center" distance={8}>
+                    <button
+                        class="grid place-items-center rounded hover:bg-gray-100 text-gray-500"
+                        style="width: 14px; height: 14px;"
+                    >
+                        <ExportIcon size="10px" />
+                    </button>
+
+                    <TooltipContent slot="tooltip-content"
+                        >Export rows to code</TooltipContent
+                    >
+                </Tooltip>
+                <p class="text-ellipsis overflow-hidden whitespace-nowrap">
+                    {printValue}
+                </p>
             </div>
 
             {@const negligiblePercentage = count / totalRows < 0.0002}

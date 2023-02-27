@@ -87,8 +87,8 @@
     }
 
     function handleClick(event: MouseEvent) {
-        // alt key or option key on mac
-        if (showTooltip && event.altKey) {
+        // event.altKey to force alt key or option key on mac
+        if (showTooltip) {
             let npIdx = getNearestIndex(event);
 
             if (!_.isUndefined(npIdx)) {
