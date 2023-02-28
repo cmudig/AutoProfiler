@@ -72,7 +72,7 @@
                 {stats?.iqr_outlier} outlier{stats?.iqr_outlier === 1
                     ? ''
                     : 's'}
-            </span> more than 1.5 * IQR above q1 or below q3.
+            </span> more than 1.5 * IQR below q1 or above q3.
         </svelte:fragment>
         <svelte:fragment slot="end">
             <ExportFactButton
