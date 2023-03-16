@@ -52,7 +52,7 @@
             There {stats?.sd_outlier === 1 ? 'is' : 'are'}
             <span class="font-semibold">
                 {stats?.sd_outlier} outlier{stats?.sd_outlier === 1 ? '' : 's'}
-            </span> greater than 3 std from the mean.
+            </span> more than 3 std away from the mean.
         </svelte:fragment>
         <svelte:fragment slot="end">
             <ExportFactButton
