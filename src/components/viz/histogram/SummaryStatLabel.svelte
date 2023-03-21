@@ -61,6 +61,13 @@
     function handleClick(event: MouseEvent, label) {
         let code = exportCodeSelection(dfName, colName, label, isIndex);
         profileModel.addCell('code', code);
+
+        profileModel.logger.log('export', {
+            dfName,
+            colName,
+            exportType: 'stat',
+            selectionType: label
+        });
     }
 </script>
 

@@ -102,6 +102,12 @@
                 );
 
                 profileModel.addCell('code', code);
+                profileModel.logger.log('export', {
+                    dfName,
+                    colName,
+                    exportType: 'selection',
+                    selectionType: 'quantBin'
+                });
             }
         }
     }
