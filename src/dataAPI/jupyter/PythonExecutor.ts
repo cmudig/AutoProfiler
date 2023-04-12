@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import type { ISessionContext } from '@jupyterlab/apputils';
 import type { KernelMessage } from '@jupyterlab/services';
 import type {
@@ -356,7 +357,7 @@ export class PythonPandasExecutor {
     public async getNumericData(dfName: string, colInfo: IColTypeTuple): Promise<ColumnProfileData> {
         const isIndexPy = colInfo.colIsIndex ? "True" : "False";
         const code = `digautoprofiler.getNumericData(${dfName}, "${replaceSpecial(colInfo.colName)}", ${isIndexPy})`;
-
+        
         const cd: ColumnProfileData = {
             colName: colInfo.colName,
             colType: colInfo.colType,
@@ -373,7 +374,7 @@ export class PythonPandasExecutor {
             const res = await this.executePythonAP(code);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join(""));
-
+            console.log(json_res);
             // parse info from json_res
             cd["nullCount"] = parseInt(json_res["nullCount"])
             cd.summary["histogram"] = json_res["histogram"]
@@ -394,7 +395,6 @@ export class PythonPandasExecutor {
     public async getTemporalData(dfName: string, colInfo: IColTypeTuple): Promise<ColumnProfileData> {
         const isIndexPy = colInfo.colIsIndex ? "True" : "False";
         const code = `digautoprofiler.getTemporalData(${dfName}, "${replaceSpecial(colInfo.colName)}", ${isIndexPy})`;
-
         const cd: ColumnProfileData = {
             colName: colInfo.colName,
             colType: colInfo.colType,
@@ -412,7 +412,7 @@ export class PythonPandasExecutor {
             const res = await this.executePythonAP(code);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join(""));
-
+            console.log(json_res);
             // parse info from json_res
             cd["nullCount"] = parseInt(json_res["nullCount"])
             cd.summary["histogram"] = json_res["histogram"]
@@ -452,7 +452,6 @@ export class PythonPandasExecutor {
             const res = await this.executePythonAP(code);
             const content = res['content']; // might be null
             const json_res = JSON.parse(content?.join(""));
-
             // parse info from json_res
             cd.nullCount = parseInt(json_res["nullCount"])
             cd.summary["cardinality"] = parseInt(json_res["cardinality"])

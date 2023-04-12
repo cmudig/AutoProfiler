@@ -54,6 +54,43 @@ outliers_iqr = ${df_name}[(${df_name}${col_stmt} < lower) | (${df_name}${col_stm
 no_outliers_iqr= ${df_name}[(${df_name}${col_stmt} >= lower) & (${df_name}${col_stmt} <= upper)]`;
 }
 
+export const HAMPEL_OUTLIERS = (
+    df_name: string,
+    col_name: string,
+    isIndex: boolean,
+) => {
+    let col_stmt: string;
+    if (isIndex) {
+        col_stmt = ".index.to_series()";
+    } else {
+        col_stmt = `["${col_name}"]`;
+    };
+    return `${TEXT_EXPORTS}
+alpha = 1.4826 #for MAD to be a consistent estimator of SD, we use 1.4826 for guassian 
+k = 7
+    
+col_count = ${df_name}${col_stmt}.value_counts().reset_index()
+col_count.columns = ["${col_name}", "counts"]
+col_count = col_count.sort_values(by=${col_stmt})
+counts = col_count["counts"]
+rolling_median = counts.rolling(window=k, center=True).median() #for each window calculate a mean
+MAD = lambda x: np.median(np.abs(x - np.median(x))) #MAD is calculated by taking the median(|point - median(window)|)
+rolling_MAD = counts.rolling(window=k, center=True).apply(MAD)
+threshold = 3 * alpha * rolling_MAD #use 3 standard deviations
+outlier = np.abs(counts - rolling_median) > threshold
+outlier_idx = outlier[outlier].index.tolist()
+    
+dt_out = list(col_count[col_count.index.isin(outlier_idx)]${col_stmt})
+datetime_outliers = ${df_name}.loc[${df_name}${col_stmt}.isin(dt_out)] #shows all rows with time such that the count is an outlier -- what to call?
+dt = col_count[col_count.index.isin(outlier_idx)] # shows all times that have outliers
+    
+
+from matplotlib import pyplot
+pyplot.plot(col_count${col_stmt},col_count["counts"])
+pyplot.plot(dt${col_stmt},dt["counts"],"ro",ms=2)
+pyplot.show()`;
+}
+
 
 export const DUPLICATES = (
     df_name: string,

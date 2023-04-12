@@ -5,9 +5,9 @@
     import Tooltip from '../tooltip/Tooltip.svelte';
     import TooltipContent from '../tooltip/TooltipContent.svelte';
 
-    import { DUPLICATES, IQR_OUTLIERS, SD_OUTLIERS } from './ExportableCode';
+    import { DUPLICATES, IQR_OUTLIERS, HAMPEL_OUTLIERS, SD_OUTLIERS } from './ExportableCode';
 
-    export let type: 'outliers_iqr' | 'outliers_sd' | 'duplicates';
+    export let type: 'outliers_iqr' | 'outliers_sd' | 'outlier_hampel' | 'duplicates' ;
     export let dfName: string;
     export let colName: string;
     export let isIndex = false;
@@ -21,6 +21,8 @@
             text = IQR_OUTLIERS(dfName, colName, isIndex);
         } else if (type === 'outliers_sd') {
             text = SD_OUTLIERS(dfName, colName, isIndex);
+        } else if (type === 'outlier_hampel') {
+            text = HAMPEL_OUTLIERS(dfName, colName, isIndex);
         } else if (type === 'duplicates') {
             text = DUPLICATES(dfName, colName, isIndex);
         }
