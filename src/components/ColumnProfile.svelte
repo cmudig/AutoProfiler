@@ -78,7 +78,10 @@
                     </TooltipContent>
                 </Tooltip>
             {:else}
-                <div class="text-ellipsis overflow-hidden whitespace-nowrap">
+                <div
+                    class="text-ellipsis overflow-hidden whitespace-nowrap"
+                    title={colName.length > 15 ? colName : ''}
+                >
                     {colName}
                 </div>
             {/if}
