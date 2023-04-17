@@ -177,7 +177,7 @@
             {#if active}
                 <div
                     transition:slide|local={{ duration: 200 }}
-                    class="pt-1 pb-1 pl-4 pr-2 w-full"
+                    class="pt-1 pb-1 pl-2 pr-2 w-full"
                 >
                     <div bind:clientWidth={wrapperDivWidth}>
                         {#if totalRows !== 0 && nullCount !== totalRows}

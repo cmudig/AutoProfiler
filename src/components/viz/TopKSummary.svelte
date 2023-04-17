@@ -39,9 +39,15 @@
             selectionType: 'category'
         });
     }
+
+    let currentHoverCol: string = undefined;
+
+    function handleColHover(colName: string) {
+        currentHoverCol = colName;
+    }
 </script>
 
-<div class="w-full">
+<div class="w-full pl-2">
     <div
         class="grid w-full"
         style="
@@ -56,10 +62,17 @@
             <div
                 class="overflow-hidden hover:text-gray-500 flex items-center gap-1"
                 on:click={e => handleClick(e, value)}
+                on:mouseover={() => handleColHover(value)}
+                on:focus={() => handleColHover(value)}
+                on:mouseleave={() => handleColHover(undefined)}
+                on:blur={() => handleColHover(undefined)}
             >
                 <Tooltip location="bottom" alignment="center" distance={8}>
                     <button
-                        class="grid place-items-center rounded hover:bg-gray-100 text-gray-500"
+                        class="grid place-items-center rounded hover:bg-gray-100 text-gray-500 {currentHoverCol ===
+                        value
+                            ? 'visible'
+                            : 'invisible'}"
                         style="width: 14px; height: 14px;"
                     >
                         <ExportIcon size="10px" />
@@ -69,7 +82,9 @@
                         >Export rows to code</TooltipContent
                     >
                 </Tooltip>
-                <p class="text-ellipsis overflow-hidden whitespace-nowrap">
+                <p
+                    class="text-ellipsis overflow-hidden whitespace-nowrap cursor-pointer"
+                >
                     {printValue}
                 </p>
             </div>
