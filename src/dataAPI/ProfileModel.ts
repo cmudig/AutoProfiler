@@ -83,8 +83,8 @@ export class ProfileModel {
         this._logger = logger
     }
 
-    public async connectNotebook(notebook: NotebookAPI) {
-        console.log('Connecting notebook to ProfilePanel');
+    public async connectNotebook(notebook: NotebookAPI, widgetIsVisible: () => boolean) {
+        // console.log('Connecting notebook to ProfilePanel');
         this._notebook = notebook;
         this.executor.setSession(notebook.panel.sessionContext);
         this.resetData();
@@ -97,7 +97,9 @@ export class ProfileModel {
         this._notebook.changed.connect((sender, value) => {
             // when cell is run, update data
             if (value === 'cell run') {
-                this.updateRootData();
+                if (widgetIsVisible()) {
+                    this.updateRootData();
+                }
             }
 
             if (value == "name") {
@@ -105,7 +107,9 @@ export class ProfileModel {
             }
 
             if (value == "activeCell") {
-                this.handleCellSelect()
+                if (widgetIsVisible()) {
+                    this.handleCellSelect()
+                }
             }
         });
         this.listenForRestart();
@@ -130,6 +134,14 @@ export class ProfileModel {
         if (this.notebook) {
             this.notebook.addCell(kind, text);
         }
+    }
+
+    /** 
+     * Called when widget is shown, updating root data may not always be necessary
+    **/
+    public updateAll() {
+        this.updateRootData()
+        this.handleCellSelect()
     }
 
     public async updateRootData() {
