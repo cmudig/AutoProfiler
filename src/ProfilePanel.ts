@@ -49,7 +49,7 @@ export class ProfilePanel extends StackedPanel {
 
     public async connectNotebook(notebook: NotebookAPI) {
         this.session = notebook.panel.sessionContext;
-        await this._profileModel.connectNotebook(notebook);
+        await this._profileModel.connectNotebook(notebook, () => { return this.isVisible });
     }
 
     // ~~~~~~~~~ Lifecycle methods for closing panel ~~~~~~~~~
@@ -62,4 +62,15 @@ export class ProfilePanel extends StackedPanel {
         super.onCloseRequest(msg);
         this.dispose();
     }
+
+    /**
+     * Called before the widget is made visible.
+     * other useful state messages are onAfterShow, 
+     * onBeforeHide, onAfterHide.
+     * @param msg 
+     */
+    protected onBeforeShow(msg: Message): void {
+        this._profileModel.updateAll();
+    }
+
 }
