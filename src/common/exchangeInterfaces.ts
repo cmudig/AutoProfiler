@@ -37,12 +37,6 @@ export type IDFProfileState = {
 
 export type IDFProfileWState = IDFProfileData & IDFProfileState
 
-// ~~~~~~~ General column type info ~~~~~~~
-export type IColMeta = {
-    numUnique: number;
-    nullCount: number;
-};
-
 export type ColumnProfileData = IColTypeTuple & {
     nullCount: number,
     summary: AnySummary;
