@@ -1,6 +1,10 @@
 import pandas as pd
 
 def convertVC(vc: pd.Series, colName: str):
+    # this behavior changed in pandas 2.0.0 
+    if pd.__version__ >= "2.0.0":
+        return vc.reset_index().rename(columns={colName: "value"}).to_dict('records')
+    
     return vc.reset_index().rename( 
         columns={"index": "value", 
         colName: "count"}).to_dict('records')
