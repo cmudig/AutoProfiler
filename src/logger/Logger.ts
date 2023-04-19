@@ -26,9 +26,9 @@ interface AggregatedLog {
     sessionIdx: number;
 }
 
+// Log every 5 min
 // minutes * (seconds * milliseconds)
-// const LOG_INTERVAL = 10 * (60 * 1000)
-const TESTING_INTERVAL = 10 * 1000
+const LOG_INTERVAL = 5 * (60 * 1000)
 
 export class Logger {
     private _logs: LogEvent[] = []
@@ -43,7 +43,7 @@ export class Logger {
         this.sessionID = guidGenerator() // regenerated when extension reloads on page refresh or new tab
         setInterval(() => {
             this.save()
-        }, TESTING_INTERVAL)
+        }, LOG_INTERVAL)
     }
 
     public log(eventname: string, details?: any) {
