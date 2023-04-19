@@ -25,7 +25,7 @@ export class ProfilePanel extends StackedPanel {
 
         // MODEL init
         this._profileModel = new ProfileModel(this._sessionContext);
-        this._logger = new Logger(this._profileModel);
+        this._logger = new Logger();
         this._profileModel.addLogger(this._logger);
 
         // VIEW init
@@ -73,6 +73,11 @@ export class ProfilePanel extends StackedPanel {
      */
     protected onBeforeShow(msg: Message): void {
         this._profileModel.updateAll();
+        this._logger.log("AutoProfiler.toggleOpen")
+    }
+
+    protected onAfterHide(msg: Message): void {
+        this._logger.log("AutoProfiler.toggleClosed")
     }
 
 }

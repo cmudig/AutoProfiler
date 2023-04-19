@@ -63,10 +63,8 @@
         profileModel.addCell('code', code);
 
         profileModel.logger.log('export', {
-            dfName,
-            colName,
-            exportType: 'stat',
-            selectionType: label
+            exportType: 'selection',
+            selectionType: 'stat.' + label
         });
     }
 </script>

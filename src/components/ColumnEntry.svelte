@@ -13,6 +13,8 @@
     function logColumnAction(actionName: string) {
         profileModel.logger.log(actionName, { dfName, colName: hoverKey });
     }
+
+    let timer;
 </script>
 
 <div>
@@ -28,19 +30,23 @@
         class:nameHover={$currentHoveredCol === hoverKey}
         on:click={() => {
             if (!active) {
-                logColumnAction('UI.ColumnToggleOpen');
+                logColumnAction('ColumnToggleOpen');
             } else {
-                logColumnAction('UI.ColumnToggleClose');
+                logColumnAction('ColumnToggleClose');
             }
 
             active = !active;
         }}
         on:mouseenter={() => {
             $currentHoveredCol = hoverKey;
-            // logColumnAction('UI.ColumnHover');
+            // only log if user is hovering for at least 0.5 second
+            timer = setTimeout(() => {
+                logColumnAction('ColumnHover');
+            }, 500);
         }}
         on:mouseleave={() => {
             $currentHoveredCol = undefined;
+            clearTimeout(timer);
         }}
     >
         <div

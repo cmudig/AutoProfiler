@@ -23,7 +23,6 @@
             "svelte",
             "node"
         ],
-        "importsNotUsedAsValues": "error",
         "isolatedModules": true,
         "forceConsistentCasingInFileNames": true
     },

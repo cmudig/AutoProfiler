@@ -40,9 +40,8 @@
 
         profileModel.addCell('code', text);
         profileModel.logger.log('export', {
-            dfName,
-            colName,
-            exportType: 'chart'
+            exportType: 'chart',
+            chartType
         });
     }
 </script>
