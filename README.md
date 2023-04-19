@@ -48,7 +48,7 @@ To try out Autoprofiler in a hosted notebook, use one of the options below
 
 ## Browser support
 
-AutoProfiler has been developed and tested with Chrome. Some functionality might be buggy in other browsers.
+AutoProfiler has been developed and tested with Chrome.
 
 ## Development Install
 
