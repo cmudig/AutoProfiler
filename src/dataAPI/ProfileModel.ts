@@ -89,7 +89,6 @@ export class ProfileModel {
      * @param widgetIsVisible function that says if AP is visible to user
      */
     public async connectNotebook(notebook: NotebookAPI, widgetIsVisible: () => boolean) {
-        // console.log('Connecting notebook to ProfilePanel');
         this._notebook = notebook;
         this.resetData();
         this.executor.setSession(notebook.panel?.sessionContext);
@@ -99,7 +98,7 @@ export class ProfileModel {
             await this.executor.session.ready;
 
             this._name.set(this.executor.session.name)
-            this.logger.log('ProfileModel.connectNotebook', { notebookName: this.executor.session.name })
+            // this.logger.log('AutoProfiler.connectNotebook', { notebookName: this.executor.session.name })
             // have to do this as arrow function or else this doesnt work
             this._notebook.changed.connect((sender, value) => {
                 // when cell is run, update data
@@ -134,7 +133,7 @@ export class ProfileModel {
         this.executor.session.session?.kernel.statusChanged.connect((_, status) => {
             if (status.endsWith('restarting')) {
                 this.resetData();
-                this.logger.log('ProfileModel.kernelRestarted', { notebookName: this.name })
+                // this.logger.log('ProfileModel.kernelRestarted', { notebookName: this.name })
             }
         });
     }
@@ -201,7 +200,7 @@ export class ProfileModel {
 
                                     if (!_.isEqual(currentShapeAndProfile, newShapeAndProfile)) {
                                         result[dfName].lastUpdatedTime = Date.now()
-                                        this.logger.log('ProfileModel.updateData', { dfName })
+                                        this.logger.log('AutoProfiler.updateData', { dfName })
                                     }
                                 }
                             }

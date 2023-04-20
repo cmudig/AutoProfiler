@@ -37,8 +37,6 @@
         profileModel.addCell('code', code);
 
         profileModel.logger.log('export', {
-            dfName,
-            colName,
             exportType: 'selection',
             selectionType: 'category'
         });
@@ -49,7 +47,7 @@
         profileModel.addCell('code', code);
 
         profileModel.logger.log('export', {
-            exportType: 'summary',
+            exportType: 'summaryfact',
             selectionType: 'unique'
         });
     }

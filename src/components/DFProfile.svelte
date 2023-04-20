@@ -52,8 +52,8 @@
     <CollapsibleCard
         bind:open={expanded}
         on:header-hover={handleHeaderHover}
-        on:open={() => logAction('UI.ToggleDFOpen')}
-        on:close={() => logAction('UI.ToggleDFClose')}
+        on:open={() => logAction('ToggleDFOpen')}
+        on:close={() => logAction('ToggleDFClose')}
     >
         <div slot="header" class="dfprofile-header flex gap-1 items-center">
             <ExpanderButton rotated={expanded} />

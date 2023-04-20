@@ -26,9 +26,7 @@
         }
         profileModel.addCell('code', text);
         profileModel.logger.log('export', {
-            dfName,
-            colName,
-            exportType: 'summary',
+            exportType: 'summaryfact',
             selectionType: type
         });
     }
