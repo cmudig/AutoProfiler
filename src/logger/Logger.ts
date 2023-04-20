@@ -28,7 +28,7 @@ interface AggregatedLog {
 
 // Log every 5 min
 // minutes * (seconds * milliseconds)
-const LOG_INTERVAL = 5 * (60 * 1000)
+const LOG_INTERVAL = 10 * (60 * 1000)
 
 export class Logger {
     private _logs: LogEvent[] = []
