@@ -10,22 +10,27 @@ import CellAPI from './cell';
 export class NotebookAPI {
     private readonly _ready: PromiseDelegate<void>;
     private _changed = new Signal<this, string>(this);
+    private _hasConnection = false;
 
-    panel: NotebookPanel;
+    panel: NotebookPanel | undefined;
     // kernel: KernelAPI;
     cells: CellAPI[];
     mostRecentExecutionCount: number;
 
     constructor(notebookPanel: NotebookPanel) {
         this.panel = notebookPanel;
-        // this.kernel = new KernelAPI(this.panel.sessionContext)
-        this.listenToSession();
-
         this._ready = new PromiseDelegate<void>();
-        this.panel.revealed.then(() => {
-            this.listenToCells();
+
+        if (!(this.panel == undefined)) {
+            this.listenToSession();
+            this.panel.revealed.then(() => {
+                this.listenToCells();
+                this._hasConnection = true
+                this._ready.resolve();
+            });
+        } else {
             this._ready.resolve();
-        });
+        }
     }
 
     saveToNotebookMetadata(key: string, value: any) {
@@ -37,38 +42,43 @@ export class NotebookAPI {
         return this._ready.promise;
     }
 
+    get hasConnection(): boolean {
+        return this._hasConnection;
+    }
+
     // changed is a signal emitted when various things in this notebook change
     get changed(): ISignal<NotebookAPI, string> {
         return this._changed;
     }
 
-    get notebook(): Notebook {
-        return this.panel.content;
+    get notebook(): Notebook | undefined {
+        return this.panel?.content;
     }
 
-    get language(): string {
-        const meta = this.notebook.model?.metadata;
-        if (meta.has('language_info')) {
-            const val = this.notebook.model.metadata
-                .get('language_info')
-                .valueOf();
+    get language(): string | undefined {
+        const meta = this.notebook?.model?.metadata;
+        if (meta?.has('language_info')) {
+            const val = meta?.get('language_info')?.valueOf();
             if (val instanceof Object) {
                 return val['name'];
             }
         }
     }
 
-    get path(): string {
-        return this.panel.sessionContext.path;
+    get path(): string | undefined {
+        return this.panel?.sessionContext?.path;
     }
 
-    get name(): string {
-        return PathExt.basename(this.path);
+    get name(): string | undefined {
+        return this.path ? PathExt.basename(this.path) : undefined;
     }
 
-    get activeCell() {
-        const active = this.notebook.activeCell;
-        return this.cells.find(c => c.model.id === active.model.id);
+    get activeCell(): CellAPI | undefined {
+        if (this.notebook && this.cells) {
+            const active = this.notebook.activeCell;
+            return this.cells.find(c => c.model.id === active.model.id);
+        }
+        return undefined;
     }
 
     public addCell(kind: 'code' | 'markdown', text: string, index?: number) {
@@ -81,7 +91,7 @@ export class NotebookAPI {
         cell.value.text = text;
 
         // if no index provided, insert at current position
-        if (_.isUndefined(index)) {
+        if (index == undefined) {
             const active = this.notebook.activeCell;
             index = this.cells.findIndex(c => c.model.id === active.model.id);
             index += 1

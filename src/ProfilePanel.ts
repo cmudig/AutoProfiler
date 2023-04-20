@@ -48,7 +48,9 @@ export class ProfilePanel extends StackedPanel {
     }
 
     public async connectNotebook(notebook: NotebookAPI) {
-        this.session = notebook.panel.sessionContext;
+        if (notebook.hasConnection) {
+            this.session = notebook.panel.sessionContext;
+        }
         await this._profileModel.connectNotebook(notebook, () => { return this.isVisible });
     }
 

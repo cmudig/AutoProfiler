@@ -41,43 +41,47 @@ export class PythonPandasExecutor {
         onReply?: (type: string, content: any) => void,
         onDone?: (arg_0?: string) => void
     ) {
-        const future = this.session.session?.kernel?.requestExecute({
-            code,
-            stop_on_error: true,
-            store_history: false // prevents incrementing execution count for extension code
-        });
+        if (!(this.session == undefined)) {
 
-        // this is the output of the execution, may return things multiple times as code runs
-        future.onIOPub = (msg: KernelMessage.IIOPubMessage) => {
-            const msg_type = msg.header.msg_type;
 
-            if (
-                msg_type === 'execute_result' ||
-                msg_type === 'display_data' ||
-                msg_type === 'update_display_data' ||
-                msg_type === 'stream'
-            ) {
-                if (onReply) {
-                    onReply(msg_type + '', msg.content);
-                }
-            }
-        };
+            const future = this.session.session?.kernel?.requestExecute({
+                code,
+                stop_on_error: true,
+                store_history: false // prevents incrementing execution count for extension code
+            });
 
-        // when execution is done
-        future.done.then(
-            reply => {
-                if (onDone) {
-                    onDone(reply.content.status);
+            // this is the output of the execution, may return things multiple times as code runs
+            future.onIOPub = (msg: KernelMessage.IIOPubMessage) => {
+                const msg_type = msg.header.msg_type;
+
+                if (
+                    msg_type === 'execute_result' ||
+                    msg_type === 'display_data' ||
+                    msg_type === 'update_display_data' ||
+                    msg_type === 'stream'
+                ) {
+                    if (onReply) {
+                        onReply(msg_type + '', msg.content);
+                    }
                 }
-                // reply.content.execution_count // time this code was run
-            },
-            error => {
-                console.warn('Code run failed: ', error);
-                if (onDone) {
-                    onDone();
+            };
+
+            // when execution is done
+            future.done.then(
+                reply => {
+                    if (onDone) {
+                        onDone(reply.content.status);
+                    }
+                    // reply.content.execution_count // time this code was run
+                },
+                error => {
+                    console.warn('Code run failed: ', error);
+                    if (onDone) {
+                        onDone();
+                    }
                 }
-            }
-        );
+            );
+        }
     }
 
     private async executeCode(code: string): Promise<ExecResult> {

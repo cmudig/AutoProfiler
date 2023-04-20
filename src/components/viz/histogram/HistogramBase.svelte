@@ -91,7 +91,7 @@
         if (showTooltip) {
             let npIdx = getNearestIndex(event);
 
-            if (!_.isUndefined(npIdx)) {
+            if (!(npIdx == undefined)) {
                 let value = data[npIdx];
                 let code = exportQuantBin(
                     dfName,
@@ -127,7 +127,7 @@
 >
     <!-- histogram -->
     <g shape-rendering="crispEdges">
-        {#if showTooltip && !_.isUndefined(tooltipValue)}
+        {#if showTooltip && !(tooltipValue == undefined)}
             <rect
                 x={X(tooltipValue.low) + separateQuantity}
                 width={X(tooltipValue.high) -

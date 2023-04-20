@@ -16,7 +16,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         const panel: ProfilePanel = new ProfilePanel();
         app.shell.add(panel, 'right', { rank: 1000 });
 
-        // emitted when the user's notebook changes I think...
+        // emitted when the user's notebook changes, null if all notebooks close
         notebookTracker.currentChanged.connect((_, widget) => {
             const notebook = new NotebookAPI(widget);
             notebook.ready.then(async () => {

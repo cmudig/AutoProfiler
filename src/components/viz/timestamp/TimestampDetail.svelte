@@ -300,8 +300,8 @@
         {interval}
         numZoomedRows={zoomedRows}
         numTotalRows={~~data.reduce((a, b) => a + b[yAccessor], 0)}
-        zoomed={!_.isUndefined($zoomCoords.start.x) ||
-            !_.isUndefined(zoomedXStart)}
+        zoomed={!($zoomCoords.start.x == undefined) ||
+            !(zoomedXStart == undefined)}
     />
     <svg
         width="100%"

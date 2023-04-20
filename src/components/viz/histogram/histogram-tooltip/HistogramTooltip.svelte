@@ -12,7 +12,7 @@
     let fontSize = 12;
 </script>
 
-{#if !_.isUndefined(value)}
+{#if !(value == undefined)}
     <g>
         <text
             x={textX}

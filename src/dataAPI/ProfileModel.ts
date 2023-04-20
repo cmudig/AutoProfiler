@@ -69,7 +69,7 @@ export class ProfileModel {
     }
 
     get currentOutputName(): string {
-        if (this.notebook.mostRecentExecutionCount) {
+        if (this.notebook?.mostRecentExecutionCount) {
             return `_${this.notebook.mostRecentExecutionCount}`
         }
         return undefined
@@ -83,38 +83,51 @@ export class ProfileModel {
         this._logger = logger
     }
 
+    /**
+     * connectNotebook: connect to a notebook, assumes the notebook connection is ready but might not have valid connection
+     * @param notebook notebook connection 
+     * @param widgetIsVisible function that says if AP is visible to user
+     */
     public async connectNotebook(notebook: NotebookAPI, widgetIsVisible: () => boolean) {
         // console.log('Connecting notebook to ProfilePanel');
         this._notebook = notebook;
-        this.executor.setSession(notebook.panel.sessionContext);
         this.resetData();
+        this.executor.setSession(notebook.panel?.sessionContext);
 
-        await this.executor.session.ready;
+        if (this.notebook.hasConnection) {
 
-        this._name.set(this.executor.session.name)
-        this.logger.log('ProfileModel.connectNotebook', { notebookName: this.executor.session.name })
-        // have to do this as arrow function or else this doesnt work
-        this._notebook.changed.connect((sender, value) => {
-            // when cell is run, update data
-            if (value === 'cell run') {
-                if (widgetIsVisible()) {
-                    this.updateRootData();
+            await this.executor.session.ready;
+
+            this._name.set(this.executor.session.name)
+            this.logger.log('ProfileModel.connectNotebook', { notebookName: this.executor.session.name })
+            // have to do this as arrow function or else this doesnt work
+            this._notebook.changed.connect((sender, value) => {
+                // when cell is run, update data
+                if (value === 'cell run') {
+                    if (widgetIsVisible()) {
+                        this.updateRootData();
+                    }
                 }
-            }
 
-            if (value == "name") {
-                this.name.set(this._notebook.name)
-            }
-
-            if (value == "activeCell") {
-                if (widgetIsVisible()) {
-                    this.handleCellSelect()
+                if (value == "name") {
+                    this.name.set(this._notebook.name)
                 }
-            }
-        });
-        this.listenForRestart();
-        this._ready.set(true);
-        this.updateRootData();
+
+                if (value == "activeCell") {
+                    if (widgetIsVisible()) {
+                        this.handleCellSelect()
+                    }
+                }
+            });
+            this.listenForRestart();
+            this.ready.set(true);
+            this.updateRootData();
+
+        } else {
+            this.ready.set(false);
+            this.name.set(undefined)
+        }
+
     }
 
     public async listenForRestart() {
@@ -145,74 +158,76 @@ export class ProfileModel {
     }
 
     public async updateRootData() {
-        this._loadingNewData.set(true)
-        let alldf = await this.executor.getAllDataFrames(this.currentOutputName);
+        if (this.notebook) {
+            this._loadingNewData.set(true)
+            let alldf = await this.executor.getAllDataFrames(this.currentOutputName);
 
 
-        // only update if we have detected dataframes
-        if (!_.isEmpty(alldf)) {
+            // only update if we have detected dataframes
+            if (!_.isEmpty(alldf)) {
 
-            // more cells might have executed, so filter to only dataframes in current cell
-            const currentDfs = Object.keys(alldf).filter((key: string) => {
-                if (key == this.currentOutputName) {
+                // more cells might have executed, so filter to only dataframes in current cell
+                const currentDfs = Object.keys(alldf).filter((key: string) => {
+                    if (key == this.currentOutputName) {
+                        return true
+                    } else if (key.charAt(0) == '_') {
+                        return false
+                    }
                     return true
-                } else if (key.charAt(0) == '_') {
-                    return false
-                }
-                return true
-            }).reduce((obj, key) => {
-                return {
-                    ...obj,
-                    [key]: alldf[key]
-                }
-            }, {})
+                }).reduce((obj, key) => {
+                    return {
+                        ...obj,
+                        [key]: alldf[key]
+                    }
+                }, {})
 
-            const colPromise = this.fetchColumnPromises(currentDfs);
+                const colPromise = this.fetchColumnPromises(currentDfs);
 
-            colPromise.then(result => {
+                colPromise.then(result => {
 
-                this._columnProfiles.update((currentProfiles: IDFProfileWStateMap) => {
+                    this._columnProfiles.update((currentProfiles: IDFProfileWStateMap) => {
 
-                    if (!_.isUndefined(currentProfiles)) {
-                        for (const [dfName, currentDfProfile] of Object.entries(currentProfiles)) {
-                            const { lastUpdatedTime, isPinned, ...currentShapeAndProfile } = currentDfProfile
+                        if (!(currentProfiles == undefined)) {
+                            for (const [dfName, currentDfProfile] of Object.entries(currentProfiles)) {
+                                const { lastUpdatedTime, isPinned, ...currentShapeAndProfile } = currentDfProfile
 
-                            // check if in result, otherwise was deleted
-                            if (dfName in result) {
-                                const { lastUpdatedTime: tTime, isPinned: tPinned, ...newShapeAndProfile } = result[dfName]
+                                // check if in result, otherwise was deleted
+                                if (dfName in result) {
+                                    const { lastUpdatedTime: tTime, isPinned: tPinned, ...newShapeAndProfile } = result[dfName]
 
-                                // copy over state
-                                result[dfName].lastUpdatedTime = lastUpdatedTime
-                                result[dfName].isPinned = isPinned
+                                    // copy over state
+                                    result[dfName].lastUpdatedTime = lastUpdatedTime
+                                    result[dfName].isPinned = isPinned
 
-                                if (!_.isEqual(currentShapeAndProfile, newShapeAndProfile)) {
-                                    result[dfName].lastUpdatedTime = Date.now()
-                                    this.logger.log('ProfileModel.updateData', { dfName })
+                                    if (!_.isEqual(currentShapeAndProfile, newShapeAndProfile)) {
+                                        result[dfName].lastUpdatedTime = Date.now()
+                                        this.logger.log('ProfileModel.updateData', { dfName })
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    // copy warnings over from alldf to result
-                    for (const [dfName, dfInfo] of Object.entries(alldf)) {
-                        if (dfName in result) {
-                            result[dfName].warnings = dfInfo.warnings
+                        // copy warnings over from alldf to result
+                        for (const [dfName, dfInfo] of Object.entries(alldf)) {
+                            if (dfName in result) {
+                                result[dfName].warnings = dfInfo.warnings
+                            }
                         }
-                    }
 
-                    return result
+                        return result
+                    });
+                    this._loadingNewData.set(false);
                 });
+            } else {
                 this._loadingNewData.set(false);
-            });
-        } else {
-            this._loadingNewData.set(false);
+            }
         }
     }
 
     private async handleCellSelect() {
         const cellCode = this._notebook?.activeCell?.text
-        let variablesInCell = []
-        if (!_.isUndefined(cellCode)) {
+        let variablesInCell: string[] = []
+        if (!(cellCode == undefined)) {
             variablesInCell = await this._executor.getVariableNamesInPythonStr(cellCode)
         }
 
