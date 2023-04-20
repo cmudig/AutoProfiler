@@ -21,7 +21,7 @@
         isBooleanSummary
     } from '../common/exchangeInterfaces';
     import { showIndex } from '../stores';
-    import VizOrText from './fact-panel/VizOrStats.svelte';
+    import VizOrStats from './fact-panel/VizOrStats.svelte';
 
     // props
     export let dfName: string;
@@ -181,7 +181,7 @@
                 >
                     <div bind:clientWidth={wrapperDivWidth}>
                         {#if totalRows !== 0 && nullCount !== totalRows}
-                            <VizOrText
+                            <VizOrStats
                                 {dfName}
                                 {colName}
                                 {totalRows}
@@ -192,7 +192,9 @@
                                 {nullCount}
                             />
                         {:else}
-                            <p>No values to show for this column</p>
+                            <div class="pl-4">
+                                <p>No values to show for this column</p>
+                            </div>
                         {/if}
                     </div>
                 </div>
