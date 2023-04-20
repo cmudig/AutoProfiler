@@ -2,7 +2,10 @@
     import { format } from 'd3-format';
     import BarAndLabel from './BarAndLabel.svelte';
     import type { ValueCount } from '../../common/exchangeInterfaces';
-    import { exportCatValue } from '../export-code/ExportableCode';
+    import {
+        exportCatValue,
+        exportAllUnique
+    } from '../export-code/ExportableCode';
     import { getContext } from 'svelte';
     import type { ProfileModel } from '../../dataAPI/ProfileModel';
     import ExportIcon from '../icons/ExportIcon.svelte';
@@ -12,6 +15,7 @@
     export let totalRows: number;
     export let topK: ValueCount[];
     export let color: string;
+    export let cardinality: number;
 
     export let dfName = '';
     export let colName = '';
@@ -37,6 +41,16 @@
             colName,
             exportType: 'selection',
             selectionType: 'category'
+        });
+    }
+
+    function handleUniqueExport() {
+        let code = exportAllUnique(dfName, colName);
+        profileModel.addCell('code', code);
+
+        profileModel.logger.log('export', {
+            exportType: 'summary',
+            selectionType: 'unique'
         });
     }
 
@@ -75,7 +89,7 @@
                             : 'invisible'}"
                         style="width: 14px; height: 14px;"
                     >
-                        <ExportIcon size="10px" />
+                        <ExportIcon size="12px" />
                     </button>
 
                     <TooltipContent slot="tooltip-content"
@@ -106,5 +120,29 @@
                 </BarAndLabel>
             </div>
         {/each}
+
+        {#if cardinality > 10}
+            {@const numExtra = cardinality - 10}
+            <div class="pl-4 flex gap-1">
+                <p class="italic text-gray-600">
+                    + {formatCount(numExtra)} more unique value{numExtra > 1
+                        ? 's'
+                        : ''}
+                </p>
+                <Tooltip location="bottom" alignment="center" distance={8}>
+                    <button
+                        class="grid place-items-center rounded hover:bg-gray-100 text-gray-500"
+                        style="width: 20px; height: 20px;"
+                        on:click={handleUniqueExport}
+                    >
+                        <ExportIcon size="12px" />
+                    </button>
+
+                    <TooltipContent slot="tooltip-content"
+                        >Export unique values to code</TooltipContent
+                    >
+                </Tooltip>
+            </div>
+        {/if}
     </div>
 </div>

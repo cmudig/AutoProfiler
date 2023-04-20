@@ -215,3 +215,9 @@ export function exportCatValue(df_name: string, col_name: string, value: string)
 
     return `${df_name}[${df_name}${col_stmt} == "${value}"]`
 }
+
+export function exportAllUnique(df_name: string, col_name: string) {
+    let col_stmt = `["${col_name}"]`;
+
+    return `${df_name}${col_stmt}.unique()`
+}

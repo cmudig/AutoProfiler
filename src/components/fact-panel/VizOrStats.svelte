@@ -57,8 +57,8 @@
 </script>
 
 <div>
-    <div>
-        {#if isNumericSummary(summary) && validatedChartType === 'quant'}
+    {#if isNumericSummary(summary) && validatedChartType === 'quant'}
+        <div class="pl-2 pr-2">
             <NumericHistogram
                 {dfName}
                 {colName}
@@ -74,15 +74,20 @@
                 mean={summary.quantMeta.mean}
                 max={summary.quantMeta.max}
             />
-        {:else if (isCategoricalSummary(summary) || isBooleanSummary(summary)) && validatedChartType === 'cat'}
+        </div>
+    {:else if (isCategoricalSummary(summary) || isBooleanSummary(summary)) && validatedChartType === 'cat'}
+        <div class="pr-2">
             <TopKSummary
                 {dfName}
                 {colName}
                 color={DATA_TYPE_COLORS[type].bgClass}
                 {totalRows}
                 topK={summary.topK}
+                cardinality={summary.cardinality}
             />
-        {:else if isTemporalSummary(summary) && validatedChartType === 'temporal'}
+        </div>
+    {:else if isTemporalSummary(summary) && validatedChartType === 'temporal'}
+        <div class="pl-2 pr-2">
             <TimestampDetail
                 data={convertToTimeBin(summary?.histogram)}
                 xAccessor="ts_end"
@@ -91,10 +96,10 @@
                 width={wrapperDivWidth}
                 interval={summary?.timeInterval}
             />
-        {/if}
-    </div>
+        </div>
+    {/if}
 
-    <div class="pt-2">
+    <div class="pt-2 pl-2 pr-2">
         <CollapsibleCard bind:open={expanded}>
             <div slot="header" class="flex gap-1 items-center">
                 <ExpanderButton rotated={expanded} />

@@ -57,7 +57,7 @@
                 on:click={addVisCode}
             >
                 <p>Export</p>
-                <ExportIcon size="14px" />
+                <ExportIcon size="12px" />
             </button>
 
             <TooltipContent slot="tooltip-content"

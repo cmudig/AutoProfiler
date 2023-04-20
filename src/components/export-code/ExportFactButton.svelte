@@ -40,7 +40,7 @@
         style="width: 20px; height: 20px;"
         on:click={addCode}
     >
-        <ExportIcon size="14px" />
+        <ExportIcon size="12px" />
     </button>
 
     <TooltipContent slot="tooltip-content">{tooltipText}</TooltipContent>
