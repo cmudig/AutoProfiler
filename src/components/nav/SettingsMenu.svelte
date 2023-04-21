@@ -2,7 +2,7 @@
     import SettingsIcon from '../icons/SettingsIcon.svelte';
     import FloatingElement from '../tooltip/FloatingElement.svelte';
     import Portal from '../tooltip/Portal.svelte';
-    import { allowLogs, showIndex } from '../../stores';
+    import { showIndex } from '../../stores';
 
     // state
     let active = false;
@@ -33,10 +33,6 @@
                     <div
                         class="settings-menu bg-white rounded p-2 pt-1 pb-1 flex flex-col"
                     >
-                        <div class="flex gap-1 items-center">
-                            <input type="checkbox" bind:checked={$allowLogs} />
-                            <span>Allow logs</span>
-                        </div>
                         <div class="flex gap-1 items-center">
                             <input type="checkbox" bind:checked={$showIndex} />
                             <span>Visualize DF index</span>
