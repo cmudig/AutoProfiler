@@ -197,7 +197,7 @@ def getTempInterval(colData: pd.Series):
     return {"months": 0, "days": timerange.days, "micros": 0}
 
 def getStringMeta(colData: pd.Series):
-    lengths = colData.str.len()
+    lengths = colData.astype(str).str.len()
 
     return {
         "minLength": lengths.min(),
