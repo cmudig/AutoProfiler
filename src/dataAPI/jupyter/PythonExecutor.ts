@@ -206,10 +206,11 @@ export class PythonPandasExecutor {
      */
     private async getDFVars(varNames: string[]): Promise<string[]> {
         try {
-            const code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
+            const code_lines = ['import pandas as __autoprofilerPandas']; // TODO better way to make sure pandas in env?
             varNames.forEach(name =>
-                code_lines.push(`print(type(${name}) == pd.DataFrame)`)
+                code_lines.push(`print(type(${name}) == __autoprofilerPandas.DataFrame)`)
             );
+            code_lines.push('del __autoprofilerPandas')
             const res = await this.executeCode(code_lines.join('\n'));
             const content = res['content'];
             return content;
