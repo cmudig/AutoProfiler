@@ -19,7 +19,7 @@
 
     <DisplayFact>
         <svelte:fragment slot="fact">
-            Count has {facts?.num_outliers} using the hampel method.
+            There are {facts?.num_outliers} time-series outliers with respect to count using the hampel identifier method.
         </svelte:fragment>
         <svelte:fragment slot="end">
             <ExportFactButton
