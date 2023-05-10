@@ -59,36 +59,60 @@ export const HAMPEL_OUTLIERS = (
     col_name: string,
     isIndex: boolean,
 ) => {
-    let col_stmt: string;
-    if (isIndex) {
-        col_stmt = ".index.to_series()";
-    } else {
-        col_stmt = `["${col_name}"]`;
-    };
     return `${TEXT_EXPORTS}
-alpha = 1.4826 #for MAD to be a consistent estimator of SD, we use 1.4826 for guassian 
-k = 7
+def get_hampel_outlier(dfName,colName,k=7,alpha=1.4826,sd=3):
+    import numpy as np
+    # alpha = 1.4826 (gaussian)
+    # k = window size
     
-col_count = ${df_name}${col_stmt}.value_counts().reset_index()
-col_count.columns = ["${col_name}", "counts"]
-col_count = col_count.sort_values(by=${col_stmt})
-counts = col_count["counts"]
-rolling_median = counts.rolling(window=k, center=True).median() #for each window calculate a mean
-MAD = lambda x: np.median(np.abs(x - np.median(x))) #MAD is calculated by taking the median(|point - median(window)|)
-rolling_MAD = counts.rolling(window=k, center=True).apply(MAD)
-threshold = 3 * alpha * rolling_MAD #use 3 standard deviations
-outlier = np.abs(counts - rolling_median) > threshold
-outlier_idx = outlier[outlier].index.tolist()
+    # create new data frame with value counts of timestamp
+    col_count = dfName[colName].value_counts().reset_index()
+    col_count.columns = ["Timestamp", "Count"]
+    col_count = col_count.sort_values(by=["Timestamp"])
     
-dt_out = list(col_count[col_count.index.isin(outlier_idx)]${col_stmt})
-datetime_outliers = ${df_name}.loc[${df_name}${col_stmt}.isin(dt_out)] #shows all rows with time such that the count is an outlier -- what to call?
-dt = col_count[col_count.index.isin(outlier_idx)] # shows all times that have outliers
+    counts = col_count["Count"]
     
+    window_median = counts.rolling(window=k, center=True).median() # for each window calculate the median count
+    MAD = lambda x: np.median(np.abs(x - np.median(x))) # MAD is calculated by taking the median(|point - median(window)|)
+    window_MAD = counts.rolling(window=k, center=True).apply(MAD)
+    threshold =sd * alpha * window_MAD 
+    outlier = np.abs(counts - window_median) > threshold
+    outlier_idx = outlier[outlier].index.tolist()
 
-from matplotlib import pyplot
-pyplot.plot(col_count${col_stmt},col_count["counts"])
-pyplot.plot(dt${col_stmt},dt["counts"],"ro",ms=2)
-pyplot.show()`;
+    dt_out = list(col_count[col_count.index.isin(outlier_idx)]["Timestamp"])
+    datetime_outliers = dfName.loc[dfName[colName].isin(dt_out)] # rows in dataframe that are a timeseries point outlier with respect to count
+    dt = col_count[col_count.index.isin(outlier_idx)] # timestamps that have timeseries outlier with respect to count
+    
+    return datetime_outliers,dt,col_count
+
+hampel_output = get_hampel_outlier(${df_name},"${col_name}",k=7,alpha=1.4826,sd=3)
+
+def get_outlier_chart(col_count,dt):
+    import altair as alt
+    
+    # temporal chart 
+    temporal_chart = alt.Chart(col_count).mark_line(color="#14b8a6").encode(
+        x=alt.X("Timestamp:T", axis=alt.Axis(labels=True,title="Time")),  
+        y="Count"
+    ).properties(
+        width=500,
+        height=200
+    )
+    
+    # plot of outliers
+    outlier_points = alt.Chart(dt.reset_index()).mark_circle(color="red").encode(
+        x="Timestamp:T",
+        y="Count",
+        tooltip=["Timestamp","Count"]
+
+    ).properties(
+        width=500,
+        height=200
+    ).interactive()
+
+    return temporal_chart + outlier_points
+datetime_outliers = hampel_output[0]
+get_outlier_chart(hampel_output[2],hampel_output[1])`;
 }
 
 
