@@ -267,23 +267,28 @@ export class PythonPandasExecutor {
     }
 
     public async getVariableNamesInPythonStr(codeString: string): Promise<string[]> {
-        const formattedCode = codeString.replace(/"/g, '\\"');
-        const code = `digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`;
-        try {
-            const res = await this.executePythonAP(code)
-            let content = res["content"].join("")
-            content = content.replace(/'/g, '"') // replace single quotes
-            content = content.replace('{', '[')
-            content = content.replace('}', ']')
 
-            const vars = JSON.parse(content)
+        let pandasWasImported = await this.checkIfPandasInModules()
 
-            return vars
+        if (pandasWasImported) {
+            const formattedCode = codeString.replace(/"/g, '\\"');
+            const code = `digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`;
+            try {
+                const res = await this.executePythonAP(code)
+                let content = res["content"].join("")
+                content = content.replace(/'/g, '"') // replace single quotes
+                content = content.replace('{', '[')
+                content = content.replace('}', ']')
 
-        } catch (error) {
-            return []
+                const vars = JSON.parse(content)
+
+                return vars
+
+            } catch (error) {
+                return []
+            }
         }
-
+        return []
     }
 
     private async getColumns(dfName: string): Promise<{ columnsWithTypes: IColTypeTuple[], duplicates: string[] }> {
