@@ -120,7 +120,9 @@ export class ProfileModel {
             });
             this.listenForRestart();
             this.ready.set(true);
-            this.updateRootData();
+            if (widgetIsVisible()) {
+                this.updateRootData();
+            }
 
         } else {
             this.ready.set(false);
