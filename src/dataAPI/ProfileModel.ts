@@ -29,6 +29,8 @@ export class ProfileModel {
     private _name: Writable<string> = writable(undefined)
     private _varsInCurrentCell: Writable<string[]> = writable([])
     private _logger;
+    private _language: Writable<string> = writable(undefined)
+    private _widgetIsVisible = () => false
 
     constructor(session: ISessionContext) {
         this._executor = new PythonPandasExecutor(session)
@@ -46,10 +48,8 @@ export class ProfileModel {
         return this._executor
     }
 
-    get language(): Promise<string> | undefined {
-        return this.executor.session?.session?.kernel?.info?.then(infoReply => {
-            return infoReply.language_info.name;
-        });
+    get language(): Writable<string> {
+        return this._language
     }
 
     get name(): Writable<string> {
@@ -83,6 +83,11 @@ export class ProfileModel {
         this._logger = logger
     }
 
+    private notebookIsPython(): boolean {
+        let currentLang = get(this.language)
+        return (currentLang === 'python' || currentLang === 'python3')
+    }
+
     /**
      * connectNotebook: connect to a notebook, assumes the notebook connection is ready but might not have valid connection
      * @param notebook notebook connection 
@@ -90,6 +95,7 @@ export class ProfileModel {
      */
     public async connectNotebook(notebook: NotebookAPI, widgetIsVisible: () => boolean) {
         this._notebook = notebook;
+        this._widgetIsVisible = widgetIsVisible
         this.resetData();
         this.executor.setSession(notebook.panel?.sessionContext);
 
@@ -98,29 +104,33 @@ export class ProfileModel {
             await this.executor.session.ready;
 
             this._name.set(this.executor.session.name)
+            this._language.set(this.notebook.language)
             // this.logger.log('AutoProfiler.connectNotebook', { notebookName: this.executor.session.name })
             // have to do this as arrow function or else this doesnt work
             this._notebook.changed.connect((sender, value) => {
                 // when cell is run, update data
                 if (value === 'cell run') {
-                    if (widgetIsVisible()) {
+                    if (this._widgetIsVisible()) {
                         this.updateRootData();
                     }
-                }
-
-                if (value == "name") {
+                } else if (value === "name") {
                     this.name.set(this._notebook.name)
-                }
-
-                if (value == "activeCell") {
-                    if (widgetIsVisible()) {
+                } else if (value === "activeCell") {
+                    if (this._widgetIsVisible()) {
                         this.handleCellSelect()
+                    }
+                } else if (value === "language changed") {
+                    // e.g. kernel changes from Julia to Python
+                    this.language.set(this._notebook.language)
+                    this.resetData();
+                    if (this._widgetIsVisible()) {
+                        this.updateRootData();
                     }
                 }
             });
             this.listenForRestart();
             this.ready.set(true);
-            if (widgetIsVisible()) {
+            if (this._widgetIsVisible()) {
                 this.updateRootData();
             }
 
@@ -151,15 +161,19 @@ export class ProfileModel {
     }
 
     /** 
-     * Called when widget is shown, updating root data may not always be necessary
+     * Called when widget is shown.
+     * Does not check if notebook is visible because visible flag set after update happens
     **/
     public updateAll() {
         this.updateRootData()
         this.handleCellSelect()
     }
 
+    /**
+     * Fetch all data for UI, requires notebook to be python
+    **/
     public async updateRootData() {
-        if (this.notebook) {
+        if (this.notebook && this.notebookIsPython()) {
             this._loadingNewData.set(true)
             let alldf = await this.executor.getAllDataFrames(this.currentOutputName);
 
@@ -226,20 +240,21 @@ export class ProfileModel {
     }
 
     private async handleCellSelect() {
-        const cellCode = this._notebook?.activeCell?.text
-        let variablesInCell: string[] = []
-        if (!(cellCode == undefined)) {
-            variablesInCell = await this._executor.getVariableNamesInPythonStr(cellCode)
-        }
+        if (this.notebookIsPython()) {
+            const cellCode = this._notebook?.activeCell?.text
+            let variablesInCell: string[] = []
+            if (!(cellCode == undefined)) {
+                variablesInCell = await this._executor.getVariableNamesInPythonStr(cellCode)
+            }
 
-        // determine which ones are actual dataframes
-        const profiles = get(this.columnProfiles)
-        if (profiles) {
-            const dfNames = Object.keys(profiles)
-            const dfNamesInSelection = variablesInCell.filter(value => dfNames.includes(value));
-            this.variablesInCurrentCell.set(dfNamesInSelection)
+            // determine which ones are actual dataframes
+            const profiles = get(this.columnProfiles)
+            if (profiles) {
+                const dfNames = Object.keys(profiles)
+                const dfNamesInSelection = variablesInCell.filter(value => dfNames.includes(value));
+                this.variablesInCurrentCell.set(dfNamesInSelection)
+            }
         }
-
     }
 
     // ################################# State updates ############################################

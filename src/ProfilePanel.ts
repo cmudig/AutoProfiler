@@ -67,6 +67,8 @@ export class ProfilePanel extends StackedPanel {
 
     /**
      * Called before the widget is made visible.
+     * NOTE: when using beforeShow, this.isVisible is false during update.
+     * 
      * other useful state messages are onAfterShow, 
      * onBeforeHide, onAfterHide.
      * @param msg 

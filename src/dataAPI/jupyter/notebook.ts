@@ -132,6 +132,11 @@ export class NotebookAPI {
                 }
             }
         });
+
+        this.notebook.model.metadata.changed.connect((_, args) => {
+            this._changed.emit('language changed');
+        })
+
     }
 
     private listenToSession() {
