@@ -1,5 +1,5 @@
-import { URLExt } from '@jupyterlab/coreutils';
-import { ServerConnection } from '@jupyterlab/services';
+// import { URLExt } from '@jupyterlab/coreutils';
+// import { ServerConnection } from '@jupyterlab/services';
 import { guidGenerator } from './guid';
 
 
@@ -28,7 +28,7 @@ interface AggregatedLog {
 }
 
 // minutes * (seconds * milliseconds)
-const LOG_INTERVAL = 10 * (60 * 1000)
+// const LOG_INTERVAL = 10 * (60 * 1000)
 // const LOG_INTERVAL = (10 * 1000)
 
 /**
@@ -64,9 +64,11 @@ export class Logger {
         this._lastLoggedTime = new Date()
         this.sessionID = guidGenerator() // regenerated when extension reloads on page refresh or new tab
         this.sessionStartTime = new Date()
-        setInterval(() => {
-            this.save()
-        }, LOG_INTERVAL)
+
+        // uncomment to save logs at interval
+        // setInterval(() => {
+        //     this.save()
+        // }, LOG_INTERVAL)
     }
 
     public log(eventname: string, details?: any) {
@@ -84,7 +86,7 @@ export class Logger {
     /**
      * Main funtion to save called at intervals
      */
-    private save() {
+    public save() {
         let currentTime = new Date()
         const l = this.aggregateLogs(currentTime)
         this.write(l).then((status) => {
@@ -185,22 +187,23 @@ export class Logger {
      * @param aggregatedLogs logs to be written
      */
     private async write(aggregatedLog: AggregatedLog): Promise<"success" | "fail"> {
-        try {
-            const settings = ServerConnection.makeSettings();
-            const url = URLExt.join(settings.baseUrl, 'autoprofiler/savelogs');
+        // try {
+        //     const settings = ServerConnection.makeSettings();
+        //     const url = URLExt.join(settings.baseUrl, 'autoprofiler/savelogs');
 
-            const response = await ServerConnection.makeRequest(url, {
-                body: JSON.stringify({ "logs": aggregatedLog }),
-                method: 'POST',
-            }, settings);
+        //     const response = await ServerConnection.makeRequest(url, {
+        //         body: JSON.stringify({ "logs": aggregatedLog }),
+        //         method: 'POST',
+        //     }, settings);
 
-            // if response is ok return success, else fail
-            if (response.ok) {
-                return "success"
-            }
-        } catch (error) {
-        }
+        //     // if response is ok return success, else fail
+        //     if (response.ok) {
+        //         return "success"
+        //     }
+        // } catch (error) {
+        // }
 
+        // need to set up server route in python to handle call
         return "fail"
     }
 }
