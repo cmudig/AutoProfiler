@@ -64,5 +64,5 @@ jobs:
         sudo rm -rf $(which node)
         pip install myextension.tar.gz
         pip install jupyterlab
-        jupyter labextension list 2>&1 | grep -ie "AutoProfiler.*OK"
+        jupyter labextension list 2>&1 | grep -ie "digautoprofiler.*OK"
         python -m jupyterlab.browser_check --no-chrome-test
