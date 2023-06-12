@@ -145,35 +145,40 @@ export class PythonPandasExecutor {
      */
     public async getAllDataFrames(currentOutputName: string): Promise<IDFColMap> {
         try {
-            const var_names = await this.getVariableNames(currentOutputName);
 
-            if (var_names) {
-                const isDF = await this.getDFVars(var_names);
-                const vars_DF = var_names.filter(
-                    (d, idx) => isDF[idx] === 'True'
-                );
+            const pandasImported = await this.checkIfPandasInModules()
 
-                if (vars_DF) {
-                    // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
-                    const dfColMap: IDFColMap = {};
-                    const python_ids = await this.getObjectIds(vars_DF);
-                    for (let index = 0; index < vars_DF.length; index++) {
-                        const dfName = vars_DF[index];
-                        let { columnsWithTypes, duplicates } = await this.getColumns(dfName);
-                        const warnings = []
+            if (pandasImported) {
+                const var_names = await this.getVariableNames(currentOutputName);
 
-                        if (!_.isEmpty(duplicates)) {
-                            warnings.push({ warnMsg: `All columns must have unique names. The following columns are excluded: ${duplicates.join(', ')}.` })
-                            columnsWithTypes = columnsWithTypes.filter(col => !duplicates.includes(col.colName))
+                if (var_names) {
+                    const isDF = await this.getDFVars(var_names);
+                    const vars_DF = var_names.filter(
+                        (d, idx) => isDF[idx] === 'True'
+                    );
+
+                    if (vars_DF) {
+                        // TODO update this to async so more reactive https://zellwk.com/blog/async-await-in-loops/
+                        const dfColMap: IDFColMap = {};
+                        const python_ids = await this.getObjectIds(vars_DF);
+                        for (let index = 0; index < vars_DF.length; index++) {
+                            const dfName = vars_DF[index];
+                            let { columnsWithTypes, duplicates } = await this.getColumns(dfName);
+                            const warnings = []
+
+                            if (!_.isEmpty(duplicates)) {
+                                warnings.push({ warnMsg: `All columns must have unique names. The following columns are excluded: ${duplicates.join(', ')}.` })
+                                columnsWithTypes = columnsWithTypes.filter(col => !duplicates.includes(col.colName))
+                            }
+
+                            dfColMap[dfName] = {
+                                columns: columnsWithTypes,
+                                python_id: python_ids[index],
+                                warnings
+                            };
                         }
-
-                        dfColMap[dfName] = {
-                            columns: columnsWithTypes,
-                            python_id: python_ids[index],
-                            warnings
-                        };
+                        return dfColMap;
                     }
-                    return dfColMap;
                 }
             }
         } catch (error) {
@@ -200,16 +205,39 @@ export class PythonPandasExecutor {
     }
 
     /**
+     * checks if pandas is in sys modules meaning it was imported before,
+     * this way we do not import pandas unless was imported before
+     * @returns true if pandas was imported before, false if not
+     */
+    private async checkIfPandasInModules(): Promise<boolean> {
+        try {
+            const code_lines = ["import sys as __autoprofiler_private_sys; print('pandas' in __autoprofiler_private_sys.modules)",
+                "del __autoprofiler_private_sys"]
+
+            const res = await this.executeCode(code_lines.join('\n'));
+
+            const content = res['content'].join("").trim();
+            if (content === 'True') {
+                return true;
+            }
+            return false;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
      * NOTE: this function cannot be put in digautoprofiler python because evaluting the variable names 
      * does not work from a separate module 
      * @returns array of "True" or "False" if that variable is a pandas dataframe
      */
     private async getDFVars(varNames: string[]): Promise<string[]> {
         try {
-            const code_lines = ['import pandas as pd']; // TODO better way to make sure pandas in env?
+            const code_lines = ['import pandas as __autoprofilerPandas'];
             varNames.forEach(name =>
-                code_lines.push(`print(type(${name}) == pd.DataFrame)`)
+                code_lines.push(`print(type(${name}) == __autoprofilerPandas.DataFrame)`)
             );
+            code_lines.push('del __autoprofilerPandas')
             const res = await this.executeCode(code_lines.join('\n'));
             const content = res['content'];
             return content;
@@ -239,23 +267,28 @@ export class PythonPandasExecutor {
     }
 
     public async getVariableNamesInPythonStr(codeString: string): Promise<string[]> {
-        const formattedCode = codeString.replace(/"/g, '\\"');
-        const code = `digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`;
-        try {
-            const res = await this.executePythonAP(code)
-            let content = res["content"].join("")
-            content = content.replace(/'/g, '"') // replace single quotes
-            content = content.replace('{', '[')
-            content = content.replace('}', ']')
 
-            const vars = JSON.parse(content)
+        let pandasWasImported = await this.checkIfPandasInModules()
 
-            return vars
+        if (pandasWasImported) {
+            const formattedCode = codeString.replace(/"/g, '\\"');
+            const code = `digautoprofiler.getVariableNamesInPythonStr("""${formattedCode}""")`;
+            try {
+                const res = await this.executePythonAP(code)
+                let content = res["content"].join("")
+                content = content.replace(/'/g, '"') // replace single quotes
+                content = content.replace('{', '[')
+                content = content.replace('}', ']')
 
-        } catch (error) {
-            return []
+                const vars = JSON.parse(content)
+
+                return vars
+
+            } catch (error) {
+                return []
+            }
         }
-
+        return []
     }
 
     private async getColumns(dfName: string): Promise<{ columnsWithTypes: IColTypeTuple[], duplicates: string[] }> {

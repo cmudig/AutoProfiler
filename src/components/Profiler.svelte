@@ -19,6 +19,7 @@
     let isLoading: boolean;
     let colProfileArr: IDFProfileWState[] = [];
     let name: string;
+    let language: string;
     let varsInCurrentCell: string[];
 
     const readyUnsub = profileModel.ready.subscribe(val => {
@@ -47,12 +48,17 @@
         }
     );
 
+    const langUnsub = profileModel.language.subscribe(val => {
+        language = val;
+    });
+
     onDestroy(() => {
         readyUnsub();
         loadingUnsub();
         cpUnsub();
         nameUnsub();
         varsInCellUnsub();
+        langUnsub();
     });
 
     let sortOptions = [
@@ -94,58 +100,67 @@
             </p>
         </div>
 
-        {#if !_.isEmpty(colProfileArr)}
-            <div class="flex gap-1 items-center">
-                <Parquet size="16px" />
-                <h2 class="text-base">DataFrames</h2>
-                <div class="grow">
-                    {#if isLoading}
-                        <div class="pl-2">
-                            <Circle
-                                size="1"
-                                color="#FF3E00"
-                                unit="rem"
-                                duration="1s"
+        {#if language === 'python' || language === 'python3'}
+            {#if !_.isEmpty(colProfileArr)}
+                <div class="flex gap-1 items-center">
+                    <Parquet size="16px" />
+                    <h2 class="text-base">DataFrames</h2>
+                    <div class="grow">
+                        {#if isLoading}
+                            <div class="pl-2">
+                                <Circle
+                                    size="1"
+                                    color="#FF3E00"
+                                    unit="rem"
+                                    duration="1s"
+                                />
+                            </div>
+                        {/if}
+                    </div>
+
+                    <div class="justify-end">
+                        Sort by:
+
+                        <select
+                            class="rounded border border-6 bg-gray-100 hover:border-gray-300"
+                            bind:value={selectedSortOption}
+                        >
+                            {#each sortOptions as opt}
+                                <option value={opt.prop}
+                                    >{opt.displayName}</option
+                                >
+                            {/each}
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    {#each sortedArr as profile (profile.dfName)}
+                        <div animate:flip={{ duration: 300 }}>
+                            <DFProfile
+                                dfName={profile.dfName}
+                                isInFocus={varsInCurrentCell.includes(
+                                    profile.dfName
+                                )}
+                                dataframeProfile={profile}
+                                isPinned={profile.isPinned}
+                                on:message={handlePin}
                             />
                         </div>
-                    {/if}
+                    {/each}
                 </div>
-
-                <div class="justify-end">
-                    Sort by:
-
-                    <select
-                        class="rounded border border-6 bg-gray-100 hover:border-gray-300"
-                        bind:value={selectedSortOption}
-                    >
-                        {#each sortOptions as opt}
-                            <option value={opt.prop}>{opt.displayName}</option>
-                        {/each}
-                    </select>
-                </div>
-            </div>
-
-            <div>
-                {#each sortedArr as profile (profile.dfName)}
-                    <div animate:flip={{ duration: 300 }}>
-                        <DFProfile
-                            dfName={profile.dfName}
-                            isInFocus={varsInCurrentCell.includes(
-                                profile.dfName
-                            )}
-                            dataframeProfile={profile}
-                            isPinned={profile.isPinned}
-                            on:message={handlePin}
-                        />
-                    </div>
-                {/each}
-            </div>
+            {:else}
+                <p class="mb-4">
+                    All Pandas dataframes in your jupyter notebook will be
+                    profiled below.
+                </p>
+                <p class="italic">No DataFrames detected yet!</p>
+            {/if}
         {:else}
-            <p class="mb-4">
-                All Pandas dataframes in your jupyter notebook will be profiled
-                below.
+            <p>
+                AutoProfiler only supports Python notebooks, currently connected
+                to a <span class="font-bold">{language}</span> notebook.
             </p>
-            <p class="italic">No DataFrames detected yet!</p>
         {/if}
     {:else}
         <p>No notebook connection or executions yet.</p>
