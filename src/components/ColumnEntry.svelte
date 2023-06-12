@@ -1,20 +1,10 @@
 <script lang="ts">
-    import { getContext } from 'svelte';
     import { currentHoveredCol } from '../stores';
-    import type { ProfileModel } from '../dataAPI/ProfileModel';
 
     export let active = false;
     export let hideRight = false;
     export let hoverKey: string;
     export let dfName: string;
-
-    const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
-
-    function logColumnAction(actionName: string) {
-        profileModel.logger.log(actionName, { dfName, colName: hoverKey });
-    }
-
-    let timer;
 </script>
 
 <div>
@@ -29,24 +19,13 @@
         class:bg-gray-50={active}
         class:nameHover={$currentHoveredCol === hoverKey}
         on:click={() => {
-            if (!active) {
-                logColumnAction('ColumnToggleOpen');
-            } else {
-                logColumnAction('ColumnToggleClose');
-            }
-
             active = !active;
         }}
         on:mouseenter={() => {
             $currentHoveredCol = hoverKey;
-            // only log if user is hovering for at least 0.5 second
-            timer = setTimeout(() => {
-                logColumnAction('ColumnHover');
-            }, 500);
         }}
         on:mouseleave={() => {
             $currentHoveredCol = undefined;
-            clearTimeout(timer);
         }}
     >
         <div

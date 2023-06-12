@@ -25,10 +25,6 @@
             text = DUPLICATES(dfName, colName, isIndex);
         }
         profileModel.addCell('code', text);
-        profileModel.logger.log('export', {
-            exportType: 'summaryfact',
-            selectionType: type
-        });
     }
 </script>
 

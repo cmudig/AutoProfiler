@@ -39,10 +39,6 @@
         }
 
         profileModel.addCell('code', text);
-        profileModel.logger.log('export', {
-            exportType: 'chart',
-            chartType
-        });
     }
 </script>
 
