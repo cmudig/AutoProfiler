@@ -17,7 +17,6 @@ import {
     BOOLEANS
 } from '../components/data-types/pandas-data-types';
 import _ from 'lodash';
-import type { Logger } from '../logger/Logger';
 
 export class ProfileModel {
 
@@ -28,7 +27,6 @@ export class ProfileModel {
     private _executor: PythonPandasExecutor
     private _name: Writable<string> = writable(undefined)
     private _varsInCurrentCell: Writable<string[]> = writable([])
-    private _logger;
     private _language: Writable<string> = writable(undefined)
     private _widgetIsVisible = () => false
 
@@ -75,14 +73,6 @@ export class ProfileModel {
         return undefined
     }
 
-    get logger(): Logger {
-        return this._logger
-    }
-
-    addLogger(logger: Logger) {
-        this._logger = logger
-    }
-
     private notebookIsPython(): boolean {
         let currentLang = get(this.language)
         return (currentLang === 'python' || currentLang === 'python3')
@@ -105,7 +95,6 @@ export class ProfileModel {
 
             this._name.set(this.executor.session.name)
             this._language.set(this.notebook.language)
-            // this.logger.log('AutoProfiler.connectNotebook', { notebookName: this.executor.session.name })
             // have to do this as arrow function or else this doesnt work
             this._notebook.changed.connect((sender, value) => {
                 // when cell is run, update data
@@ -145,7 +134,6 @@ export class ProfileModel {
         this.executor.session.session?.kernel.statusChanged.connect((_, status) => {
             if (status.endsWith('restarting')) {
                 this.resetData();
-                // this.logger.log('ProfileModel.kernelRestarted', { notebookName: this.name })
             }
         });
     }
@@ -216,7 +204,6 @@ export class ProfileModel {
 
                                     if (!_.isEqual(currentShapeAndProfile, newShapeAndProfile)) {
                                         result[dfName].lastUpdatedTime = Date.now()
-                                        this.logger.log('AutoProfiler.updateData', { dfName })
                                     }
                                 }
                             }

@@ -102,10 +102,6 @@
                 );
 
                 profileModel.addCell('code', code);
-                profileModel.logger.log('export', {
-                    exportType: 'selection',
-                    selectionType: 'quantBin'
-                });
             }
         }
     }

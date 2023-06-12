@@ -35,21 +35,11 @@
 
         let code = exportCatValue(dfName, colName, value);
         profileModel.addCell('code', code);
-
-        profileModel.logger.log('export', {
-            exportType: 'selection',
-            selectionType: 'category'
-        });
     }
 
     function handleUniqueExport() {
         let code = exportAllUnique(dfName, colName);
         profileModel.addCell('code', code);
-
-        profileModel.logger.log('export', {
-            exportType: 'summaryfact',
-            selectionType: 'unique'
-        });
     }
 
     let currentHoverCol: string = undefined;

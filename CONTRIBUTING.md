@@ -17,8 +17,6 @@ Build steps:
 # Change directory to the AutoProfiler directory
 # Install package in development mode
 pip install -e .
-# enable server extension
-jupyter server extension enable digautoprofiler
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 # Rebuild extension Typescript source after making changes
