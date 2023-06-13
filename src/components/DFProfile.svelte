@@ -55,9 +55,6 @@
     $: xOptionColumns = dataframeProfile?.profile;
     $: yOptionColumns = dataframeProfile?.profile;
 
-    // view
-    let wrapperDivWidth: number;
-
     // dispatches
     const dispatch = createEventDispatcher();
 
@@ -71,7 +68,7 @@
         headerHover = event?.detail?.over;
     }
 
-    function handleBivariateButton(event) {
+    function handleBivariateButton() {
         showAddButton = !showAddButton;
         showBivariateMenu = !showBivariateMenu;
         clickBivariateButton = !clickBivariateButton;
@@ -101,23 +98,12 @@
         ).then(biData => (biDataStorage[i] = biData));
     }
 
-    function handleDelete(event, i: number) {
+    function handleDelete(i: number) {
         xVariables.splice(i, 1);
         yVariables.splice(i, 1);
         biDataStorage.splice(i, 1);
         updateBivariate();
     }
-
-    // // AddButton version
-    // function handleVariable(event) {
-    //     variables.push({
-    //         colName: event?.detail?.colName,
-    //         colType: event?.detail?.colType
-    //     });
-    //     if (variables.length == 2) {
-    //         biDataPromise = fetchBivariateData(dfName, variables);
-    //     }
-    // }
 
     function handleBivariate(event, variable: string) {
         if (variable === 'x') {
@@ -285,58 +271,44 @@
                     <p class="pl-8">No columns!</p>
                 {/if}
                 {#if !_.isUndefined(biDataPromise)}
-                    <!-- svelte-ignore empty-block -->
                     {#await biDataPromise then biData}
                         {#each biDataStorage as previousBiData, idx}
-                            <div
-                                class="pt-1 pb-1 w-full"
-                                bind:clientWidth={wrapperDivWidth}
-                            >
-                                <BivariateChart
-                                    biData={previousBiData}
-                                    xLabel={previousBiData.xName}
-                                    yLabel={previousBiData.yName}
-                                    timeOffset={previousBiData.timeOffset}
-                                    on:selectAggrType={event => {
-                                        handleAggrType(event, idx);
-                                    }}
-                                    on:selectTimeOffset={event => {
-                                        handleTimeOffset(event, idx);
-                                    }}
-                                    on:delete={event => {
-                                        handleDelete(event, idx);
-                                    }}
-                                />
-                            </div>
+                            <BivariateChart
+                                biData={previousBiData}
+                                xLabel={previousBiData.xName}
+                                yLabel={previousBiData.yName}
+                                timeOffset={previousBiData.timeOffset}
+                                on:selectAggrType={event => {
+                                    handleAggrType(event, idx);
+                                }}
+                                on:selectTimeOffset={event => {
+                                    handleTimeOffset(event, idx);
+                                }}
+                                on:delete={() => handleDelete(idx)}
+                            />
                         {/each}
-                        <!-- Bivariate Chart is displayed here -->
                     {/await}
                 {/if}
                 {#if showAddButton}
                     <div>
-                        <div class="flex">
-                            <div class="grow" />
-                            <div class="pl-2">
-                                <Tooltip
-                                    location="right"
-                                    alignment="center"
-                                    distance={8}
-                                >
-                                    <button
-                                        class={baseClasses +
-                                            'flex space-between gap-2 justify-between w-full ' +
-                                            'text-gray-400'}
-                                        style="width: 16px; height: 16px;"
-                                        on:click={handleBivariateButton}
-                                    >
-                                        <BivariateButton size="16px" />
-                                    </button>
-                                    <TooltipContent slot="tooltip-content">
-                                        Add New Chart
-                                    </TooltipContent>
-                                </Tooltip>
-                            </div>
-                        </div>
+                        <Tooltip
+                            location="right"
+                            alignment="center"
+                            distance={8}
+                        >
+                            <button
+                                class={baseClasses +
+                                    'flex space-between gap-2 justify-between w-full ' +
+                                    'text-gray-400'}
+                                style="width: 16px; height: 16px;"
+                                on:click={handleBivariateButton}
+                            >
+                                <BivariateButton size="16px" />
+                            </button>
+                            <TooltipContent slot="tooltip-content">
+                                Add New Chart
+                            </TooltipContent>
+                        </Tooltip>
                     </div>
                 {/if}
                 {#if showBivariateMenu}
@@ -375,7 +347,6 @@
                             </div>
                             <div class="flex" style="flex-direction: row">
                                 <DropdownMenu
-                                    title={''}
                                     bind:selected={xSelected}
                                     bind:optionColumns={xOptionColumns}
                                     on:select={event => {
@@ -385,7 +356,6 @@
                                 />
                                 <div class="grow" />
                                 <DropdownMenu
-                                    title={''}
                                     bind:selected={ySelected}
                                     bind:optionColumns={yOptionColumns}
                                     on:select={event => {
