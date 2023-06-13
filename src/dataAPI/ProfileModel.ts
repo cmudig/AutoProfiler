@@ -8,7 +8,10 @@ import type {
     IDFProfileWStateMap,
     ColumnProfileData,
     IDFProfileWState,
-    IColTypeTuple
+    IColTypeTuple,
+    AggrType,
+    TimeOffset,
+    IBivariateData
 } from '../common/exchangeInterfaces';
 import {
     NUMERICS,
@@ -310,53 +313,55 @@ export class ProfileModel {
 
     public async getBivariateData(
         dfName: string,
-        colName1: string,
-        colType1: string,
-        colName2: string,
-        colType2: string,
-        timestep: string,
-        aggrType: string = "mean",
-    ) {
-        let aggrData;
-        if (CATEGORICALS.has(colType1) && NUMERICS.has(colType2)) {
-            aggrData = { chartType: 'histogram', aggrType: aggrType, timeOffset: timestep, xName: colName1, xType: colType1, yName: colName2, yType: colType2, data: await this.getAggrData(dfName, colName1, colName2, aggrType) };
+        col1: IColTypeTuple,
+        col2: IColTypeTuple,
+        timestep: TimeOffset,
+        aggrType: AggrType = "mean",
+    ): Promise<IBivariateData> {
+        let aggrData: IBivariateData;
+        if (CATEGORICALS.has(col1.colType) && NUMERICS.has(col2.colType)) {
+            aggrData = {
+                chartType: 'histogram',
+                aggrType: aggrType,
+                timeOffset: timestep,
+                xColumn: col1,
+                yColumn: col2,
+                data: await this.executor.getAggrData(dfName, col1.colName, col2.colName, aggrType)
+            };
         }
-        else if (CATEGORICALS.has(colType2) && NUMERICS.has(colType1)) {
-            aggrData = { chartType: 'histogram', aggrType: aggrType, timeOffset: timestep, xName: colName2, xType: colType2, yName: colName1, yType: colType1, data: await this.getAggrData(dfName, colName2, colName1, aggrType) };
+        else if (CATEGORICALS.has(col2.colType) && NUMERICS.has(col1.colType)) {
+            aggrData = {
+                chartType: 'histogram',
+                aggrType: aggrType,
+                timeOffset: timestep,
+                xColumn: col2,
+                yColumn: col1,
+                data: await this.executor.getAggrData(dfName, col2.colName, col1.colName, aggrType)
+            };
         }
-        else if (TIMESTAMPS.has(colType1) && NUMERICS.has(colType2)) {
-            let statistics = await this.getTempAggrData(dfName, colName1, colName2, aggrType, timestep);
-            aggrData = { chartType: 'linechart', aggrType: aggrType, timeOffset: statistics["timestep"], xName: colName1, xType: colType1, yName: colName2, yType: colType2, data: statistics["data"] };
+        else if (TIMESTAMPS.has(col1.colType) && NUMERICS.has(col2.colType)) {
+            let timestampData = await this.executor.getTempAggrData(dfName, col1.colName, col2.colName, aggrType, timestep);
+            aggrData = {
+                chartType: 'linechart',
+                aggrType: aggrType,
+                timeOffset: timestampData["timestep"],
+                xColumn: col1,
+                yColumn: col2,
+                data: timestampData["data"]
+            };
         }
-        else if (TIMESTAMPS.has(colType2) && NUMERICS.has(colType1)) {
-            let statistics = await this.getTempAggrData(dfName, colName2, colName1, aggrType, timestep);
-            aggrData = { chartType: 'linechart', aggrType: aggrType, timeOffset: statistics["timestep"], xName: colName2, xType: colType2, yName: colName1, yType: colType1, data: statistics["data"] };
+        else if (TIMESTAMPS.has(col2.colType) && NUMERICS.has(col1.colType)) {
+            let timestampData = await this.executor.getTempAggrData(dfName, col2.colType, col1.colName, aggrType, timestep);
+            aggrData = {
+                chartType: 'linechart',
+                aggrType: aggrType,
+                timeOffset: timestampData["timestep"],
+                xColumn: col2,
+                yColumn: col1,
+                data: timestampData["data"]
+            };
         }
         return aggrData;
     }
-
-    private async getAggrData(
-        dfName: string,
-        catColName: string,
-        quantColName: string,
-        aggrType: string,
-        n = 10) {
-        const aggrData = await this.executor.getAggrData(dfName, catColName, quantColName, aggrType, n);
-
-        return aggrData;
-    }
-
-    private async getTempAggrData(
-        dfName: string,
-        tempColName: string,
-        quantColName: string,
-        aggrType: string,
-        timestep: string,
-    ) {
-        const aggrData = await this.executor.getTempAggrData(dfName, tempColName, quantColName, aggrType, timestep);
-
-        return aggrData;
-    }
-
 
 }

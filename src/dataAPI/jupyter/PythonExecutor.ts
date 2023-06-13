@@ -5,6 +5,7 @@ import type {
     IDFColMap,
     ColumnProfileData,
     ValueCount,
+    BivariateTimestampInfo
 } from '../../common/exchangeInterfaces';
 import _ from 'lodash';
 
@@ -529,8 +530,8 @@ export class PythonPandasExecutor {
         tempColName: string,
         quantColName: string,
         aggrType: string,
-        timestep: string,
-    ) {
+        timestep?: string,
+    ): Promise<BivariateTimestampInfo> {
         let code: string;
         if (_.isUndefined(timestep)) {
             code = `digautoprofiler.getTempAggrData(${dfName}, "${replaceSpecial(tempColName)}", "${replaceSpecial(quantColName)}", "${aggrType}")`;
@@ -542,12 +543,12 @@ export class PythonPandasExecutor {
             const res = await this.executePythonAP(code);
             const content = res['content'];
             const json_res = JSON.parse(content[0].replace(/'/g, '')); // remove single quotes bc not JSON parseable
-            const statistics = { "data": [], "timestep": json_res["timestep"] };
-            Object.keys(json_res["data"]).forEach((k, i) => { statistics["data"].push({ 'period': k, 'value': json_res["data"][k], 'bucket': i }); });
-            return statistics;
+            const response: BivariateTimestampInfo = { "data": [], "timestep": json_res["timestep"] };
+            Object.keys(json_res["data"]).forEach((k, i) => { response["data"].push({ 'period': k, 'value': json_res["data"][k], 'bucket': i }); });
+            return response;
         } catch (error) {
             console.warn(`[Error caught] in getTempAggrData executing: ${code}`, error);
-            return [];
+            return { "data": [], "timestep": "Y" };
         }
     }
 }

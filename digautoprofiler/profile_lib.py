@@ -256,12 +256,18 @@ def getTemporalMeta(colData: pd.Series):
     return {"sortedness": result}
 
 def getAggrData(dfName: pd.DataFrame, catColName: str, quantColName: str, aggrType: str="mean", n=10):
-    """ aggrType is one of ["mean", "sum", "count", "min", "max"] """
+    """ 
+    aggrType is one of ["mean", "sum", "count", "min", "max"] 
+    """
     aggrData = dfName.groupby(catColName).agg({quantColName: aggrType})[quantColName].sort_values(ascending=False)[:n]
     print(aggrData.to_json())
     
 
 def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, aggrType: str="count", **kwargs): 
+    """
+    timestep kwarg must be one of ["Y","M","W","D","H","T","S"]
+    """
+    # sturge's rule
     binNum = min(round(1 + 3.322 * math.log10(len(dfName))),20)
     offsetAliases = ['Y','M','W','D','H','T','S']
     i = 0
@@ -293,5 +299,5 @@ def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, a
         tempAggrData = groups.min()
     if aggrType == "max":
         tempAggrData = groups.max()
-    print(json.dumps({"data":tempAggrData.to_dict(),"timestep":timestep}))
+    print(json.dumps({"data":tempAggrData.to_dict(), "timestep":timestep}))
     
