@@ -22,7 +22,7 @@ def getColumns(dfName: pd.DataFrame):
     typeDF = pd.concat([indexDF, typeDF])
     print(typeDF.to_json(orient="records", default_handler=str))
 
-def getShape(dfName: pd.DataFrame):    
+def getShape(dfName: pd.DataFrame): 
     print(dfName.shape)
 
 def getVariableNamesInPythonStr(codeString: str):
@@ -246,6 +246,15 @@ def getQuantMeta(colData: pd.Series):
 
     return statistics
 
+def getTemporalMeta(colData: pd.Series):
+    if colData.is_monotonic_increasing:
+        result = "ascending"
+    elif colData.is_monotonic_decreasing:
+        result = "descending"
+    else:
+        result = "noSort"
+    return {"sortedness": result}
+
 def getAggrData(dfName: pd.DataFrame, catColName: str, quantColName: str, aggrType: str="mean", n=10):
     if aggrType == "mean":
         aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].mean().sort_values(ascending=False)[:n]
@@ -295,12 +304,3 @@ def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, a
         tempAggrData = groups.max()
     print(json.dumps({"data":tempAggrData.to_dict(),"timestep":timestep}))
     
-def getTemporalMeta(colData: pd.Series):
-    if colData.is_monotonic_increasing:
-        result = "ascending"
-    elif colData.is_monotonic_decreasing:
-        result = "descending"
-        
-    else:
-        result = "noSort"
-    return {"sortedness": result}
