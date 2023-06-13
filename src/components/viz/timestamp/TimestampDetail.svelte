@@ -220,7 +220,6 @@
     let yExtents = extent(data, d => d[yAccessor]);
     $: yExtents = extent(data, d => d[yAccessor]);
     const yMax = createExtremumResolutionStore(Math.max(5, yExtents[1]));
-    console.log(yExtents);
     // Set Y if there's a new yMax or the range changes.
     $: Y.set(
         scaleLinear()

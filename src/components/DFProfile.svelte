@@ -28,8 +28,6 @@
 
     const profileModel: ProfileModel = getContext('autoprofiler:profileModel');
 
-    $: setContext('variableFilterCondition', {});
-
     // locals
     $: warningMessage = _.isEmpty(dataframeProfile.warnings)
         ? ''
