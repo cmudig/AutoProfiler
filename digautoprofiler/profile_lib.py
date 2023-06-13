@@ -256,21 +256,12 @@ def getTemporalMeta(colData: pd.Series):
     return {"sortedness": result}
 
 def getAggrData(dfName: pd.DataFrame, catColName: str, quantColName: str, aggrType: str="mean", n=10):
-    if aggrType == "mean":
-        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].mean().sort_values(ascending=False)[:n]
-    if aggrType == "count":
-        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].count().sort_values(ascending=False)[:n]
-    if aggrType == "sum":
-        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].sum().sort_values(ascending=False)[:n]
-    if aggrType == "min":
-        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].min().sort_values(ascending=False)[:n]
-    if aggrType == "max":
-        aggrData = dfName[[catColName,quantColName]].groupby(catColName)[quantColName].max().sort_values(ascending=False)[:n]
+    """ aggrType is one of ["mean", "sum", "count", "min", "max"] """
+    aggrData = dfName.groupby(catColName).agg({quantColName: aggrType})[quantColName].sort_values(ascending=False)[:n]
     print(aggrData.to_json())
     
 
 def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, aggrType: str="count", **kwargs): 
-
     binNum = min(round(1 + 3.322 * math.log10(len(dfName))),20)
     offsetAliases = ['Y','M','W','D','H','T','S']
     i = 0

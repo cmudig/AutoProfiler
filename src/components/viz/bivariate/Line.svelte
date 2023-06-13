@@ -3,7 +3,6 @@
 
     const { data, xGet, yGet, extents } = getContext('LayerCake');
 
-
     export let stroke = '#00bbff';
 
     $: path =

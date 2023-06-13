@@ -21,16 +21,16 @@
 
     /** @type {Function} [formatTick=d => d] - A function that passes the current tick value and expects a nicely formatted value in return. */
     export let formatTick = function (d) {
-            if (typeof d === 'number' && String(d).length > 6) {
-                return (
-                    (d / 10 ** (String(d).length - 1)).toFixed(2) +
-                    'e' +
-                    (String(d).length - 1)
-                );
-            } else {
-                return d;
-            }
-        };
+        if (typeof d === 'number' && String(d).length > 6) {
+            return (
+                (d / 10 ** (String(d).length - 1)).toFixed(2) +
+                'e' +
+                (String(d).length - 1)
+            );
+        } else {
+            return d;
+        }
+    };
 
     /** @type {Number|Array|Function} [ticks] - If this is a number, it passes that along to the [d3Scale.ticks](https://github.com/d3/d3-scale) function. If this is an array, hardcodes the ticks to those values. If it's a function, passes along the default tick values and expects an array of tick values in return. If nothing, it uses the default ticks supplied by the D3 function. */
     export let ticks = undefined;
@@ -78,12 +78,11 @@
             {/if}
             <text
                 x={0}
-                y={yTick+8}
+                y={yTick + 8}
                 dx=""
                 dy=""
                 text-anchor={textAnchor(i)}
-                style={`transform:rotate(-45deg)`}
-                >{formatTick(tick)}</text
+                style={`transform:rotate(-45deg)`}>{formatTick(tick)}</text
             >
         </g>
     {/each}
