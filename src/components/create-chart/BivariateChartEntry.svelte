@@ -39,7 +39,9 @@
 <ColumnEntry hideRight={true} bind:active hoverKey={title} dfName={''}>
     <svelte:fragment slot="icon">
         <Tooltip location="left" distance={16}>
-            <BivariateIcon size="16px" />
+            <div class="text-gray-400">
+                <BivariateIcon size="16px" />
+            </div>
 
             <TooltipContent slot="tooltip-content">
                 Bivariate chart
@@ -55,7 +57,7 @@
         {#if active}
             <div
                 transition:slide|local={{ duration: 200 }}
-                class="pt-1 pb-1 pl-2 pr-2 w-full"
+                class="pt-1 pb-1 pl-3 pr-3 w-full"
             >
                 {#if biData.data.length !== 0}
                     {#if biData.chartType === 'histogram'}

@@ -1,7 +1,22 @@
 <script>
     export let size = '1em';
-    export let color = '#9ca3af';
+    export let color = 'currentColor';
 </script>
+
+<!-- <svg
+    height={size}
+    width={size}
+    viewBox="0 0 25 25"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+>
+    <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M13 2H17V20H13V2ZM12 8H8V20H12V8ZM3 11H7V20H3V11ZM22 22H3V21H22V22ZM22 6H18V20H22V6Z"
+        fill={color}
+    />
+</svg> -->
 
 <svg
     viewBox="0 -100 1024 1024"

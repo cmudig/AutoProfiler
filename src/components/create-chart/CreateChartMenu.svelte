@@ -6,7 +6,6 @@
     import Tooltip from '../tooltip/Tooltip.svelte';
     import TooltipContent from '../tooltip/TooltipContent.svelte';
     import DropdownMenu from './DropdownMenu.svelte';
-    import Done from '../icons/Done.svelte';
     import Cancel from '../icons/Cancel.svelte';
     import _ from 'lodash';
 
@@ -79,7 +78,7 @@
                 xVariable = event?.detail;
             }}
             clickable={true}
-            title={'Select 1st column'}
+            title={'First column'}
         />
 
         <DropdownMenu
@@ -90,14 +89,14 @@
             }}
             clickable={!_.isNil(xVariable)}
             filteringColumn={xVariable}
-            title={'Select 2nd column'}
+            title={'Second column'}
         />
         <button
+            class="flex rounded border border-6 enabled:bg-gray-100 hover:border-gray-300 disabled:opacity-70 pl-1 pr-1"
             disabled={_.isNil(xVariable) || _.isNil(yVariable)}
-            class="flex rounded border border-6 bg-gray-100 hover:border-gray-300"
             on:click={createChart}
         >
-            {'Done '}<Done />
+            Done
         </button>
     </div>
 </div>

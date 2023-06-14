@@ -78,7 +78,7 @@
 
 <div class="bivariate-menu">
     <select
-        class="rounded border border-6 bg-gray-100 hover:border-gray-300"
+        class="rounded border border-6 bg-gray-100 hover:border-gray-300 pl-1 pr-1"
         bind:value={selectedColumnName}
         disabled={!clickable}
     >

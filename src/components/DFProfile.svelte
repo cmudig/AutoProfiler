@@ -217,13 +217,11 @@
                 <div class="mt-1">
                     <!-- Either show the add short button or create menu -->
                     {#if showAddChartButton}
-                        <div class="ml-2">
-                            <AddChartButton
-                                handleToggle={() => {
-                                    showAddChartButton = !showAddChartButton;
-                                }}
-                            />
-                        </div>
+                        <AddChartButton
+                            handleToggle={() => {
+                                showAddChartButton = !showAddChartButton;
+                            }}
+                        />
                     {:else}
                         <div class="pl-1 pr-1">
                             <CreateChartMenu

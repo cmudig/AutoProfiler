@@ -13,7 +13,7 @@
 
 <div class="layercake-chart fill-red-300 ">
     <LayerCake
-        padding={{ top: 20, bottom: 60, left: 75, right: 0 }}
+        padding={{ left: 75, bottom: 35 }}
         x={'period'}
         y={'value'}
         xScale={scaleBand().paddingInner([0.05])}
@@ -23,7 +23,7 @@
         <Svg>
             <Line stroke={'#f16161'} />
             <Area fill={'#f7d5d5'} />
-            <AxisX {xLabel} />
+            <AxisX {xLabel} gridlines={false} />
             <AxisY {yLabel} gridlines={false} />
         </Svg>
     </LayerCake>
@@ -32,6 +32,6 @@
 <style>
     .layercake-chart {
         width: 100%;
-        height: 217px;
+        height: 200px;
     }
 </style>
