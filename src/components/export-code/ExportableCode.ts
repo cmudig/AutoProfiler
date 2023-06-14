@@ -54,6 +54,69 @@ outliers_iqr = ${df_name}[(${df_name}${col_stmt} < lower) | (${df_name}${col_stm
 no_outliers_iqr= ${df_name}[(${df_name}${col_stmt} >= lower) & (${df_name}${col_stmt} <= upper)]`;
 }
 
+export const HAMPEL_OUTLIERS = (
+    df_name: string,
+    col_name: string,
+    isIndex: boolean,
+) => {
+    return `${TEXT_EXPORTS}
+def get_hampel_outlier(dfName,colName,k=7,alpha=1.4826,sd=3):
+    """
+    alpha = 1.4826 (gaussian)
+    k = window size
+    """
+    import numpy as np
+    
+    # create new data frame with value counts of timestamp
+    col_count = dfName[colName].value_counts().reset_index()
+    col_count.columns = ["Timestamp", "Count"]
+    col_count = col_count.sort_values(by=["Timestamp"])
+    
+    counts = col_count["Count"]
+    
+    window_median = counts.rolling(window=k, center=True).median() # for each window calculate the median count
+    MAD = lambda x: np.median(np.abs(x - np.median(x))) # MAD is calculated by taking the median(|point - median(window)|)
+    window_MAD = counts.rolling(window=k, center=True).apply(MAD)
+    threshold =sd * alpha * window_MAD 
+    outlier = np.abs(counts - window_median) > threshold
+    outlier_idx = outlier[outlier].index.tolist()
+
+    dt_out = list(col_count[col_count.index.isin(outlier_idx)]["Timestamp"])
+    datetime_outliers = dfName.loc[dfName[colName].isin(dt_out)] # rows in dataframe that are a timeseries point outlier with respect to count
+    dt = col_count[col_count.index.isin(outlier_idx)] # timestamps that have timeseries outlier with respect to count
+    
+    return datetime_outliers,dt,col_count
+
+hampel_output = get_hampel_outlier(${df_name},"${col_name}",k=7,alpha=1.4826,sd=3)
+
+def get_outlier_chart(col_count,dt):
+    import altair as alt
+    
+    # temporal chart 
+    temporal_chart = alt.Chart(col_count).mark_line(color="#14b8a6").encode(
+        x=alt.X("Timestamp:T", axis=alt.Axis(labels=True,title="Time")),  
+        y="Count"
+    ).properties(
+        width=500,
+        height=200
+    )
+    
+    # plot of outliers
+    outlier_points = alt.Chart(dt.reset_index()).mark_circle(color="red").encode(
+        x="Timestamp:T",
+        y="Count",
+        tooltip=["Timestamp","Count"]
+
+    ).properties(
+        width=500,
+        height=200
+    ).interactive()
+
+    return temporal_chart + outlier_points
+datetime_outliers = hampel_output[0]
+get_outlier_chart(hampel_output[2],hampel_output[1])`;
+}
+
 
 export const DUPLICATES = (
     df_name: string,

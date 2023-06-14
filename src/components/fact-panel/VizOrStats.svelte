@@ -141,7 +141,11 @@
                         rows={totalRows - nullCount}
                     />
                 {:else if isTemporalSummary(summary) && validatedChartType === 'temporal'}
-                    <TempFacts facts={summary.temporalMeta} />
+                    <TempFacts 
+                        {dfName}
+                        {colName}
+                        {isIndex}
+                        facts={summary.temporalMeta} />
                 {:else}
                     <p class="text-gray-600">No summary available.</p>
                 {/if}

@@ -111,6 +111,7 @@ export type IStringMeta = {
 
 export type ITemporalMeta = {
     sortedness: string;
+    num_outliers: number;
 }
 
 export type TimeBin = {
