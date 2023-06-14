@@ -10,17 +10,22 @@
     export let biData: IBivariateData;
     export let allowEdit = false;
 
-    $: xLabel = biData.xColumn.colName;
-    $: yLabel = biData.yColumn.colName;
-
     const dispatch = createEventDispatcher();
 </script>
 
 {#if biData.data.length !== 0}
     {#if biData.chartType === 'histogram'}
-        <BiHistogram data={biData.data} xLabel={yLabel} yLabel={xLabel} />
+        <BiHistogram
+            data={biData.data}
+            xLabel={`${biData.yColumn.colName} (${biData.aggrType})`}
+            yLabel={biData.xColumn.colName}
+        />
     {:else if biData.chartType === 'linechart'}
-        <BiLine data={biData.data} {xLabel} {yLabel} />
+        <BiLine
+            data={biData.data}
+            xLabel={biData.xColumn.colName}
+            yLabel={`${biData.yColumn.colName} (${biData.aggrType})`}
+        />
     {/if}
 
     {#if allowEdit}
