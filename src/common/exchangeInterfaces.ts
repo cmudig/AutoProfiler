@@ -167,7 +167,6 @@ export type AggrType = "count" | "mean" | "sum" | "min" | "max";
 
 type BivariateDataBase = {
     aggrType: AggrType;
-    timeOffset: TimeOffset;
     xColumn: IColTypeTuple;
     yColumn: IColTypeTuple;
     filledOut: boolean;

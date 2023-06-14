@@ -49,13 +49,7 @@
 
     function handleAggrChange(aggrType: AggrType) {
         profileModel
-            .getBivariateData(
-                dfName,
-                biData.xColumn,
-                biData.yColumn,
-                undefined,
-                aggrType
-            )
+            .getBivariateData(dfName, biData.xColumn, biData.yColumn, aggrType)
             .then(d => {
                 if (!_.isNil(d)) {
                     biData = d;
@@ -66,7 +60,7 @@
 
     function handleColumnEdit(col1: IColTypeTuple, col2: IColTypeTuple) {
         profileModel
-            .getBivariateData(dfName, col1, col2, undefined, biData.aggrType)
+            .getBivariateData(dfName, col1, col2, biData.aggrType)
             .then(d => {
                 if (!_.isNil(d)) {
                     biData = d;

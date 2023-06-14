@@ -69,7 +69,6 @@
                 dfName,
                 d.xColumn,
                 d.yColumn,
-                d.timeOffset,
                 d.aggrType
             );
         });
@@ -84,7 +83,6 @@
             let emptyChart: IBivariateData = {
                 xColumn: undefined,
                 yColumn: undefined,
-                timeOffset: undefined,
                 aggrType: undefined,
                 data: undefined,
                 chartType: undefined,

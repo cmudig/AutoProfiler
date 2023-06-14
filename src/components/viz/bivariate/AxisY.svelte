@@ -46,9 +46,6 @@
     /** @type {Number} [dyTick=-4] - Any optional value passed to the `dy` attribute on the text marker and tick mark (if visible). This is ignored on the text marker if your scale is ordinal. */
     export let dyTick = -4;
 
-    /** @type {String} [textAnchor='start'] The CSS `text-anchor` passed to the label. This is automatically set to "end" if the scale has a bandwidth method, like in ordinal scales. */
-    export let textAnchor = 'start';
-
     export let yLabel;
 
     $: isBandwidth = typeof $yScale.bandwidth === 'function';

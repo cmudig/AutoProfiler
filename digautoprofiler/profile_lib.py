@@ -263,7 +263,7 @@ def getAggrData(dfName: pd.DataFrame, catColName: str, quantColName: str, aggrTy
     print(aggrData.to_json())
     
 
-def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, aggrType: str="count", **kwargs): 
+def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, aggrType: str="count"): 
     """
     timestep kwarg must be one of ["Y","M","W","D","H","T","S"]
     """
@@ -281,11 +281,6 @@ def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, a
         timestep = offsetAliases[max(i - 2,0)]
     else:
         timestep = offsetAliases[max(i - 1,0)]
-    
-    if "timestep" in kwargs:
-        given_timestep = kwargs.get("timestep")
-        if offsetAliases.index(given_timestep) < offsetAliases.index(timestep):
-            timestep = given_timestep
     
     indices = dfName[tempColName].dt.to_period(timestep).astype('string')
     groups = pd.Series(dfName[quantColName].tolist(),index=indices).groupby(level=0)

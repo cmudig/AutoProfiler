@@ -10,7 +10,6 @@ import type {
     IDFProfileWState,
     IColTypeTuple,
     AggrType,
-    TimeOffset,
     IBivariateData
 } from '../common/exchangeInterfaces';
 import {
@@ -315,7 +314,6 @@ export class ProfileModel {
         dfName: string,
         col1: IColTypeTuple,
         col2: IColTypeTuple,
-        timestep: TimeOffset,
         aggrType: AggrType = "mean",
     ): Promise<IBivariateData> {
         let aggrData: IBivariateData;
@@ -325,7 +323,6 @@ export class ProfileModel {
                 aggrData = {
                     chartType: 'histogram',
                     aggrType: aggrType,
-                    timeOffset: timestep,
                     xColumn: col1,
                     yColumn: col2,
                     data: await this.executor.getAggrData(dfName, col1.colName, col2.colName, aggrType),
@@ -336,7 +333,6 @@ export class ProfileModel {
                 aggrData = {
                     chartType: 'histogram',
                     aggrType: aggrType,
-                    timeOffset: timestep,
                     xColumn: col2,
                     yColumn: col1,
                     data: await this.executor.getAggrData(dfName, col2.colName, col1.colName, aggrType),
@@ -344,26 +340,24 @@ export class ProfileModel {
                 };
             }
             else if (TIMESTAMPS.has(col1.colType) && NUMERICS.has(col2.colType)) {
-                let timestampData = await this.executor.getTempAggrData(dfName, col1.colName, col2.colName, aggrType, timestep);
+                let timestampData = await this.executor.getTempAggrData(dfName, col1.colName, col2.colName, aggrType);
                 aggrData = {
                     chartType: 'linechart',
                     aggrType: aggrType,
-                    timeOffset: timestampData["timestep"],
                     xColumn: col1,
                     yColumn: col2,
-                    data: timestampData["data"],
+                    data: timestampData.data,
                     filledOut: true
                 };
             }
             else if (TIMESTAMPS.has(col2.colType) && NUMERICS.has(col1.colType)) {
-                let timestampData = await this.executor.getTempAggrData(dfName, col2.colType, col1.colName, aggrType, timestep);
+                let timestampData = await this.executor.getTempAggrData(dfName, col2.colType, col1.colName, aggrType);
                 aggrData = {
                     chartType: 'linechart',
                     aggrType: aggrType,
-                    timeOffset: timestampData["timestep"],
                     xColumn: col2,
                     yColumn: col1,
-                    data: timestampData["data"],
+                    data: timestampData.data,
                     filledOut: true
                 };
             }
@@ -371,7 +365,6 @@ export class ProfileModel {
             aggrData = {
                 chartType: undefined,
                 aggrType: aggrType,
-                timeOffset: timestep,
                 xColumn: col1,
                 yColumn: col2,
                 data: undefined,

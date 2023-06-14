@@ -530,15 +530,8 @@ export class PythonPandasExecutor {
         tempColName: string,
         quantColName: string,
         aggrType: string,
-        timestep?: string,
     ): Promise<BivariateTimestampInfo> {
-        let code: string;
-        if (_.isUndefined(timestep)) {
-            code = `digautoprofiler.getTempAggrData(${dfName}, "${replaceSpecial(tempColName)}", "${replaceSpecial(quantColName)}", "${aggrType}")`;
-        }
-        else {
-            code = `digautoprofiler.getTempAggrData(${dfName}, "${replaceSpecial(tempColName)}", "${replaceSpecial(quantColName)}", "${aggrType}", timestep = "${timestep}")`;
-        }
+        let code = `digautoprofiler.getTempAggrData(${dfName}, "${replaceSpecial(tempColName)}", "${replaceSpecial(quantColName)}", "${aggrType}")`;
         try {
             const res = await this.executePythonAP(code);
             const content = res['content'];
