@@ -17,13 +17,13 @@
 
     function determineGroup(column: IColTypeTuple) {
         if (NUMERICS.has(column.colType)) {
-            return 'NUMERICS';
+            return 'Numeric';
         } else if (TIMESTAMPS.has(column.colType)) {
-            return 'TIMESTAMPS';
+            return 'Timestamp';
         } else if (CATEGORICALS.has(column.colType)) {
-            return 'CATEGORICALS';
+            return 'Categorical';
         } else {
-            return 'OTHERS';
+            return 'Other';
         }
     }
 

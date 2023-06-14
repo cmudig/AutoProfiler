@@ -19,6 +19,11 @@
     let xVariable: IColTypeTuple;
     let yVariable: IColTypeTuple;
 
+    // don't allow index columns to be used
+    $: validColumns = columnOptions.filter(
+        column => column.colName != '' && !column.colIsIndex
+    );
+
     function createChart() {
         if (!_.isNil(xVariable) && !_.isNil(yVariable)) {
             console.log(
@@ -27,26 +32,9 @@
                 ' and y ',
                 yVariable
             );
-            // avoid generating charts of same x and y variables
-            // let duplicated = false;
-            // for (let i = 0; i < xVariables.length; i++) {
-            //     if (
-            //         (xVariable === xVariables[i] &&
-            //             yVariable === yVariables[i]) ||
-            //         (yVariable === xVariables[i] && xVariable === yVariables[i])
-            //     ) {
-            //         duplicated = true;
-            //     }
-            // }
-
             createChartFunc(xVariable, yVariable);
         }
     }
-
-    $: console.log(
-        'Done is disabled: ',
-        _.isNil(xVariable) || _.isNil(yVariable)
-    );
 </script>
 
 <div
@@ -72,7 +60,7 @@
 
     <div class="flex w-full gap-2 items-center">
         <DropdownMenu
-            {columnOptions}
+            columnOptions={validColumns}
             on:select={event => {
                 console.log('setting xVariable: ', event.detail);
                 xVariable = event?.detail;
@@ -82,7 +70,7 @@
         />
 
         <DropdownMenu
-            {columnOptions}
+            columnOptions={validColumns}
             on:select={event => {
                 console.log('setting yVariable: ', event.detail);
                 yVariable = event?.detail;
