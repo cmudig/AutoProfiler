@@ -166,26 +166,26 @@
         <p>No notebook connection or executions yet.</p>
     {/if}
 
-    <div class="mt-auto pt-4 w-full">
+    <div class="mt-auto pt-4 w-full flex gap-1 items-center">
+        <span class="text-gray-500 grid place-items-center">
+            <AlertIcon size="14px" />
+        </span>
         <div>
-            <span class="text-gray-500 footerItem">
-                <AlertIcon size="14px" />
-            </span>
-            <span class="footerItem"> We want your </span>
+            Submit your
             <a
-                class="feedbackLink footerItem"
+                class="feedbackLink"
                 href="https://forms.gle/V3ejpXxMcQXqYJG48"
                 target="_blank"
             >
                 feedback
             </a>
-            <span class="footerItem"> or </span>
+            or
             <a
-                class="feedbackLink footerItem"
+                class="feedbackLink"
                 href="https://github.com/cmudig/AutoProfiler/issues"
                 target="_blank"
             >
-                create an issue!
+                create an issue.
             </a>
         </div>
     </div>
@@ -227,10 +227,5 @@
     .feedbackLink {
         @apply font-semibold;
         color: #616161;
-    }
-
-    .footerItem {
-        @apply inline-block;
-        @apply align-middle;
     }
 </style>
