@@ -14,7 +14,22 @@
     export let tickMarks = false;
 
     /** @type {Function} [formatTick=d => d] - A function that passes the current tick value and expects a nicely formatted value in return. */
-    export let formatTick = d => (d.length > 8 ? d.slice(0, 7) + '...' : d);
+    // export let formatTick = d => (d.length > 8 ? d.slice(0, 7) + '...' : d);
+
+    function formatTick(d) {
+        if (typeof d === 'number' && String(d).length > 8) {
+            let s =
+                (d / 10 ** (String(d).length - 1)).toFixed(2) +
+                'e' +
+                (String(d).length - 1);
+
+            return s;
+        } else if (d.length > 8) {
+            return d.slice(0, 7) + '...';
+        } else {
+            return d;
+        }
+    }
 
     /** @type {Number|Array|Function} [ticks=4] - If this is a number, it passes that along to the [d3Scale.ticks](https://github.com/d3/d3-scale) function. If this is an array, hardcodes the ticks to those values. If it's a function, passes along the default tick values and expects an array of tick values in return. */
     export let ticks = 4;
