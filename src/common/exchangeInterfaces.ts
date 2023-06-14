@@ -170,6 +170,7 @@ type BivariateDataBase = {
     timeOffset: TimeOffset;
     xColumn: IColTypeTuple;
     yColumn: IColTypeTuple;
+    filledOut: boolean;
 }
 
 export type IBivariateHistogramData = BivariateDataBase & {

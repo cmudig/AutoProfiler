@@ -1,90 +1,110 @@
 <script lang="ts">
+    import _ from 'lodash';
     import type {
-        ColumnProfileData,
-        IColTypeTuple
+        IColTypeTuple,
+        AggrType
     } from '../../common/exchangeInterfaces';
     import Tooltip from '../tooltip/Tooltip.svelte';
     import TooltipContent from '../tooltip/TooltipContent.svelte';
     import DropdownMenu from './DropdownMenu.svelte';
-    import Cancel from '../icons/Cancel.svelte';
-    import _ from 'lodash';
+    import Done from '../icons/Done.svelte';
+    import Delete from '../icons/Delete.svelte';
+    import { createEventDispatcher } from 'svelte';
 
-    export let showAddChartButton: boolean;
-    export let columnOptions: ColumnProfileData[];
-    export let createChartFunc: (
-        xVariable: IColTypeTuple,
-        yVariable: IColTypeTuple
-    ) => void;
-
-    let xVariable: IColTypeTuple;
-    let yVariable: IColTypeTuple;
+    export let inEditMode: boolean;
+    export let columnOptions: IColTypeTuple[];
+    export let aggrType: AggrType = 'mean';
+    export let xVariable: IColTypeTuple;
+    export let yVariable: IColTypeTuple;
 
     // don't allow index columns to be used
     $: validColumns = columnOptions.filter(
         column => column.colName != '' && !column.colIsIndex
     );
 
-    function createChart() {
+    const dispatch = createEventDispatcher();
+
+    function dispatchColumnUpdate() {
         if (!_.isNil(xVariable) && !_.isNil(yVariable)) {
-            console.log(
-                'creating chart with x ',
-                xVariable,
-                ' and y ',
-                yVariable
-            );
-            createChartFunc(xVariable, yVariable);
+            dispatch('columnEdit', {
+                xVariable: xVariable,
+                yVariable: yVariable
+            });
         }
     }
 </script>
 
 <div
-    class="flex flex-col pl-3 pr-3 pt-2 pb-2 rounded bg-gray-50 border border-gray-100"
+    class="flex flex-col gap-1 pl-2 pr-2 pt-2 pb-1 rounded bg-gray-50 border border-gray-200"
 >
-    <div class="flex w-full pb-2" style="width:100%">
-        <span class="grow font-bold">Add new chart</span>
-        <div class="pl-2">
-            <Tooltip location="right" alignment="center" distance={8}>
-                <button
-                    class="grid place-items-center rounded hover:bg-gray-100 text-gray-400"
-                    style="width: 16px; height: 16px;"
-                    on:click={() => {
-                        showAddChartButton = !showAddChartButton;
-                    }}
-                >
-                    <Cancel size="16px" />
-                </button>
-                <TooltipContent slot="tooltip-content">Cancel</TooltipContent>
-            </Tooltip>
-        </div>
-    </div>
-
-    <div class="flex w-full gap-2 items-center">
+    <div class="flex gap-1 items-center">
         <DropdownMenu
+            selectedColumnName={xVariable?.colName}
             columnOptions={validColumns}
             on:select={event => {
-                console.log('setting xVariable: ', event.detail);
                 xVariable = event?.detail;
+                dispatchColumnUpdate();
             }}
             clickable={true}
-            title={'First column'}
+            title={'Column one'}
         />
 
         <DropdownMenu
+            selectedColumnName={yVariable?.colName}
             columnOptions={validColumns}
             on:select={event => {
-                console.log('setting yVariable: ', event.detail);
                 yVariable = event?.detail;
+                dispatchColumnUpdate();
             }}
             clickable={!_.isNil(xVariable)}
             filteringColumn={xVariable}
-            title={'Second column'}
+            title={'Column two'}
         />
-        <button
-            class="flex rounded border border-6 enabled:bg-gray-100 hover:border-gray-300 pl-1 pr-1 disabled:opacity-70 disabled:cursor-not-allowed "
+
+        <select
+            class="rounded border border-6 bg-gray-100 hover:border-gray-300 disabled:cursor-not-allowed"
             disabled={_.isNil(xVariable) || _.isNil(yVariable)}
-            on:click={createChart}
+            bind:value={aggrType}
+            on:change={() => {
+                dispatch('aggrEdit', {
+                    aggrType: aggrType
+                });
+            }}
         >
-            Done
-        </button>
+            {#each ['count', 'mean', 'sum', 'min', 'max'] as typ}
+                <option value={typ}>{typ}</option>
+            {/each}
+        </select>
+    </div>
+
+    <div class="flex justify-end">
+        <!-- done editing -->
+        <Tooltip location="left" alignment="center" distance={8}>
+            <button
+                class="grid place-items-center rounded hover:bg-gray-100 text-gray-400 disabled:opacity-70 disabled:cursor-not-allowed"
+                style="width: 18px; height: 18px;"
+                on:click={() => {
+                    inEditMode = !inEditMode;
+                }}
+                disabled={_.isNil(xVariable) || _.isNil(yVariable)}
+            >
+                <Done size="14px" />
+            </button>
+            <TooltipContent slot="tooltip-content">Done</TooltipContent>
+        </Tooltip>
+
+        <!-- delete -->
+        <Tooltip location="left" alignment="center" distance={8}>
+            <button
+                class="grid place-items-center rounded hover:bg-gray-100 text-gray-400 disabled:opacity-70 disabled:cursor-not-allowed"
+                style="width: 18px; height: 18px;"
+                on:click={() => {
+                    dispatch('delete');
+                }}
+            >
+                <Delete size="14px" />
+            </button>
+            <TooltipContent slot="tooltip-content">Delete</TooltipContent>
+        </Tooltip>
     </div>
 </div>

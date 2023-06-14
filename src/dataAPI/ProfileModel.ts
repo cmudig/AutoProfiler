@@ -319,48 +319,66 @@ export class ProfileModel {
         aggrType: AggrType = "mean",
     ): Promise<IBivariateData> {
         let aggrData: IBivariateData;
-        if (CATEGORICALS.has(col1.colType) && NUMERICS.has(col2.colType)) {
+
+        if (!_.isNil(col1) && !_.isNil(col2)) {
+            if (CATEGORICALS.has(col1.colType) && NUMERICS.has(col2.colType)) {
+                aggrData = {
+                    chartType: 'histogram',
+                    aggrType: aggrType,
+                    timeOffset: timestep,
+                    xColumn: col1,
+                    yColumn: col2,
+                    data: await this.executor.getAggrData(dfName, col1.colName, col2.colName, aggrType),
+                    filledOut: true
+                };
+            }
+            else if (CATEGORICALS.has(col2.colType) && NUMERICS.has(col1.colType)) {
+                aggrData = {
+                    chartType: 'histogram',
+                    aggrType: aggrType,
+                    timeOffset: timestep,
+                    xColumn: col2,
+                    yColumn: col1,
+                    data: await this.executor.getAggrData(dfName, col2.colName, col1.colName, aggrType),
+                    filledOut: true
+                };
+            }
+            else if (TIMESTAMPS.has(col1.colType) && NUMERICS.has(col2.colType)) {
+                let timestampData = await this.executor.getTempAggrData(dfName, col1.colName, col2.colName, aggrType, timestep);
+                aggrData = {
+                    chartType: 'linechart',
+                    aggrType: aggrType,
+                    timeOffset: timestampData["timestep"],
+                    xColumn: col1,
+                    yColumn: col2,
+                    data: timestampData["data"],
+                    filledOut: true
+                };
+            }
+            else if (TIMESTAMPS.has(col2.colType) && NUMERICS.has(col1.colType)) {
+                let timestampData = await this.executor.getTempAggrData(dfName, col2.colType, col1.colName, aggrType, timestep);
+                aggrData = {
+                    chartType: 'linechart',
+                    aggrType: aggrType,
+                    timeOffset: timestampData["timestep"],
+                    xColumn: col2,
+                    yColumn: col1,
+                    data: timestampData["data"],
+                    filledOut: true
+                };
+            }
+        } else {
             aggrData = {
-                chartType: 'histogram',
+                chartType: undefined,
                 aggrType: aggrType,
                 timeOffset: timestep,
                 xColumn: col1,
                 yColumn: col2,
-                data: await this.executor.getAggrData(dfName, col1.colName, col2.colName, aggrType)
-            };
+                data: undefined,
+                filledOut: false
+            }
         }
-        else if (CATEGORICALS.has(col2.colType) && NUMERICS.has(col1.colType)) {
-            aggrData = {
-                chartType: 'histogram',
-                aggrType: aggrType,
-                timeOffset: timestep,
-                xColumn: col2,
-                yColumn: col1,
-                data: await this.executor.getAggrData(dfName, col2.colName, col1.colName, aggrType)
-            };
-        }
-        else if (TIMESTAMPS.has(col1.colType) && NUMERICS.has(col2.colType)) {
-            let timestampData = await this.executor.getTempAggrData(dfName, col1.colName, col2.colName, aggrType, timestep);
-            aggrData = {
-                chartType: 'linechart',
-                aggrType: aggrType,
-                timeOffset: timestampData["timestep"],
-                xColumn: col1,
-                yColumn: col2,
-                data: timestampData["data"]
-            };
-        }
-        else if (TIMESTAMPS.has(col2.colType) && NUMERICS.has(col1.colType)) {
-            let timestampData = await this.executor.getTempAggrData(dfName, col2.colType, col1.colName, aggrType, timestep);
-            aggrData = {
-                chartType: 'linechart',
-                aggrType: aggrType,
-                timeOffset: timestampData["timestep"],
-                xColumn: col2,
-                yColumn: col1,
-                data: timestampData["data"]
-            };
-        }
+
         return aggrData;
     }
 

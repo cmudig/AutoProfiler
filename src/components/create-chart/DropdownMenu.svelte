@@ -14,9 +14,9 @@
     export let filteringColumn: IColTypeTuple = undefined;
     export let clickable: boolean = true;
     export let title = 'Select a column';
+    export let selectedColumnName: string = undefined;
 
     let displayGroups: string[];
-    let selectedColumnName: string = undefined;
 
     function determineGroup(column: IColTypeTuple) {
         if (NUMERICS.has(column.colType)) {
@@ -76,19 +76,16 @@
         let selectedColumn = columnOptions.filter(
             colData => colData.colName === colName
         )[0];
-        console.log(
-            'selected column in dropdownMenu component',
-            selectedColumn
-        );
+
         dispatch('select', selectedColumn);
     }
 
     $: handleSelectedColumn(selectedColumnName);
 </script>
 
-<div class="bivariate-menu">
+<div>
     <select
-        class="rounded border border-6 bg-gray-100 hover:border-gray-300 pl-1 pr-1"
+        class="rounded border border-6 bg-gray-100 hover:border-gray-300 pl-1 pr-1 disabled:cursor-not-allowed"
         bind:value={selectedColumnName}
         disabled={!clickable}
     >
@@ -96,9 +93,7 @@
         {#each displayGroups as group}
             <optgroup label={group}>
                 {#each displayColumns[group] as column}
-                    <option style="max-width:100%" value={column.colName}
-                        >{column.colName}</option
-                    >
+                    <option value={column.colName}>{column.colName}</option>
                 {/each}
             </optgroup>
         {/each}

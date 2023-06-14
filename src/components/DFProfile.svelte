@@ -1,15 +1,11 @@
 <script lang="ts">
     import { createEventDispatcher, getContext } from 'svelte';
-    import { slide } from 'svelte/transition';
     import CollapsibleCard from './nav/CollapsibleCard.svelte';
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
     import type {
-        IColTypeTuple,
         IDFProfileWState,
-        IBivariateData,
-        TimeOffset,
-        AggrType
+        IBivariateData
     } from '../common/exchangeInterfaces';
     import type { ProfileModel } from '../dataAPI/ProfileModel';
     import _ from 'lodash';
@@ -18,9 +14,8 @@
     import TooltipContent from './tooltip/TooltipContent.svelte';
     import { formatInteger } from './utils/formatters';
 
-    import BivariateChartEntry from './create-chart/BivariateChartEntry.svelte';
     import AddChartButton from './create-chart/AddChartButton.svelte';
-    import CreateChartMenu from './create-chart/CreateChartMenu.svelte';
+    import BivariateWrapper from './create-chart/BivariateWrapper.svelte';
 
     export let dfName: string;
     export let dataframeProfile: IDFProfileWState;
@@ -40,8 +35,6 @@
     let headerHover = false;
 
     // Bivariate variables
-    let showAddChartButton = true;
-    // let biDataPromise: Promise<IBivariateData> = undefined;
     let biDataStorage: IBivariateData[] = [];
 
     // dispatches
@@ -57,46 +50,13 @@
         headerHover = event?.detail?.over;
     }
 
-    function handleAggrType(event, i: number) {
-        let aggrType: AggrType = event?.detail?.typ;
-        profileModel
-            .getBivariateData(
-                dfName,
-                biDataStorage[i].xColumn,
-                biDataStorage[i].yColumn,
-                biDataStorage[i].timeOffset,
-                aggrType
-            )
-            .then(biData => (biDataStorage[i] = biData));
-    }
-
-    function handleTimeOffset(event, i: number) {
-        let timeOffset: TimeOffset = event?.detail?.timeOffset;
-        profileModel
-            .getBivariateData(
-                dfName,
-                biDataStorage[i].xColumn,
-                biDataStorage[i].yColumn,
-                timeOffset,
-                biDataStorage[i].aggrType
-            )
-            .then(biData => (biDataStorage[i] = biData));
-    }
-
-    function createNewChart(col1: IColTypeTuple, col2: IColTypeTuple) {
-        profileModel
-            .getBivariateData(dfName, col1, col2, undefined, 'mean')
-            .then(d => {
-                if (!_.isNil(d)) {
-                    biDataStorage = [...biDataStorage, d];
-                }
-            });
-
-        showAddChartButton = !showAddChartButton;
-    }
-
     function handleDelete(i: number) {
         biDataStorage.splice(i, 1);
+        biDataStorage = biDataStorage; // for reactivity
+    }
+
+    function updateSpecState(newSpec: IBivariateData, index: number) {
+        biDataStorage[index] = newSpec;
         biDataStorage = biDataStorage; // for reactivity
     }
 
@@ -116,6 +76,23 @@
         Promise.all(biDataPromises).then(biDataArr => {
             biDataStorage = biDataArr;
         });
+    }
+
+    function addEmptyChart() {
+        // only add one empty chart at a time
+        if (_.isNil(biDataStorage.find(d => !d.filledOut))) {
+            let emptyChart: IBivariateData = {
+                xColumn: undefined,
+                yColumn: undefined,
+                timeOffset: undefined,
+                aggrType: undefined,
+                data: undefined,
+                chartType: undefined,
+                filledOut: false
+            };
+
+            biDataStorage = [...biDataStorage, emptyChart];
+        }
     }
 
     $: {
@@ -201,42 +178,21 @@
                 {/if}
 
                 {#each biDataStorage as d, idx}
-                    <BivariateChartEntry
+                    <BivariateWrapper
                         biData={d}
-                        xLabel={d.xColumn.colName}
-                        yLabel={d.yColumn.colName}
-                        timeOffset={d.timeOffset}
-                        aggrType={d.aggrType}
-                        on:selectAggrType={event => {
-                            handleAggrType(event, idx);
+                        columnOptions={dataframeProfile?.profile}
+                        {dfName}
+                        on:specChange={event => {
+                            updateSpecState(event.detail, idx);
                         }}
-                        on:selectTimeOffset={event => {
-                            handleTimeOffset(event, idx);
+                        on:delete={() => {
+                            handleDelete(idx);
                         }}
-                        on:delete={() => handleDelete(idx)}
                     />
                 {/each}
 
                 <div class="mt-1">
-                    <!-- Either show the add short button or create menu -->
-                    {#if showAddChartButton}
-                        <AddChartButton
-                            handleToggle={() => {
-                                showAddChartButton = !showAddChartButton;
-                            }}
-                        />
-                    {:else}
-                        <div
-                            transition:slide|local={{ duration: 200 }}
-                            class="pl-1 pr-1"
-                        >
-                            <CreateChartMenu
-                                bind:showAddChartButton
-                                columnOptions={dataframeProfile?.profile}
-                                createChartFunc={createNewChart}
-                            />
-                        </div>
-                    {/if}
+                    <AddChartButton handleAddChart={addEmptyChart} />
                 </div>
             </div>
         </div>
