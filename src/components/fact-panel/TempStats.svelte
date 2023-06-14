@@ -19,7 +19,8 @@
 
     <DisplayFact>
         <svelte:fragment slot="fact">
-            There are {facts?.num_outliers} time-series outliers with respect to count using the hampel identifier method.
+            There are {facts?.num_outliers} time-series outliers with respect to
+            count using the hampel identifier method.
         </svelte:fragment>
         <svelte:fragment slot="end">
             <ExportFactButton
@@ -27,7 +28,7 @@
                 {dfName}
                 {colName}
                 {isIndex}
-                tooltipText={'Export hampel outliers to code.'}
+                tooltipText={'Export time-series outliers to code.'}
             />
         </svelte:fragment>
     </DisplayFact>

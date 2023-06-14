@@ -61,9 +61,11 @@ export const HAMPEL_OUTLIERS = (
 ) => {
     return `${TEXT_EXPORTS}
 def get_hampel_outlier(dfName,colName,k=7,alpha=1.4826,sd=3):
+    """
+    alpha = 1.4826 (gaussian)
+    k = window size
+    """
     import numpy as np
-    # alpha = 1.4826 (gaussian)
-    # k = window size
     
     # create new data frame with value counts of timestamp
     col_count = dfName[colName].value_counts().reset_index()

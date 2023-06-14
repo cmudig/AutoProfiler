@@ -5,9 +5,18 @@
     import Tooltip from '../tooltip/Tooltip.svelte';
     import TooltipContent from '../tooltip/TooltipContent.svelte';
 
-    import { DUPLICATES, IQR_OUTLIERS, HAMPEL_OUTLIERS, SD_OUTLIERS } from './ExportableCode';
+    import {
+        DUPLICATES,
+        IQR_OUTLIERS,
+        HAMPEL_OUTLIERS,
+        SD_OUTLIERS
+    } from './ExportableCode';
 
-    export let type: 'outliers_iqr' | 'outliers_sd' | 'outlier_hampel' | 'duplicates' ;
+    export let type:
+        | 'outliers_iqr'
+        | 'outliers_sd'
+        | 'outlier_hampel'
+        | 'duplicates';
     export let dfName: string;
     export let colName: string;
     export let isIndex = false;
