@@ -5,6 +5,7 @@
 <script>
     import { floor } from 'lodash';
     import { getContext } from 'svelte';
+    import { writable } from 'svelte/store';
     const { width, height, xScale, yRange } = getContext('LayerCake');
 
     /** @type {Boolean} [gridlines=true] - Extend lines from the ticks into the chart space */
@@ -20,17 +21,22 @@
     export let snapTicks = false;
 
     /** @type {Function} [formatTick=d => d] - A function that passes the current tick value and expects a nicely formatted value in return. */
-    export let formatTick = function (d) {
+
+    let maxTickLength = writable(0);
+
+    function formatTick(d) {
         if (typeof d === 'number' && String(d).length > 6) {
-            return (
+            let s =
                 (d / 10 ** (String(d).length - 1)).toFixed(2) +
                 'e' +
-                (String(d).length - 1)
-            );
+                (String(d).length - 1);
+            $maxTickLength = Math.max($maxTickLength, String(s).length);
+            return s;
         } else {
+            $maxTickLength = Math.max($maxTickLength, String(d).length);
             return d;
         }
-    };
+    }
 
     /** @type {Number|Array|Function} [ticks] - If this is a number, it passes that along to the [d3Scale.ticks](https://github.com/d3/d3-scale) function. If this is an array, hardcodes the ticks to those values. If it's a function, passes along the default tick values and expects an array of tick values in return. If nothing, it uses the default ticks supplied by the D3 function. */
     export let ticks = undefined;
@@ -39,7 +45,7 @@
     export let xTick = 0;
 
     /** @type {Number} [yTick=16] - The distance from the baseline to place each tick value. */
-    export let yTick = 16;
+    export let yTick = 4;
 
     export let xLabel;
 
@@ -55,6 +61,11 @@
 
     function textAnchor(i) {
         return 'end';
+    }
+
+    $: {
+        ticks;
+        $maxTickLength = 0;
     }
 </script>
 
@@ -90,7 +101,7 @@
         class="tick"
         transform="translate({$xScale(
             tickVals[Math.floor(tickVals.length / 2)]
-        )},{Math.max(...$yRange) + 10})"
+        )},{Math.max(...$yRange) + $maxTickLength * 3 + 20})"
     >
         <text class="text xLabel">{xLabel}</text>
     </g>

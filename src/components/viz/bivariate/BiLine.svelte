@@ -23,7 +23,7 @@
         <Svg>
             <Line stroke={'#f16161'} />
             <Area fill={'#f7d5d5'} />
-            <AxisX {xLabel} gridlines={false} />
+            <AxisX {xLabel} />
             <AxisY {yLabel} gridlines={false} />
         </Svg>
     </LayerCake>

@@ -77,8 +77,17 @@
                 y={yTick + (isBandwidth ? $yScale.bandwidth() / 2 : 0)}
                 dx={isBandwidth ? -9 : dxTick}
                 dy={isBandwidth ? 4 : dyTick}
-                style="text-anchor:end">{formatTick(tick)}</text
+                style="text-anchor:end"
+                >{formatTick(tick)}
+            </text>
+            <title
+                x={xTick}
+                y={yTick + (isBandwidth ? $yScale.bandwidth() / 2 : 0)}
+                dx={isBandwidth ? -9 : dxTick}
+                dy={isBandwidth ? 4 : dyTick}
             >
+                {tick}
+            </title>
         </g>
     {/each}
     <g

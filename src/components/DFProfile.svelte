@@ -1,6 +1,7 @@
 <script lang="ts">
+    import { createEventDispatcher, getContext } from 'svelte';
+    import { slide } from 'svelte/transition';
     import CollapsibleCard from './nav/CollapsibleCard.svelte';
-    import { createEventDispatcher, getContext, setContext } from 'svelte';
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
     import type {
@@ -84,7 +85,7 @@
 
     function createNewChart(col1: IColTypeTuple, col2: IColTypeTuple) {
         profileModel
-            .getBivariateData(dfName, col1, col2, undefined, 'count')
+            .getBivariateData(dfName, col1, col2, undefined, 'mean')
             .then(d => {
                 biDataStorage = [...biDataStorage, d];
             });
@@ -223,7 +224,10 @@
                             }}
                         />
                     {:else}
-                        <div class="pl-1 pr-1">
+                        <div
+                            transition:slide|local={{ duration: 200 }}
+                            class="pl-1 pr-1"
+                        >
                             <CreateChartMenu
                                 bind:showAddChartButton
                                 columnOptions={dataframeProfile?.profile}

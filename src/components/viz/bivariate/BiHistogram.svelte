@@ -29,7 +29,7 @@
     >
         <Svg>
             <Bar fill={'#fca5a5'} />
-            <AxisX {xLabel} gridlines={false} />
+            <AxisX {xLabel} />
             <AxisY {yLabel} gridlines={false} />
         </Svg>
     </LayerCake>
