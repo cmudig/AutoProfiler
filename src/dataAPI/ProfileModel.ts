@@ -8,7 +8,9 @@ import type {
     IDFProfileWStateMap,
     ColumnProfileData,
     IDFProfileWState,
-    IColTypeTuple
+    IColTypeTuple,
+    AggrType,
+    IBivariateData
 } from '../common/exchangeInterfaces';
 import {
     NUMERICS,
@@ -306,6 +308,71 @@ export class ProfileModel {
         }
 
         return { profile: resultData, shape, dfName, lastUpdatedTime: Date.now(), isPinned: false, warnings: [] };
+    }
+
+    public async getBivariateData(
+        dfName: string,
+        col1: IColTypeTuple,
+        col2: IColTypeTuple,
+        aggrType: AggrType = "mean",
+    ): Promise<IBivariateData> {
+        let aggrData: IBivariateData;
+
+        if (!_.isNil(col1) && !_.isNil(col2)) {
+            if (CATEGORICALS.has(col1.colType) && NUMERICS.has(col2.colType)) {
+                aggrData = {
+                    chartType: 'histogram',
+                    aggrType: aggrType,
+                    xColumn: col1,
+                    yColumn: col2,
+                    data: await this.executor.getAggrData(dfName, col1.colName, col2.colName, aggrType),
+                    filledOut: true
+                };
+            }
+            else if (CATEGORICALS.has(col2.colType) && NUMERICS.has(col1.colType)) {
+                aggrData = {
+                    chartType: 'histogram',
+                    aggrType: aggrType,
+                    xColumn: col2,
+                    yColumn: col1,
+                    data: await this.executor.getAggrData(dfName, col2.colName, col1.colName, aggrType),
+                    filledOut: true
+                };
+            }
+            else if (TIMESTAMPS.has(col1.colType) && NUMERICS.has(col2.colType)) {
+                let timestampData = await this.executor.getTempAggrData(dfName, col1.colName, col2.colName, aggrType);
+                aggrData = {
+                    chartType: 'linechart',
+                    aggrType: aggrType,
+                    xColumn: col1,
+                    yColumn: col2,
+                    data: timestampData.data,
+                    filledOut: true
+                };
+            }
+            else if (TIMESTAMPS.has(col2.colType) && NUMERICS.has(col1.colType)) {
+                let timestampData = await this.executor.getTempAggrData(dfName, col2.colType, col1.colName, aggrType);
+                aggrData = {
+                    chartType: 'linechart',
+                    aggrType: aggrType,
+                    xColumn: col2,
+                    yColumn: col1,
+                    data: timestampData.data,
+                    filledOut: true
+                };
+            }
+        } else {
+            aggrData = {
+                chartType: undefined,
+                aggrType: aggrType,
+                xColumn: col1,
+                yColumn: col2,
+                data: undefined,
+                filledOut: false
+            }
+        }
+
+        return aggrData;
     }
 
 }

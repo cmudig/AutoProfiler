@@ -1,15 +1,21 @@
 <script lang="ts">
-    import CollapsibleCard from './nav/CollapsibleCard.svelte';
     import { createEventDispatcher, getContext } from 'svelte';
+    import CollapsibleCard from './nav/CollapsibleCard.svelte';
     import ColumnProfile from './ColumnProfile.svelte';
     import ExpanderButton from './nav/ExpanderButton.svelte';
-    import type { IDFProfileWState } from '../common/exchangeInterfaces';
+    import type {
+        IDFProfileWState,
+        IBivariateData
+    } from '../common/exchangeInterfaces';
     import type { ProfileModel } from '../dataAPI/ProfileModel';
     import _ from 'lodash';
     import Pin from './icons/Pin.svelte';
     import Tooltip from './tooltip/Tooltip.svelte';
     import TooltipContent from './tooltip/TooltipContent.svelte';
     import { formatInteger } from './utils/formatters';
+
+    import AddChartButton from './create-chart/AddChartButton.svelte';
+    import BivariateWrapper from './create-chart/BivariateWrapper.svelte';
 
     export let dfName: string;
     export let dataframeProfile: IDFProfileWState;
@@ -28,6 +34,9 @@
     let expanded = false;
     let headerHover = false;
 
+    // Bivariate variables
+    let biDataStorage: IBivariateData[] = [];
+
     // dispatches
     const dispatch = createEventDispatcher();
 
@@ -41,7 +50,53 @@
         headerHover = event?.detail?.over;
     }
 
+    function handleDelete(i: number) {
+        biDataStorage.splice(i, 1);
+        biDataStorage = biDataStorage; // for reactivity
+    }
+
+    function updateSpecState(newSpec: IBivariateData, index: number) {
+        biDataStorage[index] = newSpec;
+        biDataStorage = biDataStorage; // for reactivity
+    }
+
     let baseClasses = 'grid place-items-center rounded hover:bg-gray-100 ';
+
+    // update bivariate chart whenever the associated data is updated
+    function updateBivariate() {
+        let biDataPromises = biDataStorage.map(d => {
+            return profileModel.getBivariateData(
+                dfName,
+                d.xColumn,
+                d.yColumn,
+                d.aggrType
+            );
+        });
+        Promise.all(biDataPromises).then(biDataArr => {
+            biDataStorage = biDataArr;
+        });
+    }
+
+    function addEmptyChart() {
+        // only add one empty chart at a time
+        if (_.isNil(biDataStorage.find(d => !d.filledOut))) {
+            let emptyChart: IBivariateData = {
+                xColumn: undefined,
+                yColumn: undefined,
+                aggrType: undefined,
+                data: undefined,
+                chartType: undefined,
+                filledOut: false
+            };
+
+            biDataStorage = [...biDataStorage, emptyChart];
+        }
+    }
+
+    $: {
+        dataframeProfile.profile;
+        updateBivariate();
+    }
 </script>
 
 <div>
@@ -103,7 +158,6 @@
                         {warningMessage}
                     </div>
                 {/if}
-
                 {#if dataframeProfile?.shape?.[1] > 0}
                     {#each dataframeProfile?.profile as column (column.colName)}
                         <ColumnProfile
@@ -120,6 +174,24 @@
                 {:else}
                     <p class="pl-8">No columns!</p>
                 {/if}
+
+                {#each biDataStorage as d, idx}
+                    <BivariateWrapper
+                        biData={d}
+                        columnOptions={dataframeProfile?.profile}
+                        {dfName}
+                        on:specChange={event => {
+                            updateSpecState(event.detail, idx);
+                        }}
+                        on:delete={() => {
+                            handleDelete(idx);
+                        }}
+                    />
+                {/each}
+
+                <div class="mt-1">
+                    <AddChartButton handleAddChart={addEmptyChart} />
+                </div>
             </div>
         </div>
     </CollapsibleCard>
@@ -144,5 +216,9 @@
         width: 10px;
         background-color: #1976d2;
         border-radius: 2px;
+    }
+
+    .bivariate-menu {
+        width: 50%;
     }
 </style>

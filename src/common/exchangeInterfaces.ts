@@ -148,3 +148,43 @@ export enum PreviewRollupInterval {
     month = '1 month',
     year = '1 year'
 }
+
+// ~~~ Bivariate chart types ~~~
+
+export type BivariateTimestampBin = {
+    'period': string;
+    'value': number;
+    'bucket': number;
+}
+
+export type BivariateTimestampInfo = {
+    data: BivariateTimestampBin[];
+    timestep: TimeOffset;
+}
+
+export type TimeOffset = "Y" | "M" | "W" | "D" | "H" | "T" | "S";
+export type AggrType = "count" | "mean" | "sum" | "min" | "max";
+
+type BivariateDataBase = {
+    aggrType: AggrType;
+    xColumn: IColTypeTuple;
+    yColumn: IColTypeTuple;
+    filledOut: boolean;
+}
+
+export type IBivariateHistogramData = BivariateDataBase & {
+    chartType: 'histogram';
+    data: ValueCount[];
+}
+
+export type IBivariateLinechartData = BivariateDataBase & {
+    chartType: 'linechart';
+    data: BivariateTimestampBin[];
+}
+
+export type IBivariateData = IBivariateHistogramData | IBivariateLinechartData;
+
+export type ChartSelection = {
+    x: ColumnProfileData;
+    y: ColumnProfileData;
+}
