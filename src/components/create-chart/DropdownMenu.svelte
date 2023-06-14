@@ -15,6 +15,9 @@
     export let clickable: boolean = true;
     export let title = 'Select a column';
 
+    let displayGroups: string[];
+    let selectedColumnName: string = undefined;
+
     function determineGroup(column: IColTypeTuple) {
         if (NUMERICS.has(column.colType)) {
             return 'Numeric';
@@ -29,7 +32,7 @@
 
     function filterByType(columnProfile: IColTypeTuple) {
         if (columnProfile != undefined) {
-            let columns;
+            let columns: IColTypeTuple[];
             if (NUMERICS.has(columnProfile.colType)) {
                 columns = columnOptions.filter(
                     column =>
@@ -51,12 +54,16 @@
                 determineGroup(column)
             );
             displayGroups = Object.keys(displayColumns);
+
+            // if column was already selected and no longer available then set undefined
+            if (
+                !_.isNil(selectedColumnName) &&
+                _.isNil(columns.find(c => c.colName === selectedColumnName))
+            ) {
+                selectedColumnName = undefined;
+            }
         }
     }
-
-    let displayGroups: string[];
-    let selectedColumn: IColTypeTuple;
-    let selectedColumnName: string;
 
     $: displayColumns = _.groupBy(columnOptions, column =>
         determineGroup(column)
@@ -66,10 +73,13 @@
     $: filterByType(filteringColumn);
 
     function handleSelectedColumn(colName: string) {
-        let column = columnOptions.filter(
+        let selectedColumn = columnOptions.filter(
             colData => colData.colName === colName
         )[0];
-        selectedColumn = column;
+        console.log(
+            'selected column in dropdownMenu component',
+            selectedColumn
+        );
         dispatch('select', selectedColumn);
     }
 
@@ -82,7 +92,7 @@
         bind:value={selectedColumnName}
         disabled={!clickable}
     >
-        <option value="none" disabled hidden>{title}</option>
+        <option value={undefined} disabled hidden>{title}</option>
         {#each displayGroups as group}
             <optgroup label={group}>
                 {#each displayColumns[group] as column}

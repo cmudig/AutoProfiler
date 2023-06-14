@@ -87,7 +87,9 @@
         profileModel
             .getBivariateData(dfName, col1, col2, undefined, 'mean')
             .then(d => {
-                biDataStorage = [...biDataStorage, d];
+                if (!_.isNil(d)) {
+                    biDataStorage = [...biDataStorage, d];
+                }
             });
 
         showAddChartButton = !showAddChartButton;

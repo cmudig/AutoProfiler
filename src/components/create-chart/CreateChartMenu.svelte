@@ -80,7 +80,7 @@
             title={'Second column'}
         />
         <button
-            class="flex rounded border border-6 enabled:bg-gray-100 hover:border-gray-300 disabled:opacity-70 pl-1 pr-1"
+            class="flex rounded border border-6 enabled:bg-gray-100 hover:border-gray-300 pl-1 pr-1 disabled:opacity-70 disabled:cursor-not-allowed "
             disabled={_.isNil(xVariable) || _.isNil(yVariable)}
             on:click={createChart}
         >
