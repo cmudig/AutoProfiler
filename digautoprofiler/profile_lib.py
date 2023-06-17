@@ -6,7 +6,6 @@ These are called from PythonExecutor.ts in the frontend
 import json
 import pandas as pd
 import math
-import numpy as np
 from .utils import convertDescribe, convertBinned, convertVC
 
 
@@ -254,16 +253,7 @@ def getTemporalMeta(colData: pd.Series):
         result = "descending"
     else:
         result = "noSort"
-    vc = colData.value_counts()
-    vc = vc.reset_index()
-    vc.columns = ['date', 'counts']
-    vc = vc.sort_values(by=['date'])
-    outlier = hampel(vc["counts"])
-    num_outliers = sum(outlier)
-    return {
-            "num_outliers": num_outliers,
-            "sortedness": result,
-        }
+    return {"sortedness": result}
 
 def getAggrData(dfName: pd.DataFrame, catColName: str, quantColName: str, aggrType: str="mean", n=10):
     """ 
@@ -306,19 +296,3 @@ def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, a
         tempAggrData = groups.max()
     print(json.dumps({"data":tempAggrData.to_dict(), "timestep":timestep}))
     
-
-
-def hampel(colData: pd.Series, k=7):
-    """
-    Calculate time series outliers with hampel method
-    See:
-    https://stackoverflow.com/questions/46819260/filtering-outliers-how-to-make-median-based-hampel-function-faster
-    https://blogs.sas.com/content/iml/2021/06/01/hampel-filter-robust-outliers.html
-    """
-    alpha = 1.4826 #for MAD to be a consistent estimator of SD, we use 1.4826 for guassian 
-    rolling_median = colData.rolling(window=k, center=True).median() #for each window calculate a mean
-    MAD = lambda x: np.median(np.abs(x - np.median(x))) #MAD is calculated by taking the median(|point - median(window)|)
-    rolling_MAD = colData.rolling(window=k, center=True).apply(MAD)
-    threshold = 3 * alpha * rolling_MAD #use 3 standard deviations
-    outlier = np.abs(colData - rolling_median) > threshold
-    return outlier
