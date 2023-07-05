@@ -282,7 +282,7 @@ def getTempAggrData(dfName: pd.DataFrame, tempColName: str, quantColName: str, a
     offsetAliases = ['Y','M','W','D','H','T','S']
     i = 0
     previousLen = -float("inf")
-    currentLen = 0
+    currentLen = len(dfName[tempColName].dt.to_period(offsetAliases[i]).unique())
     while i < len(offsetAliases) and currentLen < binNum and currentLen > previousLen:
         previousLen = currentLen
         currentLen = len(dfName[tempColName].dt.to_period(offsetAliases[i]).unique())
