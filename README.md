@@ -20,18 +20,18 @@ Autoprofiler allows you to spend less time specifying charts and more time inter
 -   Sample values
 -   Summary statistics
 
-
 ## Updates profiles as your data updates
+
 ![screenshot of Autoprofiler](https://raw.githubusercontent.com/cmudig/AutoProfiler/main/.github/screenshots/profiler_sc.png)
 
 Autoprofiler reads your current Jupyter notebook and produces profiles for the Pandas Dataframes in your memory as they change.
 
 https://user-images.githubusercontent.com/13400543/199877605-ba50f9c8-87e5-46c9-8207-1c6496bb3b18.mov
 
-
 ## Install
 
 To instally locally use pip and then open jupyter lab and the extension will be running.
+
 ```bash
 pip install -U digautoprofiler
 ```
@@ -42,13 +42,11 @@ Please note, AutoProfiler only works in [JupyterLab](https://jupyter.org/install
 
 To try out Autoprofiler in a hosted notebook, use one of the options below
 
-|Jupyter Lite|Binder|
-|:---:|:---:|
-|[![Lite](https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg)](http://dig.cmu.edu/AutoProfiler) | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfiler/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb) |
+|                                                                                           Jupyter Lite                                                                                            |                                                                       Binder                                                                       |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------: |
+| [![Lite](https://gist.githubusercontent.com/willeppy/35cdc20a3fc26e393ce76f1df35bcdfc/raw/a7fca1d0a2d62c2b49f60c0217dffbd0fe404471/lite-badge-launch-small.svg)](http://dig.cmu.edu/AutoProfiler) | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cmudig/AutoProfiler/HEAD?labpath=examples%2FSF%20Housing%20Demo.ipynb) |
 
-## Browser support
-
-AutoProfiler has been developed and tested with Chrome.
+**Browser support:** AutoProfiler has been developed and tested with Chrome.
 
 ## Development Install
 
@@ -59,6 +57,20 @@ If you're having install issues, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 ## Acknowledgements
 
 Big thanks to the Rill Data team! Much of our profiler UI code is adapted from [Rill Developer](https://github.com/rilldata/rill-developer).
+
+## Citation
+
+Please reference our [VIS'23 paper](https://arxiv.org/abs/2308.03964):
+
+```bibtex
+@article{epperson23autoprofiler,
+  title={Dead or Alive: Continuous Data Profiling for Interactive Data Science},
+  author={Will Epperson and Vaishnavi Goranla and Dominik Moritz and Adam Perer},
+  journal={IEEE Transactions on Visualization and Computer Graphics},
+  year={2023},
+  url={https://arxiv.org/abs/2308.03964}
+}
+```
 
 ## Let us know what you think! 📢
 
