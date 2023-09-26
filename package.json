@@ -1,6 +1,6 @@
 {
     "name": "digautoprofiler",
-    "version": "3.0.1",
+    "version": "4.0.1",
     "description": "Automatically profile your pandas dataframes in jupyter lab.",
     "keywords": [
         "jupyter",
