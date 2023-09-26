@@ -9,60 +9,80 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Base Setup
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
     - name: Install dependencies
-      run: python -m pip install -U jupyterlab~=3.1 check-manifest
+      run: python -m pip install -U "jupyterlab>=4.0.0,<5"
+
+    - name: Lint the extension
+      run: |
+        set -eux
+        jlpm
+        jlpm run lint:check
 
     - name: Build the extension
       run: |
         set -eux
-        jlpm
-        python -m pip install .
+        python -m pip install .[test]
 
-        jupyter labextension list 2>&1 | grep -ie "AutoProfiler.*OK"
+        jupyter labextension list
+        jupyter labextension list 2>&1 | grep -ie "digautoprofiler.*OK"
         python -m jupyterlab.browser_check
 
-        check-manifest -v
+    - name: Package the extension
+      run: |
+        set -eux
 
         pip install build
-        python -m build --sdist
-        cp dist/*.tar.gz myextension.tar.gz
+        python -m build
         pip uninstall -y "digautoprofiler" jupyterlab
-        rm -rf myextension
 
-    - uses: actions/upload-artifact@v2
+    - name: Upload extension packages
+      uses: actions/upload-artifact@v3
       with:
-        name: myextension-sdist
-        path: myextension.tar.gz
+        name: extension-artifacts
+        path: dist/digautoprofiler*
+        if-no-files-found: error
 
   test_isolated:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
     - name: Install Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.8'
+        python-version: '3.9'
         architecture: 'x64'
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v3
       with:
-        name: myextension-sdist
+        name: extension-artifacts
     - name: Install and Test
       run: |
         set -eux
         # Remove NodeJS, twice to take care of system and locally installed node versions.
         sudo rm -rf $(which node)
         sudo rm -rf $(which node)
-        pip install myextension.tar.gz
-        pip install jupyterlab
-        jupyter labextension list 2>&1 | grep -ie "AutoProfiler.*OK"
-        python -m jupyterlab.browser_check --no-chrome-test
+
+        pip install "jupyterlab>=4.0.0,<5" digautoprofiler*.whl
+
+
+        jupyter labextension list
+        jupyter labextension list 2>&1 | grep -ie "digautoprofiler.*OK"
+        python -m jupyterlab.browser_check --no-browser-test
+
+
+  check_links:
+    name: Check Links
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - uses: jupyterlab/maintainer-tools/.github/actions/check-links@v1

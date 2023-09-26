@@ -1,17 +1,16 @@
-import json
-from pathlib import Path
-
-from ._version import __version__
-from .profile_lib import *
-
-HERE = Path(__file__).parent.resolve()
-
-with (HERE / "labextension" / "package.json").open() as fid:
-    data = json.load(fid)
+try:
+    from ._version import __version__
+except ImportError:
+    # Fallback when using the package in dev mode without installing
+    # in editable mode with pip. It is highly recommended to install
+    # the package from a stable release or in editable mode: https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs
+    import warnings
+    warnings.warn("Importing 'digautoprofiler' outside a proper installation.")
+    __version__ = "dev"
 
 
 def _jupyter_labextension_paths():
     return [{
         "src": "labextension",
-        "dest": data["name"]
+        "dest": "digautoprofiler"
     }]

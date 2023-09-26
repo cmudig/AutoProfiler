@@ -1,5 +1,5 @@
 {
-    "packageManager": "python",
-    "packageName": "digautoprofiler",
-    "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package digautoprofiler"
+  "packageManager": "python",
+  "packageName": "digautoprofiler",
+  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package digautoprofiler"
 }

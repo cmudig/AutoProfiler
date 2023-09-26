@@ -86,6 +86,7 @@ export class ProfileModel {
      * @param widgetIsVisible function that says if AP is visible to user
      */
     public async connectNotebook(notebook: NotebookAPI, widgetIsVisible: () => boolean) {
+        console.log("connecting to notebook in ProfileModel")
         this._notebook = notebook;
         this._widgetIsVisible = widgetIsVisible
         this.resetData();
@@ -97,10 +98,12 @@ export class ProfileModel {
 
             this._name.set(this.executor.session.name)
             this._language.set(this.notebook.language)
+            console.log("setting language to...", this.notebook.language)
             // have to do this as arrow function or else this doesnt work
             this._notebook.changed.connect((sender, value) => {
                 // when cell is run, update data
                 if (value === 'cell run') {
+                    console.log("cell run")
                     if (this._widgetIsVisible()) {
                         this.updateRootData();
                     }
@@ -163,6 +166,8 @@ export class ProfileModel {
      * Fetch all data for UI, requires notebook to be python
     **/
     public async updateRootData() {
+        console.log("updating root data")
+
         if (this.notebook && this.notebookIsPython()) {
             this._loadingNewData.set(true)
             let alldf = await this.executor.getAllDataFrames(this.currentOutputName);

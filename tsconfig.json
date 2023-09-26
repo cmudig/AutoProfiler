@@ -1,33 +1,30 @@
 {
-    "extends": "@tsconfig/svelte/tsconfig.json",
-    "compilerOptions": {
-        "allowSyntheticDefaultImports": true,
-        "composite": true,
-        "declaration": true,
-        "esModuleInterop": true,
-        "incremental": true,
-        "jsx": "react",
-        "module": "esnext",
-        "moduleResolution": "node",
-        "noEmitOnError": true,
-        "noImplicitAny": false,
-        "noUnusedLocals": true,
-        "preserveWatchOutput": true,
-        "resolveJsonModule": true,
-        "outDir": "lib",
-        "rootDir": "src",
-        "strict": false,
-        "strictNullChecks": false,
-        "target": "es2017",
-        "types": [
-            "svelte",
-            "node"
-        ],
-        "isolatedModules": true,
-        "forceConsistentCasingInFileNames": true
-    },
-    "include": [
-        "src/**/*",
-        "style"
-    ]
+  "extends": "@tsconfig/svelte/tsconfig.json", 
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "incremental": true,
+    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "preserveWatchOutput": true,
+    "resolveJsonModule": true,
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": false,
+    "strictNullChecks": false,
+    "target": "ES2018",
+    "types": [
+      "svelte",
+      "node"
+  ],
+  "isolatedModules": true,
+  "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*", "style"] 
 }

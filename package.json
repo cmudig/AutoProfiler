@@ -1,144 +1,239 @@
 {
-  "name": "digautoprofiler",
-  "version": "3.0.1",
-  "description": "Automatically profile your pandas dataframes in jupyter lab.",
-  "keywords": [
-    "jupyter",
-    "jupyterlab",
-    "jupyterlab-extension"
-  ],
-  "homepage": "https://github.com/cmudig/AutoProfiler",
-  "bugs": {
-    "url": "https://github.com/cmudig/AutoProfiler/issues"
-  },
-  "license": "BSD-3-Clause",
-  "author": {
-    "name": "Will Epperson",
-    "email": "willepp@live.com"
-  },
-  "files": [
-    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
-    "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
-  ],
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "style": "style/index.css",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cmudig/AutoProfiler.git"
-  },
-  "scripts": {
-    "build": "jlpm build:lib && jlpm build:labextension:dev",
-    "build:prod": "jlpm clean && npm ci && tsc && webpack --mode=production && jlpm build:labextension",
-    "build:labextension": "jupyter labextension build .",
-    "build:labextension:dev": "jupyter labextension build --development True .",
-    "build:lib": "tsc && webpack --mode=development",
-    "clean": "jlpm clean:lib clean:labextension",
-    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
-    "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-    "clean:labextension": "rimraf digautoprofiler/labextension",
-    "clean:rest": "rimraf digautoprofiler.egg-info node_modules dist",
-    "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache && jlpm clean:rest",
-    "eslint": "jlpm eslint:check --fix",
-    "eslint:check": "eslint . --cache --ext .ts,.tsx",
-    "install:extension": "npm ci && jlpm build",
-    "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
-    "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
-    "prettier": "jlpm prettier:base --write --list-different",
-    "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md,.svelte}\"",
-    "prettier:check": "jlpm prettier:base --check",
-    "stylelint": "jlpm stylelint:check --fix",
-    "stylelint:check": "stylelint --cache \"style/**/*.css\"",
-    "watch": "run-p watch:src watch:labextension",
-    "watch:src": "webpack --watch --mode=development",
-    "watch:labextension": "jupyter labextension watch ."
-  },
-  "dependencies": {
-    "@jupyterlab/application": "^3.4.8",
-    "@jupyterlab/notebook": "^3.4.8",
-    "d3-format": "^3.1.0",
-    "d3-scale": "^4.0.2",
-    "d3-shape": "^3.1.0",
-    "d3-time": "^3.0.0",
-    "d3-time-format": "^4.1.0",
-    "layercake": "^7.2.2",
-    "lodash": "^4.17.21"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.19.3",
-    "@babel/preset-env": "^7.19.3",
-    "@jupyterlab/builder": "^3.4.8",
-    "@tsconfig/svelte": "^3.0.0",
-    "@types/lodash": "^4.14.186",
-    "@types/webpack-env": "^1.18.0",
-    "@typescript-eslint/eslint-plugin": "^5.39.0",
-    "@typescript-eslint/parser": "^5.39.0",
-    "arquero": "^4.8.8",
-    "autoprefixer": "^10.4.14",
-    "css-loader": "^6.7.1",
-    "eslint": "^8.24.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-svelte3": "^4.0.0",
-    "npm-run-all": "^4.1.5",
-    "postcss": "^8.4.24",
-    "prettier": "^2.7.1",
-    "prettier-plugin-svelte": "^2.7.1",
-    "rimraf": "^3.0.2",
-    "source-map-loader": "^4.0.0",
-    "style-loader": "^3.3.1",
-    "stylelint": "^14.13.0",
-    "stylelint-config-prettier": "^9.0.3",
-    "stylelint-config-recommended": "^7.0.0",
-    "stylelint-config-standard": "~25.0.0",
-    "stylelint-prettier": "^2.0.0",
-    "svelte": "^3.50.1",
-    "svelte-collapse": "^0.1.1",
-    "svelte-loader": "^3.1.3",
-    "svelte-loading-spinners": "^0.1.7",
-    "svelte-preprocess": "^4.10.7",
-    "svg-url-loader": "^8.0.0",
-    "tailwindcss": "^3.3.2",
-    "ts-loader": "^9.4.1",
-    "typescript": "^4.8.4",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
-  },
-  "sideEffects": [
-    "style/*.css",
-    "style/index.js"
-  ],
-  "styleModule": "style/index.js",
-  "publishConfig": {
-    "access": "public"
-  },
-  "jupyterlab": {
-    "extension": true,
-    "outputDir": "digautoprofiler/labextension",
-    "sharedPackages": {
-      "@jupyter-widgets/base": {
-        "bundled": false,
-        "singleton": true
-      },
-      "@jupyterlab/notebook": {
-        "bundled": false,
-        "singleton": true
-      },
-      "@lumino/widgets": {
-        "bundled": false,
-        "singleton": true
-      }
+    "name": "digautoprofiler",
+    "version": "3.0.1",
+    "description": "Automatically profile your pandas dataframes in jupyter lab.",
+    "keywords": [
+        "jupyter",
+        "jupyterlab",
+        "jupyterlab-extension"
+    ],
+    "homepage": "https://github.com/cmudig/AutoProfiler",
+    "bugs": {
+        "url": "https://github.com/cmudig/AutoProfiler/issues"
+    },
+    "license": "BSD-3-Clause",
+    "author": {
+        "name": "Will Epperson",
+        "email": "willepp@live.com"
+    },
+    "files": [
+        "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+        "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
+        "style/index.js"
+    ],
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
+    "style": "style/index.css",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cmudig/AutoProfiler.git"
+    },
+    "scripts": {
+        "build": "jlpm build:lib && jlpm build:labextension:dev",
+        "build:prod": "jlpm clean && npm ci && jlpm build:lib:prod && jlpm build:labextension",
+        "build:labextension": "jupyter labextension build .",
+        "build:labextension:dev": "jupyter labextension build --development True .",
+        "build:lib": "tsc --sourceMap && webpack --mode=development",
+        "build:lib:prod": "tsc && webpack --mode=production",
+        "clean": "jlpm clean:lib clean:labextension",
+        "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache && jlpm clean:rest",
+        "clean:labextension": "rimraf digautoprofiler/labextension digautoprofiler/_version.py",
+        "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+        "clean:lintcache": "rimraf .eslintcache .stylelintcache",
+        "clean:rest": "rimraf digautoprofiler.egg-info node_modules dist",
+        "eslint": "jlpm eslint:check --fix",
+        "eslint:check": "eslint . --cache --ext .ts,.tsx",
+        "install:extension": "jlpm build",
+        "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
+        "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
+        "prettier": "jlpm prettier:base --write --list-different",
+        "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md,.svelte}\"",
+        "prettier:check": "jlpm prettier:base --check",
+        "stylelint": "jlpm stylelint:check --fix",
+        "stylelint:check": "stylelint --cache \"style/**/*.css\"",
+        "watch": "run-p watch:src watch:labextension",
+        "watch:src": "webpack --watch --mode=development",
+        "watch:labextension": "jupyter labextension watch ."
+    },
+    "dependencies": {
+        "@jupyterlab/application": "^4.0.6",
+        "@jupyterlab/notebook": "^4.0.6",
+        "d3-format": "^3.1.0",
+        "d3-scale": "^4.0.2",
+        "d3-shape": "^3.2.0",
+        "d3-time": "^3.1.0",
+        "d3-time-format": "^4.1.0",
+        "layercake": "^8.0.0",
+        "lodash": "^4.17.21"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.23.0",
+        "@babel/preset-env": "^7.22.20",
+        "@jupyterlab/builder": "^4.0.6",
+        "@tsconfig/svelte": "^5.0.2",
+        "@types/json-schema": "^7.0.13",
+        "@types/lodash": "^4.14.199",
+        "@types/react": "^18.2.23",
+        "@types/react-addons-linked-state-mixin": "^0.14.22",
+        "@types/webpack-env": "^1.18.2",
+        "@typescript-eslint/eslint-plugin": "^6.7.3",
+        "@typescript-eslint/parser": "^6.7.3",
+        "autoprefixer": "^10.4.16",
+        "css-loader": "^6.8.1",
+        "eslint": "^8.50.0",
+        "eslint-config-prettier": "^9.0.0",
+        "eslint-plugin-prettier": "^5.0.0",
+        "eslint-plugin-svelte": "^2.33.2",
+        "npm-run-all": "^4.1.5",
+        "postcss": "^8.4.30",
+        "prettier": "^3.0.3",
+        "prettier-plugin-svelte": "^3.0.3",
+        "rimraf": "^5.0.4",
+        "source-map-loader": "^4.0.1",
+        "style-loader": "^3.3.3",
+        "stylelint": "^15.10.3",
+        "stylelint-config-recommended": "^13.0.0",
+        "stylelint-config-standard": "^34.0.0",
+        "stylelint-csstree-validator": "^3.0.0",
+        "stylelint-prettier": "^4.0.2",
+        "svelte": "^4.2.1",
+        "svelte-collapse": "^0.1.2",
+        "svelte-loader": "^3.1.9",
+        "svelte-loading-spinners": "^0.3.4",
+        "svelte-preprocess": "^5.0.4",
+        "svg-url-loader": "^8.0.0",
+        "tailwindcss": "^3.3.3",
+        "ts-loader": "^9.4.4",
+        "typescript": "~5.0.2",
+        "webpack": "^5.88.2",
+        "webpack-cli": "^4.10.0",
+        "yjs": "^13.6.8"
+    },
+    "sideEffects": [
+        "style/*.css",
+        "style/index.js"
+    ],
+    "styleModule": "style/index.js",
+    "publishConfig": {
+        "access": "public"
+    },
+    "jupyterlab": {
+        "extension": true,
+        "outputDir": "digautoprofiler/labextension",
+        "sharedPackages": {
+            "@jupyter-widgets/base": {
+                "bundled": false,
+                "singleton": true
+            },
+            "@jupyterlab/notebook": {
+                "bundled": false,
+                "singleton": true
+            },
+            "@lumino/widgets": {
+                "bundled": false,
+                "singleton": true
+            }
+        }
+    },
+    "jupyter-releaser": {
+        "hooks": {
+            "before-build-npm": [
+                "python -m pip install jupyterlab~=3.1",
+                "jlpm"
+            ],
+            "before-build-python": [
+                "jlpm clean:all"
+            ]
+        }
+    },
+    "eslintConfig": {
+        "extends": [
+            "eslint:recommended",
+            "plugin:@typescript-eslint/eslint-recommended",
+            "plugin:@typescript-eslint/recommended",
+            "plugin:prettier/recommended"
+        ],
+        "parser": "@typescript-eslint/parser",
+        "parserOptions": {
+            "project": "tsconfig.json",
+            "sourceType": "module"
+        },
+        "plugins": [
+            "@typescript-eslint"
+        ],
+        "rules": {
+            "@typescript-eslint/naming-convention": [
+                "error",
+                {
+                    "selector": "interface",
+                    "format": [
+                        "PascalCase"
+                    ],
+                    "custom": {
+                        "regex": "^I[A-Z]",
+                        "match": true
+                    }
+                }
+            ],
+            "@typescript-eslint/no-unused-vars": [
+                "warn",
+                {
+                    "args": "none"
+                }
+            ],
+            "@typescript-eslint/no-explicit-any": "off",
+            "@typescript-eslint/no-namespace": "off",
+            "@typescript-eslint/no-use-before-define": "off",
+            "@typescript-eslint/quotes": [
+                "error",
+                "single",
+                {
+                    "avoidEscape": true,
+                    "allowTemplateLiterals": false
+                }
+            ],
+            "curly": [
+                "error",
+                "all"
+            ],
+            "eqeqeq": "error",
+            "prefer-arrow-callback": "error"
+        }
+    },
+    "eslintIgnore": [
+        "node_modules",
+        "dist",
+        "coverage",
+        "**/*.d.ts"
+    ],
+    "prettier": {
+        "singleQuote": true,
+        "trailingComma": "none",
+        "arrowParens": "avoid",
+        "endOfLine": "auto",
+        "overrides": [
+            {
+                "files": "package.json",
+                "options": {
+                    "tabWidth": 4
+                }
+            }
+        ]
+    },
+    "stylelint": {
+        "extends": [
+            "stylelint-config-recommended",
+            "stylelint-config-standard",
+            "stylelint-prettier/recommended"
+        ],
+        "plugins": [
+            "stylelint-csstree-validator"
+        ],
+        "rules": {
+            "csstree/validator": true,
+            "property-no-vendor-prefix": null,
+            "selector-no-vendor-prefix": null,
+            "value-no-vendor-prefix": null
+        }
     }
-  },
-  "jupyter-releaser": {
-    "hooks": {
-      "before-build-npm": [
-        "python -m pip install jupyterlab~=3.1",
-        "jlpm"
-      ],
-      "before-build-python": [
-        "jlpm clean:all"
-      ]
-    }
-  }
 }
