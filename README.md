@@ -36,7 +36,7 @@ To instally locally use pip and then open jupyter lab and the extension will be 
 pip install -U digautoprofiler
 ```
 
-Please note, AutoProfiler only works in [JupyterLab](https://jupyter.org/install) with version > 3.
+Please note, AutoProfiler only works in [JupyterLab](https://jupyter.org/install) with version >=3.x, < 4.0.0.
 
 ## Try it out
 
