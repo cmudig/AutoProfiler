@@ -12,7 +12,7 @@ pip install digautoprofiler
 
 ### Why isn't anything showing up?
 
-After pip installing, if you're not seeing AutoProfiler in the left side bar then the extension was not installed properly. Jupyter reads extensions from a directory wherever it is installed.
+After pip installing, if you're not seeing AutoProfiler in the side bar then the extension was not installed properly. Jupyter reads extensions from a directory wherever it is installed.
 
 Check 1: Run the command below in your terminal.
 
