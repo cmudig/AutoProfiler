@@ -135,6 +135,7 @@
                 </div>
 
                 <div>
+                    <p class="italic">Number of dataframes profiled: {colProfileArr.length}</p>
                     {#each sortedArr as profile (profile.dfName)}
                         <div animate:flip={{ duration: 300 }}>
                             <DFProfile
