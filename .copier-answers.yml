@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.2.1
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: willepp@live.com
+author_name: Will Epperson
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: digautoprofiler
+project_short_description: Automatically profile your pandas dataframes in jupyter
+    lab.
+python_name: digautoprofiler
+repository: https://github.com/cmudig/AutoProfiler.git
+test: false
+

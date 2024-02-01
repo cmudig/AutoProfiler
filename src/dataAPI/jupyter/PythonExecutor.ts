@@ -302,6 +302,7 @@ export class PythonPandasExecutor {
         try {
             const res = await this.executePythonAP(code);
             const content = res['content']; // might be null
+            console.log("Getting columns, the response is: ", content)
             const json_res = JSON.parse(content?.join(""));
             const columnsWithTypes: IColTypeTuple[] = []
 

@@ -1,5 +1,4 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json", 
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "composite": true,
@@ -10,21 +9,15 @@
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noUnusedLocals": true,
     "preserveWatchOutput": true,
     "resolveJsonModule": true,
     "outDir": "lib",
     "rootDir": "src",
-    "strict": false,
-    "strictNullChecks": false,
-    "target": "ES2018",
-    "types": [
-      "svelte",
-      "node"
-  ],
-  "isolatedModules": true,
-  "forceConsistentCasingInFileNames": true
+    "strict": true,
+    "strictNullChecks": true,
+    "target": "ES2018"
   },
-  "include": ["src/**/*", "style"] 
+  "include": ["src/*"]
 }

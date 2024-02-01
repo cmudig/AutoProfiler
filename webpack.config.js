@@ -32,6 +32,7 @@ const rules = [
 const externals = [
     '@jupyter-widgets/base',
     '@jupyterlab/notebook',
+    '@jupyterlab/ui-components',
     '@lumino/widgets'
 ];
 
@@ -44,6 +45,9 @@ const resolve = {
         '.svelte',
         '.css',
         '.svg'
+    ],
+    conditionNames: [
+        'svelte'
     ],
     mainFields: ['svelte', 'browser', 'module', 'main']
 };
